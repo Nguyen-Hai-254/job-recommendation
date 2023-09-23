@@ -38,7 +38,8 @@ export default class UserController {
             }
 
             const userData = await UserServices.handleLogin(req.body.email, req.body.password);
-
+            res.cookie("jwt", userData.data?.access_token, { httpOnly: true })
+            
             return res.status(userData.status).json({
                 status: userData.status,
                 message: userData.message,

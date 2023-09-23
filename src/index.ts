@@ -1,6 +1,6 @@
 import express from "express"
 import bodyParser from "body-parser"
-// const cookieParser = require("cookie-parser");
+import cookieParser from "cookie-parser"
 import cors from "cors";
 import { connectDB } from "./config/connectDB"
 const routes = require('./routes/web')
@@ -12,9 +12,10 @@ let app = express();
 app.use(cors({ credentials: true, origin: true }));
 
 
-// app.use(cookieParser());
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
 
 connectDB;
 app.use('/', routes)

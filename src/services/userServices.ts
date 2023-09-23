@@ -1,5 +1,8 @@
+require('dotenv').config()
 import { myDataSource } from "../config/connectDB"
 import { User } from "../entity/Users"
+import { createToken } from "../utils/JWTAction"
+import bcrypt from "bcrypt"
 
 const userRepository = myDataSource.getRepository(User);
 
@@ -24,9 +27,12 @@ export default class UserServices {
             })
         }
 
+        const salt = await bcrypt.genSalt(10);
+        const hashPassWord = await bcrypt.hash(password, salt);
+
         const createUser = await userRepository.create({
             email: email,
-            password: password
+            password: hashPassWord
         })
         const userData = await userRepository.save(createUser)
 
@@ -53,7 +59,9 @@ export default class UserServices {
             })
         }
 
-        if (password !== findUser.password) {
+        const checkUserPassword = await bcrypt.compare(password, findUser.password);
+
+        if (!checkUserPassword) {
             return ({
                 message: 'Wrong password!',
                 status: 200,
@@ -61,10 +69,22 @@ export default class UserServices {
             })
         }
 
+        let payload = {
+            userId: findUser.userId,
+            email: findUser.email,
+            expireIn: process.env.JWT_EXPIRE_IN
+        }
+        let token = createToken(payload)
+
         return ({
             message: 'Login successful!',
             status: 200,
-            data: findUser
+            data: {
+                access_token: token,
+                userId: findUser.userId,
+                email: findUser.email
+            }
+
         })
     }
 }
