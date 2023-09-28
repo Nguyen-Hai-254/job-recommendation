@@ -12,14 +12,3 @@ export const createToken = (payload) => {
 
     return token
 }
-
-export const verifyToken = (token) => {
-    let key = process.env.JWT_SECRET;
-    try {
-        let decoded = jwt.verify(token, key);
-        return decoded
-    } catch (err) {
-        console.log(err);
-        return null;
-    }
-}

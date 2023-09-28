@@ -1,16 +1,31 @@
 require('dotenv').config()
 import { myDataSource } from "../config/connectDB"
-import { User } from "../entity/Users"
+import { Employee } from "../entity/Employee"
+import { Employer } from "../entity/Employer"
+import { User, sex } from "../entity/Users"
 import { createToken } from "../utils/JWTAction"
 import bcrypt from "bcrypt"
 
 const userRepository = myDataSource.getRepository(User);
+const employerRepository = myDataSource.getRepository(Employer);
+const employeeRepository = myDataSource.getRepository(Employee);
 
 export default class UserServices {
-    static handleRegister = async (email, password, confirmPassword) => {
-        const checkEmail = await userRepository.findOne({ where: { email: email } })
+    static handleRegister = async (email, password, confirmPassword, role) => {
+        const checkEmail = await userRepository.findOne({
+            where: { email: email },
+            relations: ['employer']
+        })
 
         if (checkEmail) {
+            if (checkEmail.employer?.userId) {
+                return ({
+                    message: 'This email is registered as an employer',
+                    status: 200,
+                    data: null
+                })
+            }
+
             return ({
                 message: 'Email already exists!',
                 status: 200,
@@ -21,7 +36,6 @@ export default class UserServices {
         if (password != confirmPassword) {
             return ({
                 message: 'Password does not match confirm password',
-                // error: null,
                 status: 200,
                 data: null
             })
@@ -32,15 +46,34 @@ export default class UserServices {
 
         const createUser = await userRepository.create({
             email: email,
-            password: hashPassWord
+            password: hashPassWord,
+            role: role
         })
         const userData = await userRepository.save(createUser)
 
+        if (role === 'employer' || role === 'EMPLOYER' || role === 'Employer') {
+            const createEmployer = await employerRepository.create({
+                userId: userData.userId
+            });
+            await employerRepository.save(createEmployer);
+        }
+        else if (role === 'admin') {
+
+        }
+        else {
+            const createEmployee = await employeeRepository.create({
+                userId: userData.userId
+            });
+            await employeeRepository.save(createEmployee);
+        }
+
         return ({
             message: 'Create user successful!',
-            // error: null,
             status: 200,
-            data: userData
+            // data: {
+            //     email: userData.email,
+            //     role: userData.role
+            // }
         })
     }
 
@@ -81,10 +114,48 @@ export default class UserServices {
             status: 200,
             data: {
                 access_token: token,
-                userId: findUser.userId,
-                email: findUser.email
+                userData: {
+                    userId: findUser.userId,
+                    email: findUser.email,
+                    role: findUser.role
+                }
             }
+        })
+    }
 
+    static handleEditProfile = async (user, body) => {
+        let employer = await userRepository.findOne({
+            where: { userId: user.userId }
+        })
+
+        if (!employer) {
+            return ({
+                message: `This account isn't registered`,
+                status: 200,
+                data: null
+            })
+        }
+
+        employer.name = body.name;
+        if (body.sex == 1) {
+            employer.sex = sex.Male
+        }
+        else if (body.sex == 2) {
+            employer.sex = sex.Female
+        }
+        else {
+            employer.sex = sex.Other
+        }
+
+        await userRepository.save(employer);
+
+        return ({
+            message: 'Update your profile successful!',
+            status: 200,
+            data: {
+                name: employer.name,
+                sex: employer.sex
+            }
         })
     }
 }
