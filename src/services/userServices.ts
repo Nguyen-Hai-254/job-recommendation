@@ -123,6 +123,30 @@ export default class UserServices {
         })
     }
 
+    static handleGetProfile = async (user) => {
+        const getUserProfile = await userRepository.findOne({
+            where: { userId: user.userId }
+        })
+
+        if (!getUserProfile) {
+            return ({
+                message: `This account isn't registered`,
+                status: 200,
+                data: null
+            })
+        }
+
+        return ({
+            message: 'OK!',
+            status: 200,
+            data: {
+                email: getUserProfile.email,
+                name: getUserProfile.name,
+                sex: getUserProfile.sex
+            }
+        })
+    }
+
     static handleEditProfile = async (user, body) => {
         let employer = await userRepository.findOne({
             where: { userId: user.userId }

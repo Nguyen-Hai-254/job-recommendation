@@ -73,6 +73,23 @@ export default class UserController {
         }
     }
 
+    static getProfile = async (req, res) => {
+        try {
+            const getUser = await UserServices.handleGetProfile(req.user);
+            return res.status(200).json({
+                message: getUser.message,
+                status: 200,
+                date: getUser.data ? getUser.data : []
+            });
+        } catch (e) {
+            return res.status(500).json({
+                message: e.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
     static editProfile = async (req, res) => {
         try {
             const editUser = await UserServices.handleEditProfile(req.user, req.body)
