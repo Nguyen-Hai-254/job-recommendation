@@ -1,5 +1,6 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, BeforeUpdate, InsertEvent } from "typeorm"
 import { Employer } from "./Employer"
+import { Employee } from "./Employee"
 
 export enum userRole {
     Employee = 'EMPLOYEE',
@@ -8,9 +9,9 @@ export enum userRole {
 }
 
 export enum sex {
-    Male = 'MALE',
-    Female = 'FEMALE',
-    Other = 'OTHER'
+    Male = 'Male',
+    Female = 'Female',
+    Other = 'Other'
 }
 @Entity()
 export class User extends BaseEntity {
@@ -25,8 +26,17 @@ export class User extends BaseEntity {
     @Column()
     password: string
 
-    @Column()
+    @Column({nullable: true})
     name: string
+
+    @Column({ type: 'date', nullable: true })
+    dob: Date
+
+    @Column({nullable: true})
+    address: string
+
+    @Column({nullable: true})
+    phone: string
 
     @Column({
         type: 'enum',
@@ -45,4 +55,8 @@ export class User extends BaseEntity {
     @OneToOne(() => Employer,
         (employer) => employer.user)
     employer: Employer
+
+    @OneToOne(() => Employee,
+        (employee) => employee.user)
+    employee: Employee
 }

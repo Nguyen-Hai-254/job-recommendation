@@ -1,10 +1,11 @@
 require('dotenv').config()
 import { myDataSource } from "../config/connectDB"
-import { Employee } from "../entity/Employee"
+import { Employee, degree } from "../entity/Employee"
 import { Employer } from "../entity/Employer"
 import { User, sex } from "../entity/Users"
 import { createToken } from "../utils/JWTAction"
 import bcrypt from "bcrypt"
+import moment from "moment"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -125,7 +126,8 @@ export default class UserServices {
 
     static handleGetProfile = async (user) => {
         const getUserProfile = await userRepository.findOne({
-            where: { userId: user.userId }
+            where: { userId: user.userId },
+            relations: ['employee']
         })
 
         if (!getUserProfile) {
@@ -142,17 +144,23 @@ export default class UserServices {
             data: {
                 email: getUserProfile.email,
                 name: getUserProfile.name,
-                sex: getUserProfile.sex
+                dob: moment(getUserProfile.dob).format("DD-MM-YYYY"),
+                address: getUserProfile.address,
+                phone: getUserProfile.phone,
+                sex: getUserProfile.sex,
+                isMarried: getUserProfile.employee?.isMarried ? getUserProfile.employee.isMarried : null,
+                degree: getUserProfile.employee?.degree ? getUserProfile.employee.degree : null,
             }
         })
     }
 
     static handleEditProfile = async (user, body) => {
-        let employer = await userRepository.findOne({
-            where: { userId: user.userId }
+        let findUser = await userRepository.findOne({
+            where: { userId: user.userId },
+            relations: ['employee']
         })
 
-        if (!employer) {
+        if (!findUser) {
             return ({
                 message: `This account isn't registered`,
                 status: 200,
@@ -160,25 +168,61 @@ export default class UserServices {
             })
         }
 
-        employer.name = body.name;
+        findUser.name = body.name ? body.name : null;
+        findUser.dob = new Date(moment(body.dob, "DD-MM-YYYY").format("MM-DD-YYYY"));
+        findUser.address = body.address ? body.address : null;
+        findUser.phone = body.phone ? body.phone : null;
+
         if (body.sex == 1) {
-            employer.sex = sex.Male
+            findUser.sex = sex.Male
         }
         else if (body.sex == 2) {
-            employer.sex = sex.Female
+            findUser.sex = sex.Female
         }
         else {
-            employer.sex = sex.Other
+            findUser.sex = sex.Other
         }
 
-        await userRepository.save(employer);
+        if (findUser.employee) {
+            findUser.employee.isMarried = body.isMarried === '1' ? true : false
+            switch (body.degree) {
+                case 'highSchool':
+                    findUser.employee.degree = degree.highSchool;
+                    break;
+                case 'intermediate':
+                    findUser.employee.degree = degree.intermediate;
+                    break;
+                case 'associate':
+                    findUser.employee.degree = degree.associate;
+                    break;
+                case 'bachelor':
+                    findUser.employee.degree = degree.bachelor;
+                    break;
+                case 'doctor':
+                    findUser.employee.degree = degree.doctor;
+                    break;
+                case 'master':
+                    findUser.employee.degree = degree.master;
+                    break;
+                default:
+                    findUser.employee.degree = degree.other;
+            }
+            await employeeRepository.save(findUser.employee);
+        }
+
+        await userRepository.save(findUser);
 
         return ({
             message: 'Update your profile successful!',
             status: 200,
             data: {
-                name: employer.name,
-                sex: employer.sex
+                name: findUser.name,
+                dob: moment(findUser.dob).format("DD-MM-YYYY"),
+                address: findUser.address,
+                phone: findUser.phone,
+                sex: findUser.sex,
+                isMarried: findUser.employee?.isMarried ? findUser.employee.isMarried : null,
+                degree: findUser.employee?.degree ? findUser.employee.degree : null
             }
         })
     }

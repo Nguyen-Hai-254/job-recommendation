@@ -6,16 +6,16 @@ export class Employer extends BaseEntity {
     @PrimaryColumn()
     userId: number;
 
-    @Column()
+    @Column({ nullable: true })
     taxCode: string
 
-    @Column()
+    @Column({ nullable: true })
     companyName: string
 
-    @Column()
+    @Column({ nullable: true })
     companyLocation: string
 
-    @Column()
+    @Column({ nullable: true })
     careerField: string
 
     @OneToOne(() => User, {
