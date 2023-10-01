@@ -141,6 +141,7 @@ export default class UserServices {
                 userId: getUserProfile.userId,
                 email: getUserProfile.email,
                 name: getUserProfile.name,
+                role: getUserProfile.role,
                 dob: moment(getUserProfile.dob).format("DD-MM-YYYY"),
                 address: getUserProfile.address,
                 phone: getUserProfile.phone,
