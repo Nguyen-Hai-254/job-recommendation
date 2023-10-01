@@ -79,7 +79,7 @@ export default class UserController {
             return res.status(getUser.status).json({
                 message: getUser.message,
                 status: 200,
-                date: getUser.data ? getUser.data : []
+                data: getUser.data ? getUser.data : []
             });
         } catch (e) {
             return res.status(500).json({
@@ -96,7 +96,7 @@ export default class UserController {
             return res.status(editUser.status).json({
                 message: editUser.message,
                 status: 200,
-                date: editUser.data ? editUser.data : []
+                data: editUser.data ? editUser.data : []
             });
         } catch (e) {
             return res.status(500).json({
