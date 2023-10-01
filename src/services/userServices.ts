@@ -22,14 +22,14 @@ export default class UserServices {
             if (checkEmail.employer?.userId) {
                 return ({
                     message: 'This email is registered as an employer',
-                    status: 200,
+                    status: 409,
                     data: null
                 })
             }
 
             return ({
                 message: 'Email already exists!',
-                status: 200,
+                status: 409,
                 data: null
             })
         }

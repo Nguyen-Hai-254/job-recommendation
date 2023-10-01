@@ -76,7 +76,7 @@ export default class UserController {
     static getProfile = async (req, res) => {
         try {
             const getUser = await UserServices.handleGetProfile(req.user);
-            return res.status(200).json({
+            return res.status(getUser.status).json({
                 message: getUser.message,
                 status: 200,
                 date: getUser.data ? getUser.data : []
@@ -93,7 +93,7 @@ export default class UserController {
     static editProfile = async (req, res) => {
         try {
             const editUser = await UserServices.handleEditProfile(req.user, req.body)
-            return res.status(200).json({
+            return res.status(editUser.status).json({
                 message: editUser.message,
                 status: 200,
                 date: editUser.data ? editUser.data : []

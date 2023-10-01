@@ -9,9 +9,9 @@ export enum userRole {
 }
 
 export enum sex {
-    Male = 'Male',
-    Female = 'Female',
-    Other = 'Other'
+    Male = 'Nam',
+    Female = 'Nữ',
+    Other = 'Khác'
 }
 @Entity()
 export class User extends BaseEntity {
