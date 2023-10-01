@@ -105,7 +105,7 @@ export default class UserServices {
             expireIn: process.env.JWT_EXPIRE_IN
         }
         let token = createToken(payload)
-
+        
         return ({
             message: 'Login successful!',
             status: 200,
@@ -138,6 +138,7 @@ export default class UserServices {
             message: 'OK!',
             status: 200,
             data: {
+                userId: getUserProfile.userId,
                 email: getUserProfile.email,
                 name: getUserProfile.name,
                 dob: moment(getUserProfile.dob).format("DD-MM-YYYY"),
@@ -212,6 +213,8 @@ export default class UserServices {
             message: 'Update your profile successful!',
             status: 200,
             data: {
+                userId: findUser.userId,
+                email: findUser.email,
                 name: findUser.name,
                 dob: moment(findUser.dob).format("DD-MM-YYYY"),
                 address: findUser.address,
