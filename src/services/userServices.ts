@@ -37,7 +37,7 @@ export default class UserServices {
         if (password != confirmPassword) {
             return ({
                 message: 'Password does not match confirm password',
-                status: 200,
+                status: 400,
                 data: null
             })
         }
@@ -71,10 +71,6 @@ export default class UserServices {
         return ({
             message: 'Create user successful!',
             status: 200,
-            // data: {
-            //     email: userData.email,
-            //     role: userData.role
-            // }
         })
     }
 
@@ -88,7 +84,7 @@ export default class UserServices {
         if (!findUser) {
             return ({
                 message: `Your's email is't exist`,
-                status: 200,
+                status: 404,
                 data: null
             })
         }
@@ -98,7 +94,7 @@ export default class UserServices {
         if (!checkUserPassword) {
             return ({
                 message: 'Wrong password!',
-                status: 200,
+                status: 401,
                 data: null
             })
         }
@@ -133,7 +129,7 @@ export default class UserServices {
         if (!getUserProfile) {
             return ({
                 message: `This account isn't registered`,
-                status: 200,
+                status: 404,
                 data: null
             })
         }
@@ -163,7 +159,7 @@ export default class UserServices {
         if (!findUser) {
             return ({
                 message: `This account isn't registered`,
-                status: 200,
+                status: 404,
                 data: null
             })
         }
