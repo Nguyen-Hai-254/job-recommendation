@@ -2,7 +2,7 @@ require('dotenv').config()
 import { myDataSource } from "../config/connectDB"
 import { Employee, degree } from "../entity/Employee"
 import { Employer } from "../entity/Employer"
-import { User, sex } from "../entity/Users"
+import { User, sex, userRole } from "../entity/Users"
 import { createToken } from "../utils/JWTAction"
 import bcrypt from "bcrypt"
 import moment from "moment"
@@ -105,7 +105,7 @@ export default class UserServices {
             expireIn: process.env.JWT_EXPIRE_IN
         }
         let token = createToken(payload)
-        
+
         return ({
             message: 'Login successful!',
             status: 200,
@@ -145,6 +145,7 @@ export default class UserServices {
                 address: getUserProfile.address,
                 phone: getUserProfile.phone,
                 sex: getUserProfile.sex,
+                role: getUserProfile.role,
                 isMarried: getUserProfile.employee?.isMarried ? getUserProfile.employee.isMarried : null,
                 degree: getUserProfile.employee?.degree ? getUserProfile.employee.degree : null,
             }
@@ -222,6 +223,89 @@ export default class UserServices {
                 sex: findUser.sex,
                 isMarried: findUser.employee?.isMarried ? findUser.employee.isMarried : null,
                 degree: findUser.employee?.degree ? findUser.employee.degree : null
+            }
+        })
+    }
+
+    static handleGetInformationCompany = async (user) => {
+        const getEmployer = await userRepository.findOne({
+            where: { userId: user.userId },
+            relations: ['employer']
+        })
+
+        if (!getEmployer) {
+            return ({
+                message: `This account isn't registered`,
+                status: 404,
+                data: null
+            })
+        }
+
+        if (getEmployer.role !== userRole.Employer) {
+            return ({
+                message: `You are not a employer`,
+                status: 403,
+                data: null
+            })
+        }
+
+        return ({
+            message: `Edit your company successful!`,
+            status: 200,
+            data: {
+                userId: getEmployer.userId,
+                email: getEmployer.email,
+                name: getEmployer.name,
+                role: getEmployer.role,
+                taxCode: getEmployer.employer.taxCode,
+                companyName: getEmployer.employer.companyName,
+                companyLocation: getEmployer.employer.companyLocation,
+                careerField: getEmployer.employer.careerField,
+            }
+        })
+    }
+
+    static handleEditInformationCompany = async (user, body) => {
+        let findEmployer = await userRepository.findOne({
+            where: { userId: user.userId },
+            relations: ['employer']
+        })
+
+        if (!findEmployer) {
+            return ({
+                message: `This account isn't registered`,
+                status: 404,
+                data: null
+            })
+        }
+
+        if (findEmployer.role !== userRole.Employer) {
+            return ({
+                message: `You are not a employer`,
+                status: 403,
+                data: null
+            })
+        }
+
+        findEmployer.employer.taxCode = body.taxCode;
+        findEmployer.employer.companyName = body.companyName;
+        findEmployer.employer.companyLocation = body.companyLocation;
+        findEmployer.employer.careerField = body.careerField;
+
+        await employerRepository.save(findEmployer.employer);
+
+        return ({
+            message: `Edit your company successful!`,
+            status: 200,
+            data: {
+                userId: findEmployer.userId,
+                email: findEmployer.email,
+                name: findEmployer.name,
+                role: findEmployer.role,
+                taxCode: findEmployer.employer.taxCode,
+                companyName: findEmployer.employer.companyName,
+                companyLocation: findEmployer.employer.companyLocation,
+                careerField: findEmployer.employer.careerField,
             }
         })
     }

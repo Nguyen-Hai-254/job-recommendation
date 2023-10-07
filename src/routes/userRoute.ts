@@ -8,5 +8,7 @@ route.post('/api/v1/login', UserController.login);
 route.get('/api/v1/logout', verifyToken, UserController.logOut);
 route.get('/api/v1/get-profile', verifyToken, UserController.getProfile);
 route.post('/api/v1/edit-profile', verifyToken, UserController.editProfile);
+route.get('/api/v1/get-information-company', verifyToken, UserController.getInformationCompany);
+route.post('/api/v1/edit-information-company', verifyToken, UserController.editInformationCompany);
 
 export default route

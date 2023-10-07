@@ -106,4 +106,38 @@ export default class UserController {
             });
         }
     }
+
+    static getInformationCompany = async (req, res) => {
+        try {
+            const getCompany = await UserServices.handleGetInformationCompany(req.user);
+            return res.status(getCompany.status).json({
+                message: getCompany.message,
+                status: 200,
+                data: getCompany.data ? getCompany.data : []
+            });
+        } catch (e) {
+            return res.status(500).json({
+                message: e.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
+    static editInformationCompany = async (req, res) => {
+        try {
+            const editCompany = await UserServices.handleEditInformationCompany(req.user, req.body);
+            return res.status(editCompany.status).json({
+                message: editCompany.message,
+                status: 200,
+                data: editCompany.data ? editCompany.data : []
+            });
+        } catch (e) {
+            return res.status(500).json({
+                message: e.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
 }
