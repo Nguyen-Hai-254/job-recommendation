@@ -141,11 +141,11 @@ export default class UserServices {
                 userId: getUserProfile.userId,
                 email: getUserProfile.email,
                 name: getUserProfile.name,
+                role: getUserProfile.role,
                 dob: moment(getUserProfile.dob).format("DD-MM-YYYY"),
                 address: getUserProfile.address,
                 phone: getUserProfile.phone,
                 sex: getUserProfile.sex,
-                role: getUserProfile.role,
                 isMarried: getUserProfile.employee?.isMarried ? getUserProfile.employee.isMarried : null,
                 degree: getUserProfile.employee?.degree ? getUserProfile.employee.degree : null,
             }
