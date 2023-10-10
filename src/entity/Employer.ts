@@ -1,5 +1,6 @@
-import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from "typeorm";
+import { BaseEntity, Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
 import { User } from "./Users";
+import { Jobposting } from "./Jobposting";
 
 @Entity()
 export class Employer extends BaseEntity {
@@ -22,9 +23,13 @@ export class Employer extends BaseEntity {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     })
+
     @JoinColumn({
         name: 'userId',
         referencedColumnName: 'userId'
     })
     user: User
+
+    @OneToMany(() => Jobposting, (jobposting) => jobposting.employer)
+    jobpostings: Jobposting[]
 }

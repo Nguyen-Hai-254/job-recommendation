@@ -60,6 +60,7 @@ export default class UserController {
     static logOut = async (req, res) => {
         try {
             res.clearCookie("jwt");
+            if (req.user) req.user = null;
             return res.status(200).json({
                 message: 'Logged out!',
                 status: 200
