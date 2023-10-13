@@ -1,5 +1,6 @@
-import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from "typeorm";
+import { BaseEntity, Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
 import { User } from "./Users";
+import { Application } from "./Application.";
 
 
 export enum degree {
@@ -17,7 +18,7 @@ export class Employee extends BaseEntity {
     userId: number;
 
     // Da ket hon chua
-    @Column({nullable: true})
+    @Column({ nullable: true })
     isMarried: boolean
 
     @Column({
@@ -36,4 +37,7 @@ export class Employee extends BaseEntity {
         referencedColumnName: 'userId'
     })
     user: User
+
+    @OneToMany(() => Application, (application) => application.employee)
+    applications: Application[]
 }

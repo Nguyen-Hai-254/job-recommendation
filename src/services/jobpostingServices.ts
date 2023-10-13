@@ -102,7 +102,7 @@ export default class JobpostingServices {
         if (jobposting.employer.userId !== req.user.userId) {
             return ({
                 message: `You aren't a owner of jobposting with postId: ${jobposting.postId}`,
-                status: 401,
+                status: 403,
                 data: null
             })
         }
@@ -318,7 +318,10 @@ export default class JobpostingServices {
             skills: req.body.skills ? req.body.skills : null,
             jobDescription: req.body.jobDescription,
             jobRequirements: req.body.jobRequirements,
-            benefits: req.body.benefits
+            benefits: req.body.benefits,
+            publishingDate: new Date(moment(new Date(), "DD-MM-YYYY").format("MM-DD-YYYY")),
+            submissionCount: 0,
+            viewCount: 0
         })
         const post1 = await jobpostingRepository.save(post)
 

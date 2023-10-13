@@ -50,3 +50,11 @@ export enum positionLevel {
     Employee = 'Chuyên viên - nhân viên',
     Contributor = 'Cộng tác viên'
 }
+
+export enum postStatus {
+    approved = 'Đã duyệt',
+    pendingApproval = 'Chờ duyệt',
+    rejected = 'Từ chối',
+    expired = 'Hết hạn'
+}
+

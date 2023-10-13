@@ -11,7 +11,7 @@ route.post('/api/v1/post', (req, res) => {
 route.get('/api/v1/jobpostings', JobpostingController.getAllJobpostings);
 route.post('/api/v1/jobpostings', verifyToken, JobpostingController.createNewJobposting);
 route.get('/api/v1/jobpostings/user', verifyToken, JobpostingController.getJobpostingsbyUser);
-route.get('/api/v1/jobpostings/:postId', JobpostingController.getJobposting);
+route.get('/api/v1/jobpostings/:postId', verifyToken, JobpostingController.getJobposting);
 route.put('/api/v1/jobpostings/:postId', verifyToken, JobpostingController.updateJobposting);
 
 
