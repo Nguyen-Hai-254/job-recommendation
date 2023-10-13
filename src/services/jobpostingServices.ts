@@ -3,8 +3,8 @@ import { Employee } from "../entity/Employee"
 import { Employer } from "../entity/Employer"
 import { User, userRole } from "../entity/Users"
 import { Jobposting } from "../entity/Jobposting"
-import { employmentType, degree, experience, positionLevel, sex } from "../entity/enum"
 import moment from "moment"
+import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex } from "../utils/enumAction"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -115,117 +115,13 @@ export default class JobpostingServices {
 
         if (req.body?.jobTitle) jobposting.jobTitle = req.body.jobTitle
         if (req.body?.profession) jobposting.profession = req.body.profession
-        if (req.body?.employmentType) {
-            switch (req.body.employmentType) {
-                case 'Toàn thời gian cố định':
-                    jobposting.employmentType = employmentType.FulltimePermanent;
-                    break;
-                case 'Toàn thời gian tạm thời':
-                    jobposting.employmentType = employmentType.FulltimeTemporary;
-                    break;
-                case 'Bán thời gian cố định':
-                    jobposting.employmentType = employmentType.ParttimePermanent;
-                    break;
-                case 'Bán thời gian tạm thời':
-                    jobposting.employmentType = employmentType.ParttimeTemporary;
-                    break;
-                case 'Theo hợp đồng tư vấn':
-                    jobposting.employmentType = employmentType.ConsultingContract;
-                    break;
-                case 'Thực tập':
-                    jobposting.employmentType = employmentType.Internship;
-                    break;
-                default:
-                    jobposting.employmentType = employmentType.Other;
-            }
-        }
-        if (req.body?.degree) {
-            switch (req.body.degree) {
-                case 'highSchool':
-                    jobposting.degree = degree.highSchool;
-                    break;
-                case 'intermediate':
-                    jobposting.degree = degree.intermediate;
-                    break;
-                case 'associate':
-                    jobposting.degree = degree.associate;
-                    break;
-                case 'bachelor':
-                    jobposting.degree = degree.bachelor;
-                    break;
-                case 'doctor':
-                    jobposting.degree = degree.doctor;
-                    break;
-                case 'master':
-                    jobposting.degree = degree.master;
-                    break;
-                default:
-                    jobposting.degree = degree.Other;
-            }
-        }
-        if (req.body?.experience) {
-            switch (req.body.experience) {
-                case 'Chưa có kinh nghiệm':
-                    jobposting.experience = experience.Zero;
-                    break;
-                case 'Dưới 1 năm':
-                    jobposting.experience = experience.UnderOne;
-                    break;
-                case '1 năm':
-                    jobposting.experience = experience.One;
-                    break;
-                case '2 năm':
-                    jobposting.experience = experience.Two;
-                    break;
-                case '3 năm':
-                    jobposting.experience = experience.Three;
-                    break;
-                case '4 năm':
-                    jobposting.experience = experience.Four;
-                    break;
-                case '5 năm':
-                    jobposting.experience = experience.Five;
-                    break;
-                default:
-                    jobposting.experience = experience.OverFive;
-            }
-        }
-        if (req.body?.positionLevel) {
-            switch (req.body.positionLevel) {
-                case 'Quản lí cấp cao':
-                    jobposting.positionLevel = positionLevel.ExecutiveManagement;
-                    break;
-                case 'Quản lí cấp trung':
-                    jobposting.positionLevel = positionLevel.MiddleManagement;
-                    break;
-                case 'Quản lí nhóm-giám sát':
-                    jobposting.positionLevel = positionLevel.TeamLeader;
-                    break;
-                case 'Chuyên gia':
-                    jobposting.positionLevel = positionLevel.Specialist;
-                    break;
-                case 'Cộng tác viên':
-                    jobposting.positionLevel = positionLevel.Contributor;
-                    break;
-                default:
-                    jobposting.positionLevel = positionLevel.Employee;
-            }
-        }
+        if (req.body?.employmentType) jobposting.employmentType = EnumEmploymentType(req.body.employmentType)
+        if (req.body?.degree) jobposting.degree = EnumDegree(req.body.degree)
+        if (req.body?.experience) jobposting.experience = EnumExperience(req.body.experience)
+        if (req.body?.positionLevel) jobposting.positionLevel = EnumPositionLevel(req.body.positionLevel)
         if (req.body?.minAge) jobposting.minAge = req.body.minAge
         if (req.body?.maxAge) jobposting.maxAge = req.body.maxAge
-        if (req.body?.sex) {
-            switch (req.body.sex) {
-                case 'Nam':
-                    jobposting.sex = sex.Male;
-                    break;
-                case 'Nữ':
-                    jobposting.sex = sex.Female;
-                    break;
-                default:
-                    jobposting.sex = sex.Other
-
-            }
-        }
+        if (req.body?.sex) jobposting.sex = EnumSex(req.body.sex)
         if (req.body?.numberofVacancies) jobposting.numberofVacancies = req.body.numberofVacancies
         if (req.body?.trialPeriod) jobposting.trialPeriod = req.body.trialPeriod
         if (req.body?.applicationDeadline) jobposting.applicationDeadline = new Date(moment(req.body.applicationDeadline, "DD-MM-YYYY").format("MM-DD-YYYY"));

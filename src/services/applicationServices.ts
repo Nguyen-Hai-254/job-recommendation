@@ -4,8 +4,7 @@ import { Employer } from "../entity/Employer"
 import { User, userRole } from "../entity/Users"
 import { Jobposting } from "../entity/Jobposting"
 import { Application } from "../entity/Application."
-import { employmentType, degree, experience, positionLevel, sex } from "../entity/enum"
-import moment from "moment"
+import { EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } from "../utils/enumAction"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -176,125 +175,13 @@ export default class ApplicationServices {
         // Update with req.body
         if (req.body?.jobTitle) application.jobTitle = req.body.jobTitle
         if (req.body?.profession) application.profession = req.body.profession
-        if (req.body?.currentPosition) {
-            switch (req.body.positionLevel) {
-                case 'Quản lí cấp cao':
-                    application.currentPosition = positionLevel.ExecutiveManagement;
-                    break;
-                case 'Quản lí cấp trung':
-                    application.currentPosition = positionLevel.MiddleManagement;
-                    break;
-                case 'Quản lí nhóm-giám sát':
-                    application.currentPosition = positionLevel.TeamLeader;
-                    break;
-                case 'Chuyên gia':
-                    application.currentPosition = positionLevel.Specialist;
-                    break;
-                case 'Cộng tác viên':
-                    application.currentPosition = positionLevel.Contributor;
-                    break;
-                default:
-                    application.currentPosition = positionLevel.Employee;
-            }
-        }
-        if (req.body?.desiredPosition) {
-            switch (req.body.positionLevel) {
-                case 'ExecutiveManagement':
-                    application.desiredPosition = positionLevel.ExecutiveManagement;
-                    break;
-                case 'MiddleManagement':
-                    application.desiredPosition = positionLevel.MiddleManagement;
-                    break;
-                case 'TeamLeader':
-                    application.desiredPosition = positionLevel.TeamLeader;
-                    break;
-                case 'Specialist':
-                    application.desiredPosition = positionLevel.Specialist;
-                    break;
-                case 'Contributor':
-                    application.desiredPosition = positionLevel.Contributor;
-                    break;
-                default:
-                    application.desiredPosition = positionLevel.Employee;
-            }
-        }
-        if (req.body?.desiredSalary) application.desiredSalary = req.body?.desiredSalary
-        if (req.body?.degree) {
-            switch (req.body.degree) {
-                case 'highSchool':
-                    application.degree = degree.highSchool;
-                    break;
-                case 'intermediate':
-                    application.degree = degree.intermediate;
-                    break;
-                case 'associate':
-                    application.degree = degree.associate;
-                    break;
-                case 'bachelor':
-                    application.degree = degree.bachelor;
-                    break;
-                case 'doctor':
-                    application.degree = degree.doctor;
-                    break;
-                case 'master':
-                    application.degree = degree.master;
-                    break;
-                default:
-                    application.degree = degree.Other;
-            }
-        }
+        if (req.body?.currentPosition) application.currentPosition = EnumPositionLevel(req.body.currentPosition)
+        if (req.body?.desiredPosition) application.desiredPosition = EnumPositionLevel(req.body.desiredPosition)
+        if (req.body?.desiredSalary) application.desiredSalary = req.body.desiredSalary
+        if (req.body?.degree) application.degree = EnumDegree(req.body.degree)
         if (req.body?.workAddress) application.workAddress = req.body.workAddress
-        if (req.body?.experience) {
-            switch (req.body.experience) {
-                case 'Chưa có kinh nghiệm':
-                    application.experience = experience.Zero;
-                    break;
-                case 'Dưới 1 năm':
-                    application.experience = experience.UnderOne;
-                    break;
-                case '1 năm':
-                    application.experience = experience.One;
-                    break;
-                case '2 năm':
-                    application.experience = experience.Two;
-                    break;
-                case '3 năm':
-                    application.experience = experience.Three;
-                    break;
-                case '4 năm':
-                    application.experience = experience.Four;
-                    break;
-                case '5 năm':
-                    application.experience = experience.Five;
-                    break;
-                default:
-                    application.experience = experience.OverFive;
-            }
-        }
-        if (req.body?.employmentType) {
-            switch (req.body.employmentType) {
-                case 'Toàn thời gian cố định':
-                    application.employmentType = employmentType.FulltimePermanent;
-                    break;
-                case 'Toàn thời gian tạm thời':
-                    application.employmentType = employmentType.FulltimeTemporary;
-                    break;
-                case 'Bán thời gian cố định':
-                    application.employmentType = employmentType.ParttimePermanent;
-                    break;
-                case 'Bán thời gian tạm thời':
-                    application.employmentType = employmentType.ParttimeTemporary;
-                    break;
-                case 'Theo hợp đồng tư vấn':
-                    application.employmentType = employmentType.ConsultingContract;
-                    break;
-                case 'Thực tập':
-                    application.employmentType = employmentType.Internship;
-                    break;
-                default:
-                    application.employmentType = employmentType.Other;
-            }
-        }
+        if (req.body?.experience) application.experience = EnumExperience(req.body.experience);
+        if (req.body?.employmentType) application.employmentType = EnumEmploymentType(req.body.employmentType);
         if (req.body?.careerGoal) application.careerGoal = req.body.careerGoal
         if (req.body?.skills) application.skills = req.body.skills
 

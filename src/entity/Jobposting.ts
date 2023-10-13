@@ -1,6 +1,6 @@
 import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, BeforeUpdate, InsertEvent, OneToMany, ManyToOne } from "typeorm"
 import { Employer } from "./Employer"
-import { degree, sex, employmentType, experience, positionLevel, postStatus } from "./enum"
+import { degree, sex, employmentType, experience, positionLevel, postStatus } from "../utils/enum"
 import { Application } from "./Application."
 
 @Entity()
