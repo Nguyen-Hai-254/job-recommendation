@@ -19,7 +19,8 @@ const online_profileRepository = myDataSource.getRepository(OnlineProfile);
 export default class ApplicationServices {
     static handleCreateNewApplication = async (req) => {
         // Check hasCV and postId
-        if (!req?.body?.hasCV || !req?.body?.postId) {
+        if (typeof req?.body?.hasCV === "boolean") { }
+        else if (!req?.body?.hasCV || !req?.body?.postId) {
             return ({
                 message: 'hasCV and postId are required',
                 status: 400,
