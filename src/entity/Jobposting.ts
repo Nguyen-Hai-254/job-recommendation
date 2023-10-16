@@ -1,6 +1,7 @@
 import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, BeforeUpdate, InsertEvent, OneToMany, ManyToOne } from "typeorm"
 import { Employer } from "./Employer"
-import { degree, sex, employmentType, experience, positionLevel } from "./enum"
+import { degree, sex, employmentType, experience, positionLevel, postStatus } from "../utils/enum"
+import { Application } from "./Application."
 
 @Entity()
 export class Jobposting extends BaseEntity {
@@ -96,6 +97,25 @@ export class Jobposting extends BaseEntity {
     @Column({ type: 'longtext', nullable: true })
     benefits: string
 
+    @Column({ type: 'date', nullable: true })
+    publishingDate: Date
+
+    @Column({ nullable: true })
+    submissionCount: number
+
+    @Column({ nullable: true })
+    viewCount: number
+
+    @Column({
+        type: 'enum',
+        enum: postStatus,
+        default: postStatus.pendingApproval
+    })
+    postStatus: postStatus
+
     @ManyToOne(() => Employer, (employer) => employer.jobpostings)
     employer: Employer
+
+    @OneToMany(() => Application, (application) => application.jobposting)
+    applications: Application[]
 }
