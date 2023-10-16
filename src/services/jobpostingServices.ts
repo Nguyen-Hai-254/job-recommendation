@@ -243,8 +243,8 @@ export default class JobpostingServices {
             status: 200,
             data: jobposting
         })
-
     }
+    
     static handleCreateNewJobposting = async (req) => {
         // Check parameters
         if (!req?.body?.name || !req?.body?.email || !req?.body?.phone || !req?.body?.contactAddress) {
