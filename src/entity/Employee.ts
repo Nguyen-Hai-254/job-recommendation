@@ -1,6 +1,6 @@
 import { BaseEntity, Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
 import { User } from "./Users";
-import { Application } from "./Application.";
+import { Application } from "./Application";
 
 
 export enum degree {

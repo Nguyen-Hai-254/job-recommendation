@@ -1,6 +1,6 @@
 import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, BeforeUpdate, InsertEvent, OneToMany, ManyToOne } from "typeorm"
 import { Employee } from "./Employee"
-import { Jobposting } from "./Jobposting"
+import { JobPosting } from "./JobPosting"
 import { degree, employmentType, experience, positionLevel } from "../utils/enum"
 
 
@@ -64,6 +64,7 @@ export class Application extends BaseEntity {
 
     @ManyToOne(() => Employee, (employee) => employee.applications)
     employee: Employee
-    @ManyToOne(() => Jobposting, (jobposting) => jobposting.applications)
-    jobposting: Jobposting
+
+    @ManyToOne(() => JobPosting, (jobPosting) => jobPosting.applications)
+    jobPosting: JobPosting
 }
