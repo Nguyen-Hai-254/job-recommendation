@@ -2,8 +2,8 @@ import { myDataSource } from "../config/connectDB"
 import { Employee } from "../entity/Employee"
 import { Employer } from "../entity/Employer"
 import { User, userRole } from "../entity/Users"
-import { Jobposting } from "../entity/Jobposting"
-import { Application } from "../entity/Application."
+import { JobPosting } from "../entity/JobPosting"
+import { Application } from "../entity/Application"
 import { AttachedDocument } from "../entity/AttachedDocument"
 import { OnlineProfile } from "../entity/OnlineProfile"
 import { EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } from "../utils/enumAction"
@@ -11,7 +11,7 @@ import { EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } fro
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
 const employeeRepository = myDataSource.getRepository(Employee);
-const jobpostingRepository = myDataSource.getRepository(Jobposting);
+const jobpostingRepository = myDataSource.getRepository(JobPosting);
 const applicationRepository = myDataSource.getRepository(Application);
 const attached_documentRepository = myDataSource.getRepository(AttachedDocument);
 const online_profileRepository = myDataSource.getRepository(OnlineProfile);

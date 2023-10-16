@@ -2,8 +2,8 @@ import { myDataSource } from "../config/connectDB"
 import { Employee } from "../entity/Employee"
 import { Employer } from "../entity/Employer"
 import { User, userRole } from "../entity/Users"
-import { Jobposting } from "../entity/Jobposting"
-import { Application } from "../entity/Application."
+import { JobPosting } from "../entity/JobPosting"
+import { Application } from "../entity/Application"
 import { AttachedDocument } from "../entity/AttachedDocument"
 import { OnlineProfile } from "../entity/OnlineProfile"
 import { EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } from "../utils/enumAction"
@@ -11,8 +11,8 @@ import { EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } fro
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
 const employeeRepository = myDataSource.getRepository(Employee);
-const jobpostingRepository = myDataSource.getRepository(Jobposting);
 const applicationRepository = myDataSource.getRepository(Application);
+const jobpostingRepository = myDataSource.getRepository(JobPosting);
 const attached_documentRepository = myDataSource.getRepository(AttachedDocument);
 const online_profileRepository = myDataSource.getRepository(OnlineProfile);
 
@@ -113,6 +113,7 @@ export default class ApplicationServices {
             data: application
         })
     }
+
     static handleGetAllApplications = async () => {
         const applications = await applicationRepository.find({
             relations: ['employee']
@@ -131,6 +132,7 @@ export default class ApplicationServices {
             data: applications
         })
     }
+
     static handleGetApplicationsbyUser = async (req) => {
         const applications = await employeeRepository.findOne({
             where: { userId: req.user.userId },
@@ -151,6 +153,7 @@ export default class ApplicationServices {
         })
 
     }
+
     static handleGetApplication = async (req) => {
         if (!req?.params?.id) {
             return ({
@@ -178,6 +181,7 @@ export default class ApplicationServices {
         })
     }
     static handleUpdateStatusAdmin = async (req) => {
+
         if (!req?.params?.id) {
             return ({
                 message: 'id is required',

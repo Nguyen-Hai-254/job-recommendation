@@ -1,10 +1,11 @@
 import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, BeforeUpdate, InsertEvent, OneToMany, ManyToOne } from "typeorm"
 import { Employer } from "./Employer"
 import { degree, sex, employmentType, experience, positionLevel, status_admin } from "../utils/enum"
-import { Application } from "./Application."
+import { Application } from "./Application"
+
 
 @Entity()
-export class Jobposting extends BaseEntity {
+export class JobPosting extends BaseEntity {
     @PrimaryGeneratedColumn()
     postId: number
 
@@ -71,7 +72,7 @@ export class Jobposting extends BaseEntity {
     sex: sex
 
     @Column({ nullable: true })
-    numberofVacancies: number
+    numberOfVacancies: number
 
     @Column({ nullable: true })
     trialPeriod: number
@@ -113,9 +114,9 @@ export class Jobposting extends BaseEntity {
     })
     status: status_admin
 
-    @ManyToOne(() => Employer, (employer) => employer.jobpostings)
+    @ManyToOne(() => Employer, (employer) => employer.jobPostings)
     employer: Employer
 
-    @OneToMany(() => Application, (application) => application.jobposting)
+    @OneToMany(() => Application, (application) => application.jobPosting)
     applications: Application[]
 } 
