@@ -65,9 +65,9 @@ export default class ApplicationController {
             });
         }
     }
-    static updateApplication = async (req, res) => {
+    static updateStatusAdmin = async (req, res) => {
         try {
-            const application = await ApplicationServices.handleUpdateApplication(req);
+            const application = await ApplicationServices.handleUpdateStatusAdmin(req);
             return res.status(application.status).json({
                 message: application.message,
                 status: application.status,

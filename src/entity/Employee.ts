@@ -1,6 +1,8 @@
 import { BaseEntity, Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
 import { User } from "./Users";
 import { Application } from "./Application.";
+import { OnlineProfile } from "./OnlineProfile";
+import { AttachedDocument } from "./AttachedDocument";
 
 
 export enum degree {
@@ -37,6 +39,12 @@ export class Employee extends BaseEntity {
         referencedColumnName: 'userId'
     })
     user: User
+
+    @OneToOne(() => OnlineProfile, (onlineprofile) => onlineprofile.employee)
+    online_profile: OnlineProfile
+
+    @OneToOne(() => AttachedDocument, (attacheddocument) => attacheddocument.employee)
+    attached_document: AttachedDocument
 
     @OneToMany(() => Application, (application) => application.employee)
     applications: Application[]
