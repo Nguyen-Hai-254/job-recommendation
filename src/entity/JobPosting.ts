@@ -98,6 +98,7 @@ export class JobPosting extends BaseEntity {
     @Column({ type: 'longtext', nullable: true })
     benefits: string
 
+    // Other information ------------------------
     @Column({ type: 'date', nullable: true })
     publishingDate: Date
 
@@ -105,7 +106,10 @@ export class JobPosting extends BaseEntity {
     submissionCount: number
 
     @Column({ nullable: true })
-    viewCount: number
+    view: number
+
+    @Column({ default: false })
+    isHidden: boolean
 
     @Column({
         type: 'enum',

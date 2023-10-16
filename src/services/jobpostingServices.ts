@@ -132,6 +132,7 @@ export default class JobPostingServices {
         if (req.body?.jobDescription) jobPosting.jobDescription = req.body.jobDescription
         if (req.body?.jobRequirements) jobPosting.jobRequirements = req.body.jobRequirements
         if (req.body?.benefits) jobPosting.benefits = req.body.benefits
+        if (req.body?.isHidden) jobPosting.isHidden = req.body.isHidden
 
         await jobPostingRepository.save(jobPosting)
 
@@ -218,7 +219,8 @@ export default class JobPostingServices {
             benefits: req.body.benefits,
             publishingDate: new Date(moment(new Date(), "DD-MM-YYYY").format("MM-DD-YYYY")),
             submissionCount: 0,
-            viewCount: 0
+            view: 0,
+            isHidden: req?.body?.isHidden ? req.body.isHidden : false
         })
         const post1 = await jobPostingRepository.save(post)
 
