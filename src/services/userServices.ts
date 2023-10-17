@@ -1,6 +1,6 @@
 require('dotenv').config()
 import { myDataSource } from "../config/connectDB"
-import { Employee, degree } from "../entity/Employee"
+import { Employee } from "../entity/Employee"
 import { Employer } from "../entity/Employer"
 import { User, sex, userRole } from "../entity/Users"
 import { createToken } from "../utils/JWTAction"
@@ -146,8 +146,7 @@ export default class UserServices {
                 address: getUserProfile.address,
                 phone: getUserProfile.phone,
                 sex: getUserProfile.sex,
-                isMarried: getUserProfile.employee?.isMarried ? getUserProfile.employee.isMarried : null,
-                degree: getUserProfile.employee?.degree ? getUserProfile.employee.degree : null,
+                isMarried: getUserProfile.employee?.isMarried ? getUserProfile.employee.isMarried : null
             }
         })
     }
@@ -183,28 +182,6 @@ export default class UserServices {
 
         if (findUser.employee) {
             findUser.employee.isMarried = body.isMarried === '1' ? true : false
-            switch (body.degree) {
-                case 'highSchool':
-                    findUser.employee.degree = degree.highSchool;
-                    break;
-                case 'intermediate':
-                    findUser.employee.degree = degree.intermediate;
-                    break;
-                case 'associate':
-                    findUser.employee.degree = degree.associate;
-                    break;
-                case 'bachelor':
-                    findUser.employee.degree = degree.bachelor;
-                    break;
-                case 'doctor':
-                    findUser.employee.degree = degree.doctor;
-                    break;
-                case 'master':
-                    findUser.employee.degree = degree.master;
-                    break;
-                default:
-                    findUser.employee.degree = degree.other;
-            }
             await employeeRepository.save(findUser.employee);
         }
 
@@ -221,8 +198,7 @@ export default class UserServices {
                 address: findUser.address,
                 phone: findUser.phone,
                 sex: findUser.sex,
-                isMarried: findUser.employee?.isMarried ? findUser.employee.isMarried : null,
-                degree: findUser.employee?.degree ? findUser.employee.degree : null
+                isMarried: findUser.employee?.isMarried ? findUser.employee.isMarried : null
             }
         })
     }
