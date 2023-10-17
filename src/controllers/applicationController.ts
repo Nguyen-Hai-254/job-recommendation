@@ -17,6 +17,7 @@ export default class ApplicationController {
             });
         }
     }
+    
     static createNewApplication = async (req, res) => {
         try {
             const application = await ApplicationServices.handleCreateNewApplication(req);
@@ -33,6 +34,7 @@ export default class ApplicationController {
             });
         }
     }
+
     static getApplicationsbyUser = async (req, res) => {
         try {
             const applications = await ApplicationServices.handleGetApplicationsbyUser(req);
@@ -49,6 +51,7 @@ export default class ApplicationController {
             });
         }
     }
+
     static getApplication = async (req, res) => {
         try {
             const application = await ApplicationServices.handleGetApplication(req);
@@ -65,6 +68,7 @@ export default class ApplicationController {
             });
         }
     }
+
     static updateApprovalStatus = async (req, res) => {
         try {
             const application = await ApplicationServices.handleUpdateApprovalStatus(req);

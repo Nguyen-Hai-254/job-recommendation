@@ -192,7 +192,6 @@ export default class ApplicationServices {
         })
     }
     static handleUpdateApprovalStatus = async (req) => {
-
         if (!req?.params?.id) {
             return ({
                 message: 'id is required',
@@ -223,7 +222,6 @@ export default class ApplicationServices {
             status: 200,
             data: application
         })
-
     }
 }
 
