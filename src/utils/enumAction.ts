@@ -1,4 +1,4 @@
-import { degree, employmentType, experience, positionLevel, sex, userRole } from "./enum";
+import { applicationType, approvalStatus, degree, employmentType, experience, positionLevel, sex, userRole } from "./enum";
 
 export const EnumDegree = (x) => {
     let y = degree.Other
@@ -135,6 +135,39 @@ export const EnumPositionLevel = (x) => {
         default:
             y = positionLevel.Employee;
 
+    }
+    return y;
+}
+
+export const EnumApprovalStatus = (status) => {
+    let y = approvalStatus.pending;
+    switch (status) {
+        case 'approved':
+            y = approvalStatus.approved;
+            break;
+        case 'rejected':
+            y = approvalStatus.rejected;
+            break;
+        case 'expired':
+            y = approvalStatus.expired;
+            break;
+        default:
+            y = approvalStatus.pending;
+    }
+    return y;
+}
+
+export const EnumApplicationType = (type) => {
+    let y = applicationType.online_profile;
+    switch (type) {
+        case 'attached_document':
+            y = applicationType.attached_document;
+            break;
+        case 'cv_enclosed':
+            y = applicationType.cv_enclosed;
+            break;
+        default:
+            y = applicationType.online_profile;
     }
     return y;
 }

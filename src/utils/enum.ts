@@ -58,3 +58,9 @@ export enum approvalStatus {
     expired = 'Hết hạn'
 }
 
+export enum applicationType {
+    online_profile = 'Nộp trực tuyến',
+    attached_document = 'CV đính kèm',
+    cv_enclosed = 'Nộp nhanh'
+}
+

@@ -1,7 +1,7 @@
 import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, BeforeUpdate, InsertEvent, OneToMany, ManyToOne } from "typeorm"
 import { Employee } from "./Employee"
 import { JobPosting } from "./JobPosting"
-import { approvalStatus } from "../utils/enum"
+import { applicationType, approvalStatus } from "../utils/enum"
 
 
 
@@ -10,8 +10,15 @@ export class Application extends BaseEntity {
     @PrimaryGeneratedColumn()
     application_id: number
 
+    @Column({
+        type: 'enum',
+        enum: applicationType,
+        default: applicationType.online_profile
+    })
+    applicationType: applicationType
+
     @Column({ nullable: true })
-    hasCV: boolean
+    CV: string
 
     @Column({
         type: 'enum',
