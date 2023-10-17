@@ -8,7 +8,7 @@ import { status_admin } from "../utils/enum"
 @Entity()
 export class Application extends BaseEntity {
     @PrimaryGeneratedColumn()
-    id: number
+    application_id: number
 
     @Column({ nullable: true })
     hasCV: boolean

@@ -163,7 +163,7 @@ export default class ApplicationServices {
             })
         }
         const application = await applicationRepository.findOne({
-            where: { id: req.params.id },
+            where: { application_id: req.params.id },
             relations: ['employee']
         })
         if (!application) {
@@ -191,7 +191,7 @@ export default class ApplicationServices {
         }
 
         const application = await applicationRepository.findOne({
-            where: { id: req.params.id },
+            where: { application_id: req.params.id },
             relations: ['employee']
         })
         if (!application) {

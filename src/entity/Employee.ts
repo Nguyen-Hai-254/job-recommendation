@@ -1,10 +1,9 @@
-import { BaseEntity, Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
+import { BaseEntity, Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
 import { User } from "./Users";
 import { Application } from "./Application";
 import { OnlineProfile } from "./OnlineProfile";
 import { AttachedDocument } from "./AttachedDocument";
-
-
+import { Employer } from "./Employer";
 
 export enum degree {
     highSchool = 'Trung học',
@@ -49,4 +48,19 @@ export class Employee extends BaseEntity {
 
     @OneToMany(() => Application, (application) => application.employee)
     applications: Application[]
+
+    @ManyToMany(() => Employer,
+        (employer) => employer.save)
+    @JoinTable({
+        name: 'follow',
+        joinColumn: {
+            name: 'employeeId',
+            referencedColumnName: 'userId'
+        },
+        inverseJoinColumn: {
+            name: 'employerId',
+            referencedColumnName: 'userId'
+        }
+    })
+    follow: Employer[]
 }
