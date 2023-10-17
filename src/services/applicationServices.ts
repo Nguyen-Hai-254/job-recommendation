@@ -6,7 +6,8 @@ import { JobPosting } from "../entity/JobPosting"
 import { Application } from "../entity/Application"
 import { AttachedDocument } from "../entity/AttachedDocument"
 import { OnlineProfile } from "../entity/OnlineProfile"
-import { EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } from "../utils/enumAction"
+import { EnumApplicationType, EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } from "../utils/enumAction"
+import { applicationType } from "../utils/enum"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -18,9 +19,8 @@ const online_profileRepository = myDataSource.getRepository(OnlineProfile);
 
 export default class ApplicationServices {
     static handleCreateNewApplication = async (req) => {
-        // Check hasCV and postId
-        if (typeof req?.body?.hasCV === "boolean") { }
-        else if (!req?.body?.hasCV || !req?.body?.postId) {
+        // Check applicationType and postId
+        if (!req?.body?.applicationType || !req?.body?.postId) {
             return ({
                 message: 'hasCV and postId are required',
                 status: 400,
@@ -45,14 +45,23 @@ export default class ApplicationServices {
                 data: null
             })
         }
-        // Check hasCV is correct
-        if (req.body.hasCV) {
+        // Check applicationType is correct
+        if (req.body.applicationType === applicationType.attached_document) {
             const attached_document = await attached_documentRepository.findOne({
                 where: { userId: req.user.userId }
             })
             if (!attached_document) {
                 return ({
                     message: 'attached document not found, you need to creat a new attached document',
+                    status: 400,
+                    data: null
+                })
+            }
+        }
+        else if (req.body.applicationType === applicationType.cv_enclosed) {
+            if (!req?.body?.CV) {
+                return ({
+                    message: 'You choosed application type is cv_enclosed, CV is required',
                     status: 400,
                     data: null
                 })
@@ -98,7 +107,8 @@ export default class ApplicationServices {
         }
         // Create new application
         const application = await applicationRepository.create({
-            hasCV: req.body.hasCV
+            applicationType: EnumApplicationType(req.body.applicationType),
+            CV: req.body.applicationType === 'cv_enclosed' ? req.body.CV : null
         })
         const application1 = await applicationRepository.save(application)
 
@@ -181,8 +191,7 @@ export default class ApplicationServices {
             data: application
         })
     }
-
-    static handleUpdateStatusAdmin = async (req) => {
+    static handleUpdateApprovalStatus = async (req) => {
         if (!req?.params?.id) {
             return ({
                 message: 'id is required',

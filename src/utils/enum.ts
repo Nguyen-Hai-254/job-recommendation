@@ -113,3 +113,9 @@ export enum profession {
     '052' = 'Thực tập sinh'
 }
 
+export enum applicationType {
+    online_profile = 'Nộp trực tuyến',
+    attached_document = 'CV đính kèm',
+    cv_enclosed = 'Nộp nhanh'
+}
+
