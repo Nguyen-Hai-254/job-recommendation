@@ -181,8 +181,8 @@ export default class ApplicationServices {
             data: application
         })
     }
-    static handleUpdateStatusAdmin = async (req) => {
 
+    static handleUpdateStatusAdmin = async (req) => {
         if (!req?.params?.id) {
             return ({
                 message: 'id is required',
@@ -213,7 +213,6 @@ export default class ApplicationServices {
             status: 200,
             data: application
         })
-
     }
 }
 
