@@ -22,7 +22,7 @@ export default class ApplicationServices {
         // Check applicationType and postId
         if (!req?.body?.applicationType || !req?.body?.postId) {
             return ({
-                message: 'hasCV and postId are required',
+                message: 'applicationType and postId are required',
                 status: 400,
                 data: null
             })
