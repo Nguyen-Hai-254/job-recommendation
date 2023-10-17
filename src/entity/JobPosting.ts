@@ -1,6 +1,6 @@
 import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, BeforeUpdate, InsertEvent, OneToMany, ManyToOne } from "typeorm"
 import { Employer } from "./Employer"
-import { degree, sex, employmentType, experience, positionLevel, status_admin } from "../utils/enum"
+import { degree, sex, employmentType, experience, positionLevel, approvalStatus } from "../utils/enum"
 import { Application } from "./Application"
 
 
@@ -113,10 +113,10 @@ export class JobPosting extends BaseEntity {
 
     @Column({
         type: 'enum',
-        enum: status_admin,
-        default: status_admin.pendingApproval
+        enum: approvalStatus,
+        default: approvalStatus.pending
     })
-    status: status_admin
+    status: approvalStatus
 
     @ManyToOne(() => Employer, (employer) => employer.jobPostings)
     employer: Employer
