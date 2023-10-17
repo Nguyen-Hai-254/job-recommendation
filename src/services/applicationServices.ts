@@ -46,7 +46,7 @@ export default class ApplicationServices {
             })
         }
         // Check applicationType is correct
-        if (req.body.applicationType === applicationType.attached_document) {
+        if (EnumApplicationType(req.body.applicationType) === applicationType.attached_document) {
             const attached_document = await attached_documentRepository.findOne({
                 where: { userId: req.user.userId }
             })
@@ -58,10 +58,10 @@ export default class ApplicationServices {
                 })
             }
         }
-        else if (req.body.applicationType === applicationType.cv_enclosed) {
-            if (!req?.body?.CV) {
+        else if (EnumApplicationType(req.body.applicationType) === applicationType.cv_enclosed) {
+            if (!req?.body?.CV || !req?.body?.name || !req?.body?.email || !req?.body?.phone) {
                 return ({
-                    message: 'You choosed application type is cv_enclosed, CV is required',
+                    message: 'You choosed application type is cv_enclosed, CV,name,email, phone are required',
                     status: 400,
                     data: null
                 })
@@ -108,7 +108,10 @@ export default class ApplicationServices {
         // Create new application
         const application = await applicationRepository.create({
             applicationType: EnumApplicationType(req.body.applicationType),
-            CV: req.body.applicationType === 'cv_enclosed' ? req.body.CV : null
+            CV: req.body.applicationType === 'cv_enclosed' ? req.body.CV : null,
+            name: req.body.applicationType === 'cv_enclosed' ? req.body.name : null,
+            email: req.body.applicationType === 'cv_enclosed' ? req.body.email : null,
+            phone: req.body.applicationType === 'cv_enclosed' ? req.body.phone : null
         })
         const application1 = await applicationRepository.save(application)
 

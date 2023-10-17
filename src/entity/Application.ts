@@ -17,9 +17,20 @@ export class Application extends BaseEntity {
     })
     applicationType: applicationType
 
+    // Optional properties while applicationType = cv_enclosed
     @Column({ nullable: true })
     CV: string
 
+    @Column({ nullable: true })
+    name: string
+
+    @Column({ nullable: true })
+    email: string
+
+    @Column({ nullable: true })
+    phone: string
+
+    ///////////////////////////////////////////////////////////
     @Column({
         type: 'enum',
         enum: approvalStatus,
