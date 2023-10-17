@@ -181,7 +181,7 @@ export default class ApplicationServices {
             data: application
         })
     }
-    static handleUpdateStatusAdmin = async (req) => {
+    static handleUpdateApprovalStatus = async (req) => {
 
         if (!req?.params?.id) {
             return ({

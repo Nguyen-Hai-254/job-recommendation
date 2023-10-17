@@ -7,6 +7,6 @@ route.post('/api/v1/employee/applications', verifyToken, ApplicationController.c
 route.get('/api/v1/admin/applications', verifyToken, ApplicationController.getAllApplications);
 route.get('/api/v1/employee/applications', verifyToken, ApplicationController.getApplicationsbyUser);
 route.get('/api/v1/employee/applications/:id', verifyToken, ApplicationController.getApplication);
-route.put('/api/v1/admin/applications/:id', verifyToken, ApplicationController.updateStatusAdmin);
+route.put('/api/v1/employer/job-postings/applications/:id', verifyToken, ApplicationController.updateApprovalStatus);
 
 export default route
