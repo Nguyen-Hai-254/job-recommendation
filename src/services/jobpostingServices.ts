@@ -5,7 +5,7 @@ import { User } from "../entity/Users"
 import { userRole } from "../utils/enum"
 import { JobPosting } from "../entity/JobPosting"
 import moment from "moment"
-import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex } from "../utils/enumAction"
+import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex, EnumApprovalStatus } from "../utils/enumAction"
 import { Notification } from "../entity/Notification"
 
 const userRepository = myDataSource.getRepository(User);
@@ -66,6 +66,33 @@ export default class JobPostingServices {
         const jobPosting = await jobPostingRepository.findOne({
             where: { postId: req.params.postId },
             relations: ['employer']
+        })
+        if (!jobPosting) {
+            return ({
+                message: `No Job posting matches postId: ${req.params.postId}`,
+                status: 400,
+                data: null
+            })
+        }
+
+        return ({
+            message: `Find Job posting has postId: ${req.params.postId} successes`,
+            status: 200,
+            data: jobPosting
+        })
+    }
+
+    static handleGetJobPostingByUser = async (req) => {
+        if (!req?.params?.postId) {
+            return ({
+                message: 'postId is required',
+                status: 400,
+                data: null
+            })
+        }
+        const jobPosting = await jobPostingRepository.findOne({
+            where: { postId: req.params.postId },
+            relations: ['employer', 'applications'],
         })
         if (!jobPosting) {
             return ({
@@ -254,6 +281,39 @@ export default class JobPostingServices {
 
         return ({
             message: 'Create new job posting successfully',
+            status: 200,
+            data: post
+        })
+    }
+    
+    static handleUpdateApprovalStatus = async (req) => {
+        if (!req?.params?.id) {
+            return ({
+                message: 'id is required',
+                status: 400,
+                data: null
+            })
+        }
+
+        const post = await jobPostingRepository.findOne({
+            where: { postId: req.params.id },
+            relations: ['employer']
+        })
+        if (!post) {
+            return ({
+                message: `No Post matches id: ${req.params.id}`,
+                status: 400,
+                data: null
+            })
+        }
+
+        // Update with req.body
+        if (req.body?.status) post.status = EnumApprovalStatus(req.body.status)
+
+        await jobPostingRepository.save(post)
+
+        return ({
+            message: `Status of Post has id: ${req.params.id} are changed successfully`,
             status: 200,
             data: post
         })

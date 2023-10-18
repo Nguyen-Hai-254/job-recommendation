@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, BeforeUpdate, InsertEvent, OneToMany, ManyToOne } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, BeforeUpdate, InsertEvent, OneToMany, ManyToOne, RelationId } from "typeorm"
 import { Employee } from "./Employee"
 import { JobPosting } from "./JobPosting"
 import { applicationType, approvalStatus } from "../utils/enum"
@@ -17,9 +17,23 @@ export class Application extends BaseEntity {
     })
     applicationType: applicationType
 
+    @Column({ type: 'date', nullable: true })
+    publishingDate: Date
+
+    // Optional properties while applicationType = cv_enclosed
     @Column({ nullable: true })
     CV: string
 
+    @Column({ nullable: true })
+    name: string
+
+    @Column({ nullable: true })
+    email: string
+
+    @Column({ nullable: true })
+    phone: string
+
+    ///////////////////////////////////////////////////////////
     @Column({
         type: 'enum',
         enum: approvalStatus,
@@ -32,4 +46,7 @@ export class Application extends BaseEntity {
 
     @ManyToOne(() => JobPosting, (jobPosting) => jobPosting.applications)
     jobPosting: JobPosting
+
+    @RelationId((application: Application) => application.jobPosting)
+    postId: number;
 }
