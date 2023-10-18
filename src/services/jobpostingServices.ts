@@ -285,7 +285,7 @@ export default class JobPostingServices {
             data: post
         })
     }
-    
+
     static handleUpdateApprovalStatus = async (req) => {
         if (!req?.params?.id) {
             return ({
