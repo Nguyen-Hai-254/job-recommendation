@@ -79,6 +79,33 @@ export default class JobPostingServices {
         })
     }
 
+    static handleGetJobPostingByUser = async (req) => {
+        if (!req?.params?.postId) {
+            return ({
+                message: 'postId is required',
+                status: 400,
+                data: null
+            })
+        }
+        const jobPosting = await jobPostingRepository.findOne({
+            where: { postId: req.params.postId },
+            relations: ['employer', 'applications'],
+        })
+        if (!jobPosting) {
+            return ({
+                message: `No Job posting matches postId: ${req.params.postId}`,
+                status: 400,
+                data: null
+            })
+        }
+
+        return ({
+            message: `Find Job posting has postId: ${req.params.postId} successes`,
+            status: 200,
+            data: jobPosting
+        })
+    }
+
     static handleUpdateJobPosting = async (req) => {
         if (!req?.params?.postId) {
             return ({
