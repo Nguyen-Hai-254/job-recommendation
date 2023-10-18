@@ -17,6 +17,7 @@ export default class EmployeeController {
             });
         }
     }
+
     static createNewOnlineProfile = async (req, res) => {
         try {
             const online_profile = await EmployeeServices.handleCreateNewOnlineProfile(req);
@@ -33,6 +34,7 @@ export default class EmployeeController {
             });
         }
     }
+
     static updateAttachedDocument = async (req, res) => {
         try {
             const attached_document = await EmployeeServices.handleUpdateAttachedDocument(req);
@@ -49,6 +51,7 @@ export default class EmployeeController {
             });
         }
     }
+
     static updateOnlineProfile = async (req, res) => {
         try {
             const online_profile = await EmployeeServices.handleUpdateOnlineProfile(req);

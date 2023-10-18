@@ -72,7 +72,7 @@ export class AttachedDocument extends BaseEntity {
     @Column({ default: false })
     isHidden: boolean
 
-    // Relitions ------------------------
+    // Relationship ------------------------
     @OneToOne(() => Employee, {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'

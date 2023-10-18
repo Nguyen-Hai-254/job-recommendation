@@ -1,18 +1,9 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, BeforeUpdate, InsertEvent } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, OneToMany } from "typeorm"
 import { Employer } from "./Employer"
 import { Employee } from "./Employee"
+import { sex, userRole } from "../utils/enum"
+import { Notification } from "./Notification"
 
-export enum userRole {
-    Employee = 'EMPLOYEE',
-    Employer = 'EMPLOYER',
-    Admin = 'ADMIN'
-}
-
-export enum sex {
-    Male = 'Nam',
-    Female = 'Nữ',
-    Other = 'Khác'
-}
 @Entity()
 export class User extends BaseEntity {
     @PrimaryGeneratedColumn()
@@ -26,16 +17,16 @@ export class User extends BaseEntity {
     @Column()
     password: string
 
-    @Column({nullable: true})
+    @Column({ nullable: true })
     name: string
 
     @Column({ type: 'date', nullable: true })
     dob: Date
 
-    @Column({nullable: true})
+    @Column({ nullable: true })
     address: string
 
-    @Column({nullable: true})
+    @Column({ nullable: true })
     phone: string
 
     @Column({
@@ -44,6 +35,9 @@ export class User extends BaseEntity {
         default: sex.Other
     })
     sex: sex
+
+    @Column({ nullable: true })
+    avatar: string
 
     @Column({
         type: 'enum',
@@ -59,4 +53,8 @@ export class User extends BaseEntity {
     @OneToOne(() => Employee,
         (employee) => employee.user)
     employee: Employee
+
+    @OneToMany(() => Notification,
+        (notification) => notification.user)
+    notifications: Notification[]
 }
