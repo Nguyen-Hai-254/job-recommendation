@@ -29,24 +29,6 @@ export default class ApplicationServices {
                 data: null
             })
         }
-        // Check user is employee ?
-        const foundUser = await userRepository.findOne({
-            where: { userId: req.user.userId }
-        })
-        if (!foundUser) {
-            return ({
-                message: 'User not found',
-                status: 400,
-                data: null
-            })
-        }
-        if (foundUser.role !== userRole.Employee) {
-            return ({
-                message: `You aren't a employee, You cannot implement this request`,
-                status: 401,
-                data: null
-            })
-        }
         // Check applicationType is correct
         if (EnumApplicationType(req.body.applicationType) === applicationType.attached_document) {
             const attached_document = await attached_documentRepository.findOne({
@@ -110,7 +92,6 @@ export default class ApplicationServices {
         // Create new application
         const application = await applicationRepository.create({
             applicationType: EnumApplicationType(req.body.applicationType),
-            // publishingDate: new Date(moment(new Date(), "DD-MM-YYYY").format("MM-DD-YYYY")),
             CV: req.body.applicationType === 'cv_enclosed' ? req.body.CV : null,
             name: req.body.applicationType === 'cv_enclosed' ? req.body.name : null,
             email: req.body.applicationType === 'cv_enclosed' ? req.body.email : null,

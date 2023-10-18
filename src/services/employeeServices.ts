@@ -50,13 +50,6 @@ export default class EmployeeServices {
                 data: null
             })
         }
-        if (foundUser.role !== userRole.Employee) {
-            return ({
-                message: `You aren't a employee, You cannot implement this request`,
-                status: 401,
-                data: null
-            })
-        }
         // Check attached document exists?
         const exist = await attached_documentRepository.findOne({
             where: { userId: req.user.userId },
@@ -115,7 +108,6 @@ export default class EmployeeServices {
             })
         }
         // Check other information
-        // Check user is employee ?
         const foundUser = await userRepository.findOne({
             where: { userId: req.user.userId }
         })
@@ -123,13 +115,6 @@ export default class EmployeeServices {
             return ({
                 message: 'User not found',
                 status: 400,
-                data: null
-            })
-        }
-        if (foundUser.role !== userRole.Employee) {
-            return ({
-                message: `You aren't a employee, You cannot implement this request`,
-                status: 401,
                 data: null
             })
         }
