@@ -102,6 +102,7 @@ export default class UserServices {
         let payload = {
             userId: findUser.userId,
             email: findUser.email,
+            role: findUser.role,
             expireIn: process.env.JWT_EXPIRE_IN
         }
         let token = createToken(payload)
