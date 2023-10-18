@@ -8,6 +8,7 @@ import { AttachedDocument } from "../entity/AttachedDocument"
 import { OnlineProfile } from "../entity/OnlineProfile"
 import { EnumApplicationType, EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } from "../utils/enumAction"
 import { applicationType } from "../utils/enum"
+import moment from "moment"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -108,6 +109,7 @@ export default class ApplicationServices {
         // Create new application
         const application = await applicationRepository.create({
             applicationType: EnumApplicationType(req.body.applicationType),
+            publishingDate: new Date(moment(new Date(), "DD-MM-YYYY").format("MM-DD-YYYY")),
             CV: req.body.applicationType === 'cv_enclosed' ? req.body.CV : null,
             name: req.body.applicationType === 'cv_enclosed' ? req.body.name : null,
             email: req.body.applicationType === 'cv_enclosed' ? req.body.email : null,
@@ -147,7 +149,7 @@ export default class ApplicationServices {
         })
     }
 
-    static handleGetApplicationsbyUser = async (req) => {
+    static handleGetApplicationsbyEmployee = async (req) => {
         const applications = await employeeRepository.findOne({
             where: { userId: req.user.userId },
             relations: ['applications']
@@ -164,6 +166,35 @@ export default class ApplicationServices {
             message: `Find applications successful!`,
             status: 200,
             data: applications.applications
+        })
+
+    }
+
+    static handleGetApplicationsbyEmployer = async (req) => {
+        const posts = await jobpostingRepository.find({
+            where: { employer: { userId: req.user.userId } },
+            relations: ['applications']
+        })
+
+        if (!posts) {
+            return ({
+                message: `User ${req.user.userId} don't have  any jobPosting`,
+                status: 400,
+                data: null
+            })
+        }
+
+        const applications = posts.flatMap(post => {
+            return post.applications.map(application => ({
+                ...application,
+                postId: post.postId,
+            }));
+        });
+
+        return ({
+            message: `Find applications successful!`,
+            status: 200,
+            data: applications
         })
 
     }

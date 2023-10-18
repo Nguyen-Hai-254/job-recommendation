@@ -17,7 +17,7 @@ export default class ApplicationController {
             });
         }
     }
-    
+
     static createNewApplication = async (req, res) => {
         try {
             const application = await ApplicationServices.handleCreateNewApplication(req);
@@ -35,9 +35,26 @@ export default class ApplicationController {
         }
     }
 
-    static getApplicationsbyUser = async (req, res) => {
+    static getApplicationsbyEmployee = async (req, res) => {
         try {
-            const applications = await ApplicationServices.handleGetApplicationsbyUser(req);
+            const applications = await ApplicationServices.handleGetApplicationsbyEmployee(req);
+            return res.status(applications.status).json({
+                message: applications.message,
+                status: 200,
+                data: applications.data ? applications.data : []
+            });
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
+    static getApplicationsbyEmployer = async (req, res) => {
+        try {
+            const applications = await ApplicationServices.handleGetApplicationsbyEmployer(req);
             return res.status(applications.status).json({
                 message: applications.message,
                 status: 200,
