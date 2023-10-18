@@ -209,24 +209,6 @@ export default class JobPostingServices {
                 data: null
             })
         }
-        // Check user is employer?
-        const foundUser = await userRepository.findOne({
-            where: { userId: req.user.userId }
-        })
-        if (!foundUser) {
-            return ({
-                message: 'User not found',
-                status: 400,
-                data: null
-            })
-        }
-        if (foundUser.role !== userRole.Employer) {
-            return ({
-                message: `You aren't a employer, You cannot implement this request`,
-                status: 401,
-                data: null
-            })
-        }
         // Create new post
         const post = await jobPostingRepository.create({
             name: req.body.name,
@@ -273,6 +255,18 @@ export default class JobPostingServices {
 
         user.jobPostings.push(post1);
         await employerRepository.save(user);
+
+        // Add new notification
+        const foundUser = await userRepository.findOne({
+            where: { userId: req.user.userId }
+        })
+        if (!foundUser) {
+            return ({
+                message: 'User not found',
+                status: 400,
+                data: null
+            })
+        }
         const createNotification = notificationRepository.create({
             content: 'Đăng tuyển của bạn đang chờ duyệt',
             user: foundUser
