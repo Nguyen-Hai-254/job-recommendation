@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, BeforeUpdate, InsertEvent, OneToMany, ManyToOne, RelationId } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, BeforeUpdate, InsertEvent, OneToMany, ManyToOne, RelationId, CreateDateColumn } from "typeorm"
 import { Employee } from "./Employee"
 import { JobPosting } from "./JobPosting"
 import { applicationType, approvalStatus } from "../utils/enum"
@@ -17,8 +17,8 @@ export class Application extends BaseEntity {
     })
     applicationType: applicationType
 
-    @Column({ type: 'date', nullable: true })
-    publishingDate: Date
+    @CreateDateColumn({ type: 'timestamp' })
+    createAt: Date
 
     // Optional properties while applicationType = cv_enclosed
     @Column({ nullable: true })

@@ -99,7 +99,7 @@ export class JobPosting extends BaseEntity {
     benefits: string
 
     // Other information ------------------------
-    @CreateDateColumn({type: 'timestamp'})
+    @CreateDateColumn({ type: 'timestamp' })
     createAt: Date
 
     @Column({ nullable: true })

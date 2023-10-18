@@ -110,7 +110,7 @@ export default class ApplicationServices {
         // Create new application
         const application = await applicationRepository.create({
             applicationType: EnumApplicationType(req.body.applicationType),
-            publishingDate: new Date(moment(new Date(), "DD-MM-YYYY").format("MM-DD-YYYY")),
+            // publishingDate: new Date(moment(new Date(), "DD-MM-YYYY").format("MM-DD-YYYY")),
             CV: req.body.applicationType === 'cv_enclosed' ? req.body.CV : null,
             name: req.body.applicationType === 'cv_enclosed' ? req.body.name : null,
             email: req.body.applicationType === 'cv_enclosed' ? req.body.email : null,
