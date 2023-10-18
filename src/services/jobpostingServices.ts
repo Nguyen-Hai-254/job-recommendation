@@ -35,12 +35,12 @@ export default class JobPostingServices {
     }
 
     static handleGetJobPostingsByUser = async (req) => {
-        const getJobPostings = await employerRepository.findOne({
-            where: { userId: req.user.userId },
-            relations: ['jobPostings']
+        const jobpostings = await jobPostingRepository.find({
+            where: { employer: { userId: req.user.userId } },
+            relations: ['employer']
         })
 
-        if (!getJobPostings) {
+        if (!jobpostings) {
             return ({
                 message: `User ${req.user.userId} don't have  any job posting`,
                 status: 400,
@@ -48,9 +48,9 @@ export default class JobPostingServices {
             })
         }
         return ({
-            message: `Find jobPostings successful!`,
+            message: `Find job postings successful!`,
             status: 200,
-            data: getJobPostings.jobPostings
+            data: jobpostings
         })
 
     }
@@ -234,7 +234,6 @@ export default class JobPostingServices {
             jobDescription: req.body.jobDescription,
             jobRequirements: req.body.jobRequirements,
             benefits: req.body.benefits,
-            // publishingDate: new Date(moment(new Date(), "DD-MM-YYYY").format("MM-DD-YYYY")),
             submissionCount: 0,
             view: 0,
             isHidden: req?.body?.isHidden ? req.body.isHidden : false

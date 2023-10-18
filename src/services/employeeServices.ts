@@ -39,17 +39,6 @@ export default class EmployeeServices {
                 data: null
             })
         }
-        // Check user is employee ?
-        const foundUser = await userRepository.findOne({
-            where: { userId: req.user.userId }
-        })
-        if (!foundUser) {
-            return ({
-                message: 'User not found',
-                status: 400,
-                data: null
-            })
-        }
         // Check attached document exists?
         const exist = await attached_documentRepository.findOne({
             where: { userId: req.user.userId },
@@ -64,7 +53,7 @@ export default class EmployeeServices {
         }
         // Create new  attached document
         const attached_document = await attached_documentRepository.create({
-            userId: foundUser.userId,
+            userId: req.user.userId,
             jobTitle: req.body.jobTitle,
             profession: req.body.profession,
             currentPosition: req.body.currentPosition,
@@ -82,6 +71,18 @@ export default class EmployeeServices {
         })
 
         await attached_documentRepository.save(attached_document);
+
+        // add a notification
+        const foundUser = await userRepository.findOne({
+            where: { userId: req.user.userId }
+        })
+        if (!foundUser) {
+            return ({
+                message: 'User not found',
+                status: 400,
+                data: null
+            })
+        }
         const createNotification = notificationRepository.create({
             content: 'Bạn đã tạo hồ sơ đính kèm',
             user: foundUser
@@ -108,16 +109,6 @@ export default class EmployeeServices {
             })
         }
         // Check other information
-        const foundUser = await userRepository.findOne({
-            where: { userId: req.user.userId }
-        })
-        if (!foundUser) {
-            return ({
-                message: 'User not found',
-                status: 400,
-                data: null
-            })
-        }
         // Check online profile exists?
         const exist = await online_profileRepository.findOne({
             where: { userId: req.user.userId },
@@ -132,7 +123,7 @@ export default class EmployeeServices {
         }
         // Create new online profile
         const online_profile = await online_profileRepository.create({
-            userId: foundUser.userId,
+            userId: req.user.userId,
             jobTitle: req.body.jobTitle,
             profession: req.body.profession,
             currentPosition: req.body.currentPosition,
@@ -149,6 +140,17 @@ export default class EmployeeServices {
         })
 
         await online_profileRepository.save(online_profile);
+        // add a notification
+        const foundUser = await userRepository.findOne({
+            where: { userId: req.user.userId }
+        })
+        if (!foundUser) {
+            return ({
+                message: 'User not found',
+                status: 400,
+                data: null
+            })
+        }
         const createNotification = notificationRepository.create({
             content: 'Bạn đã tạo hồ sơ trực tuyến',
             user: foundUser
@@ -194,6 +196,7 @@ export default class EmployeeServices {
         if (req.body?.isHidden) attached_document.isHidden = req.body.isHidden
 
         await attached_documentRepository.save(attached_document);
+        // add a new notification
         const findUser = await userRepository.findOne({
             where: { userId: req.user.userId }
         })
@@ -247,8 +250,8 @@ export default class EmployeeServices {
         if (req.body?.skills) online_profile.skills = req.body.skills
         // other information
         if (req.body?.isHidden) online_profile.isHidden = req.body.isHidden
-
         await online_profileRepository.save(online_profile);
+        // add a new notification
         const findUser = await userRepository.findOneBy({
             userId: req.user.userId
         })
