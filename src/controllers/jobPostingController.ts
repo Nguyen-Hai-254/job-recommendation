@@ -102,4 +102,21 @@ export default class JobPostingController {
             });
         }
     }
+
+    static updateApprovalStatus = async (req, res) => {
+        try {
+            const post = await JobPostingServices.handleUpdateApprovalStatus(req);
+            return res.status(post.status).json({
+                message: post.message,
+                status: post.status,
+                data: post.data
+            })
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
 }
