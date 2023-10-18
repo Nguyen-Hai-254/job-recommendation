@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, BeforeUpdate, InsertEvent, OneToMany, ManyToOne } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, BeforeUpdate, InsertEvent, OneToMany, ManyToOne, CreateDateColumn } from "typeorm"
 import { Employer } from "./Employer"
 import { degree, sex, employmentType, experience, positionLevel, approvalStatus } from "../utils/enum"
 import { Application } from "./Application"
@@ -99,8 +99,8 @@ export class JobPosting extends BaseEntity {
     benefits: string
 
     // Other information ------------------------
-    @Column({ type: 'date', nullable: true })
-    publishingDate: Date
+    @CreateDateColumn({type: 'timestamp'})
+    createAt: Date
 
     @Column({ nullable: true })
     submissionCount: number

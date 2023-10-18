@@ -1,15 +1,18 @@
 import { myDataSource } from "../config/connectDB"
 import { Employee } from "../entity/Employee"
 import { Employer } from "../entity/Employer"
-import { User, userRole } from "../entity/Users"
+import { User } from "../entity/Users"
+import { userRole } from "../utils/enum"
 import { JobPosting } from "../entity/JobPosting"
 import moment from "moment"
 import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex, EnumApprovalStatus } from "../utils/enumAction"
+import { Notification } from "../entity/Notification"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
 const employeeRepository = myDataSource.getRepository(Employee);
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
+const notificationRepository = myDataSource.getRepository(Notification);
 
 export default class JobPostingServices {
     static handleGetAllJobPostings = async () => {
@@ -117,7 +120,7 @@ export default class JobPostingServices {
 
         const jobPosting = await jobPostingRepository.findOne({
             where: { postId: req.params.postId },
-            relations: ['employer']
+            relations: ['employer.user']
         })
         if (!jobPosting) {
             return ({
@@ -161,7 +164,12 @@ export default class JobPostingServices {
         if (req.body?.benefits) jobPosting.benefits = req.body.benefits
         if (req.body?.isHidden) jobPosting.isHidden = req.body.isHidden
 
-        await jobPostingRepository.save(jobPosting)
+        await jobPostingRepository.save(jobPosting);
+        const createNotification = notificationRepository.create({
+            content: 'Bạn đã cập nhật đăng tuyển ' + jobPosting.jobTitle,
+            user: jobPosting.employer.user
+        })
+        await notificationRepository.save(createNotification);
 
         return ({
             message: `Job posting has postId: ${req.params.postId} are updated successfully`,
@@ -244,7 +252,7 @@ export default class JobPostingServices {
             jobDescription: req.body.jobDescription,
             jobRequirements: req.body.jobRequirements,
             benefits: req.body.benefits,
-            publishingDate: new Date(moment(new Date(), "DD-MM-YYYY").format("MM-DD-YYYY")),
+            // publishingDate: new Date(moment(new Date(), "DD-MM-YYYY").format("MM-DD-YYYY")),
             submissionCount: 0,
             view: 0,
             isHidden: req?.body?.isHidden ? req.body.isHidden : false
@@ -265,6 +273,11 @@ export default class JobPostingServices {
 
         user.jobPostings.push(post1);
         await employerRepository.save(user);
+        const createNotification = notificationRepository.create({
+            content: 'Đăng tuyển của bạn đang chờ duyệt',
+            user: foundUser
+        })
+        await notificationRepository.save(createNotification);
 
         return ({
             message: 'Create new job posting successfully',
@@ -272,6 +285,7 @@ export default class JobPostingServices {
             data: post
         })
     }
+    
     static handleUpdateApprovalStatus = async (req) => {
         if (!req?.params?.id) {
             return ({
@@ -294,7 +308,7 @@ export default class JobPostingServices {
         }
 
         // Update with req.body
-        if (req.body?.status) post.status = EnumApprovalStatus(req.body.status)
+        if (req.body?.status) post.status = EnumApprovalStatus(req.body.status);
 
         await jobPostingRepository.save(post)
 

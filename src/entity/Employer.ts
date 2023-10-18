@@ -24,7 +24,6 @@ export class Employer extends BaseEntity {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     })
-
     @JoinColumn({
         name: 'userId',
         referencedColumnName: 'userId'

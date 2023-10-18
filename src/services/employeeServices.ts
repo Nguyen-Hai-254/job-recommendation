@@ -1,12 +1,14 @@
 import { myDataSource } from "../config/connectDB"
 import { Employee } from "../entity/Employee"
 import { Employer } from "../entity/Employer"
-import { User, userRole } from "../entity/Users"
+import { User } from "../entity/Users"
+import { userRole } from "../utils/enum"
 import { JobPosting } from "../entity/JobPosting"
 import { Application } from "../entity/Application"
 import { AttachedDocument } from "../entity/AttachedDocument"
 import { OnlineProfile } from "../entity/OnlineProfile"
 import { EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } from "../utils/enumAction"
+import { Notification } from "../entity/Notification"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -15,6 +17,7 @@ const jobpostingRepository = myDataSource.getRepository(JobPosting);
 const applicationRepository = myDataSource.getRepository(Application);
 const attached_documentRepository = myDataSource.getRepository(AttachedDocument);
 const online_profileRepository = myDataSource.getRepository(OnlineProfile);
+const notificationRepository = myDataSource.getRepository(Notification);
 
 export default class EmployeeServices {
     static handleCreateNewAttachedDocument = async (req) => {
@@ -85,14 +88,21 @@ export default class EmployeeServices {
             isHidden: req?.body?.isHidden ? req.body.isHidden : false
         })
 
-        await attached_documentRepository.save(attached_document)
+        await attached_documentRepository.save(attached_document);
+        const createNotification = notificationRepository.create({
+            content: 'Bạn đã tạo hồ sơ đính kèm',
+            user: foundUser
+        })
+        await notificationRepository.save(createNotification);
+
 
         return ({
-            message: 'Create New attached document successfully',
+            message: 'Tạo hồ sơ đính kèm thành công',
             status: 200,
             data: attached_document
         })
     }
+
     static handleCreateNewOnlineProfile = async (req) => {
         // Check general information
         if (!req?.body?.jobTitle || !req?.body?.profession || !req?.body?.currentPosition ||
@@ -153,10 +163,15 @@ export default class EmployeeServices {
             isHidden: req?.body?.isHidden ? req.body.isHidden : false
         })
 
-        await online_profileRepository.save(online_profile)
+        await online_profileRepository.save(online_profile);
+        const createNotification = notificationRepository.create({
+            content: 'Bạn đã tạo hồ sơ trực tuyến',
+            user: foundUser
+        })
+        await notificationRepository.save(createNotification);
 
         return ({
-            message: 'Create New online profile successfully',
+            message: 'Tạo hồ sơ trực tuyến thành công',
             status: 200,
             data: online_profile
         })
@@ -193,7 +208,22 @@ export default class EmployeeServices {
         if (req.body?.CV) attached_document.CV = req.body.CV
         if (req.body?.isHidden) attached_document.isHidden = req.body.isHidden
 
-        await attached_documentRepository.save(attached_document)
+        await attached_documentRepository.save(attached_document);
+        const findUser = await userRepository.findOne({
+            where: { userId: req.user.userId }
+        })
+        if (!findUser) {
+            return ({
+                message: `Không tìm thấy người dùng`,
+                status: 400,
+                data: null
+            })
+        }
+        const createNotification = notificationRepository.create({
+            content: 'Bạn đã cập nhật hồ sơ đính kèm',
+            user: findUser
+        })
+        await notificationRepository.save(createNotification);
 
         return ({
             message: `attached document has userId: ${req.user.userId} are updated successfully`,
@@ -202,6 +232,7 @@ export default class EmployeeServices {
         })
 
     }
+
     static handleUpdateOnlineProfile = async (req) => {
         // Check online profile exists?
         const online_profile = await online_profileRepository.findOne({
@@ -232,7 +263,24 @@ export default class EmployeeServices {
         // other information
         if (req.body?.isHidden) online_profile.isHidden = req.body.isHidden
 
-        await online_profileRepository.save(online_profile)
+        await online_profileRepository.save(online_profile);
+        const findUser = await userRepository.findOneBy({
+            userId: req.user.userId
+        })
+        if (!findUser) {
+            return ({
+                message: `Không tìm thấy người dùng`,
+                status: 400,
+                data: null
+            })
+        }
+        const createNotification = notificationRepository.create({
+            content: 'Bạn đã cập nhật hồ sơ trực tuyến',
+            user: findUser
+        })
+        await notificationRepository.save(createNotification);
+
+
 
         return ({
             message: `online profile has userId: ${req.user.userId} are updated successfully`,

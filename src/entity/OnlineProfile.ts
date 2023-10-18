@@ -68,7 +68,7 @@ export class OnlineProfile extends BaseEntity {
     @Column({ default: false })
     isHidden: boolean
 
-    // Relitions ------------------------
+    // Relations ------------------------
     @OneToOne(() => Employee, {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'

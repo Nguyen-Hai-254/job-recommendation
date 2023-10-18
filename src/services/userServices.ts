@@ -2,7 +2,11 @@ require('dotenv').config()
 import { myDataSource } from "../config/connectDB"
 import { Employee } from "../entity/Employee"
 import { Employer } from "../entity/Employer"
-import { User, sex, userRole } from "../entity/Users"
+import { Notification } from "../entity/Notification"
+import { OnlineProfile } from "../entity/OnlineProfile"
+import { User } from "../entity/Users"
+import { sex, userRole } from "../utils/enum"
+import { EnumDegree } from "../utils/enumAction"
 import { createToken } from "../utils/JWTAction"
 import bcrypt from "bcrypt"
 import moment from "moment"
@@ -10,6 +14,8 @@ import moment from "moment"
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
 const employeeRepository = myDataSource.getRepository(Employee);
+const notificationRepository = myDataSource.getRepository(Notification);
+const online_profileRepository = myDataSource.getRepository(OnlineProfile);
 
 export default class UserServices {
     static handleRegister = async (email, password, confirmPassword, role) => {
@@ -182,11 +188,17 @@ export default class UserServices {
         }
 
         if (findUser.employee) {
-            findUser.employee.isMarried = body.isMarried === '1' ? true : false
+            findUser.employee.isMarried = body.isMarried === '1' ? true : false;
             await employeeRepository.save(findUser.employee);
         }
 
         await userRepository.save(findUser);
+
+        const createNotification = notificationRepository.create({
+            content: 'Bạn đã cập nhật thông tin cá nhân',
+            user: findUser
+        })
+        await notificationRepository.save(createNotification);
 
         return ({
             message: 'Update your profile successful!',
@@ -270,6 +282,12 @@ export default class UserServices {
         findEmployer.employer.careerField = body.careerField;
 
         await employerRepository.save(findEmployer.employer);
+
+        const createNotification = notificationRepository.create({
+            content: 'Bạn đã cập nhật thông tin công ty của bạn',
+            user: findEmployer
+        })
+        await notificationRepository.save(createNotification);
 
         return ({
             message: `Edit your company successful!`,
