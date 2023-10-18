@@ -11,7 +11,7 @@ route.get('/api/v1/job-postings/user', verifyToken, verifyRole(userRole.Employer
 route.get('/api/v1/job-postings/:postId', JobPostingController.getJobPosting);
 route.get('/api/v1/job-postings/user/:postId', verifyToken, verifyRole(userRole.Employer), JobPostingController.getJobPostingByUser);
 route.put('/api/v1/job-postings/:postId', verifyToken, verifyRole(userRole.Employer), JobPostingController.updateJobPosting);
-route.put('/api/v1/employer/job-postings/:id', verifyToken, verifyRole(userRole.Admin), JobPostingController.updateApprovalStatus);
+route.put('/api/v1/admin/job-postings/:id', verifyToken, verifyRole(userRole.Admin), JobPostingController.updateApprovalStatus);
 
 
 

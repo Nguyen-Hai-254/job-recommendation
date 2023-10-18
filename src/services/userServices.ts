@@ -268,13 +268,6 @@ export default class UserServices {
             })
         }
 
-        if (findEmployer.role !== userRole.Employer) {
-            return ({
-                message: `You are not a employer`,
-                status: 403,
-                data: null
-            })
-        }
 
         findEmployer.employer.taxCode = body.taxCode;
         findEmployer.employer.companyName = body.companyName;
