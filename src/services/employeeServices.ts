@@ -27,6 +27,46 @@ const education_informationRepository = myDataSource.getRepository(EducationInfo
 const work_experienceRepository = myDataSource.getRepository(WorkExperience);
 
 export default class EmployeeServices {
+    static handleGetAttachedDocument = async (req) => {
+        const attached_document = await attached_documentRepository.findOne({
+            where: { employee: { userId: req.user.userId } },
+            relations: ['employee']
+        })
+        if (!attached_document) {
+            return ({
+                message: 'No attached document found',
+                status: 400,
+                data: null
+            })
+        }
+
+        return ({
+            message: 'Find attached document success',
+            status: 200,
+            data: attached_document
+        })
+    }
+
+    static handleGetOnlineProfile = async (req) => {
+        const online_profile = await online_profileRepository.findOne({
+            where: { employee: { userId: req.user.userId } },
+            relations: ['employee', 'another_degrees', 'education_informations', 'work_experiences']
+        })
+        if (!online_profile) {
+            return ({
+                message: 'No online profile found',
+                status: 400,
+                data: null
+            })
+        }
+
+        return ({
+            message: 'Find online profile success',
+            status: 200,
+            data: online_profile
+        })
+    }
+
     static handleCreateNewAttachedDocument = async (req) => {
         // Check general information
         if (!req?.body?.jobTitle || !req?.body?.profession || !req?.body?.currentPosition ||
