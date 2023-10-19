@@ -68,4 +68,56 @@ export default class EmployeeController {
             });
         }
     }
+
+    // online profile: another degree, education information, work experience
+    static createNewAnotherDegree = async (req, res) => {
+        try {
+            const another_degrees = await EmployeeServices.handleCreateNewAnotherDegree(req);
+            return res.status(another_degrees.status).json({
+                message: another_degrees.message,
+                status: another_degrees.status,
+                data: another_degrees.data
+            })
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
+    static createNewEducationInformation = async (req, res) => {
+        try {
+            const education_informations = await EmployeeServices.handleCreateNewEducationInformation(req);
+            return res.status(education_informations.status).json({
+                message: education_informations.message,
+                status: education_informations.status,
+                data: education_informations.data
+            })
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
+    static createNewWorkExperience = async (req, res) => {
+        try {
+            const workexperiences = await EmployeeServices.handleCreateNewWorkExperience(req);
+            return res.status(workexperiences.status).json({
+                message: workexperiences.message,
+                status: workexperiences.status,
+                data: workexperiences.data
+            })
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
 }

@@ -9,6 +9,10 @@ import { AttachedDocument } from "../entity/AttachedDocument"
 import { OnlineProfile } from "../entity/OnlineProfile"
 import { EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } from "../utils/enumAction"
 import { Notification } from "../entity/Notification"
+import { AnotherDegree } from "../entity/AnotherDegree"
+import { EducationInformation } from "../entity/EducationInformation"
+import { WorkExperience } from "../entity/WorkExperience"
+import moment from "moment"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -18,6 +22,9 @@ const applicationRepository = myDataSource.getRepository(Application);
 const attached_documentRepository = myDataSource.getRepository(AttachedDocument);
 const online_profileRepository = myDataSource.getRepository(OnlineProfile);
 const notificationRepository = myDataSource.getRepository(Notification);
+const another_degreeRepository = myDataSource.getRepository(AnotherDegree);
+const education_informationRepository = myDataSource.getRepository(EducationInformation);
+const work_experienceRepository = myDataSource.getRepository(WorkExperience);
 
 export default class EmployeeServices {
     static handleCreateNewAttachedDocument = async (req) => {
@@ -277,5 +284,128 @@ export default class EmployeeServices {
         })
 
     }
+
+    // Update online profile: another degree, education information, work experience
+    static handleCreateNewAnotherDegree = async (req) => {
+        // Check parameters
+        if (!req?.body?.degreeName || !req?.body?.level) {
+            return ({
+                message: 'degreeName and level are required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check online profile exists?
+        const online_profile = await online_profileRepository.findOne({
+            where: { userId: req.user.userId },
+            relations: ['employee', 'another_degrees']
+        })
+        if (!online_profile) {
+            return ({
+                message: `Online profile has userId: ${req.user.userId} doesn't exist`,
+                status: 400,
+                data: null
+            })
+        }
+        const another_degree = await another_degreeRepository.create({
+            degreeName: req.body.degreeName,
+            level: req.body.level
+        })
+        const another_degree1 = await another_degreeRepository.save(another_degree)
+        online_profile.another_degrees.push(another_degree1);
+        await online_profileRepository.save(online_profile);
+
+        return ({
+            message: 'Create New Another Degree successfully',
+            status: 200,
+            data: online_profile.another_degrees
+        })
+
+    }
+
+    static handleCreateNewEducationInformation = async (req) => {
+        // Check parameters
+        if (!req?.body?.schoolName || !req?.body?.specialization || !req?.body?.degreeName ||
+            !req?.body?.startDate || !req?.body?.endDate) {
+            return ({
+                message: 'schoolName, specialization, degreeName, startDate, endDate are required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check online profile exists?
+        const online_profile = await online_profileRepository.findOne({
+            where: { userId: req.user.userId },
+            relations: ['employee', 'education_informations']
+        })
+        if (!online_profile) {
+            return ({
+                message: `Online profile has userId: ${req.user.userId} doesn't exist`,
+                status: 400,
+                data: null
+            })
+        }
+        const education_information = await education_informationRepository.create({
+            schoolName: req.body.schoolName,
+            specialization: req.body.specialization,
+            degreeName: req.body.degreeName,
+            startDate: new Date(moment(req.body.startDate, "DD-MM-YYYY").format("MM-DD-YYYY")),
+            endDate: new Date(moment(req.body.endDate, "DD-MM-YYYY").format("MM-DD-YYYY"))
+        })
+        const education_information1 = await education_informationRepository.save(education_information)
+        online_profile.education_informations.push(education_information1);
+        await online_profileRepository.save(online_profile);
+
+        return ({
+            message: 'Create New Education Infomation successfully',
+            status: 200,
+            data: online_profile.education_informations
+        })
+
+    }
+
+    static handleCreateNewWorkExperience = async (req) => {
+        // Check parameters
+        if (!req?.body?.jobTitle || !req?.body?.companyName || !req?.body?.jobDescription ||
+            !req?.body?.startDate || (!req?.body?.endDate && !req?.body?.isDoing)) {
+            return ({
+                message: 'jobTitle, companyName, jobDescription, startDate, (endDate or isDoing) are required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check online profile exists?
+        const online_profile = await online_profileRepository.findOne({
+            where: { userId: req.user.userId },
+            relations: ['employee', 'work_experiences']
+        })
+        if (!online_profile) {
+            return ({
+                message: `Online profile has userId: ${req.user.userId} doesn't exist`,
+                status: 400,
+                data: null
+            })
+        }
+        const work_experience = await work_experienceRepository.create({
+            jobTitle: req.body.jobTitle,
+            companyName: req.body.companyName,
+            jobDescription: req.body.jobDescription,
+            startDate: new Date(moment(req.body.startDate, "DD-MM-YYYY").format("MM-DD-YYYY"))
+        })
+        if (req.body?.isDoing) work_experience.isDoing = req.body.isDoing
+        if (!work_experience.isDoing) work_experience.endDate = new Date(moment(req.body.endDate, "DD-MM-YYYY").format("MM-DD-YYYY"))
+
+        const work_experience1 = await work_experienceRepository.save(work_experience)
+        online_profile.work_experiences.push(work_experience1);
+        await online_profileRepository.save(online_profile);
+
+        return ({
+            message: 'Create New Another Degree successfully',
+            status: 200,
+            data: online_profile.work_experiences
+        })
+
+    }
+
 }
 

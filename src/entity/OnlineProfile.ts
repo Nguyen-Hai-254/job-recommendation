@@ -1,6 +1,9 @@
 import { Entity, BaseEntity, PrimaryColumn, Column, OneToOne, JoinColumn, InsertEvent, OneToMany, ManyToOne } from "typeorm"
 import { Employee } from "./Employee"
 import { degree, employmentType, experience, positionLevel } from "../utils/enum"
+import { WorkExperience } from "./WorkExperience";
+import { EducationInformation } from "./EducationInformation";
+import { AnotherDegree } from "./AnotherDegree";
 
 
 @Entity()
@@ -78,5 +81,14 @@ export class OnlineProfile extends BaseEntity {
         referencedColumnName: 'userId'
     })
     employee: Employee
+
+    @OneToMany(() => WorkExperience, (workexperience) => workexperience.online_profile)
+    work_experiences: WorkExperience[]
+
+    @OneToMany(() => EducationInformation, (educationinformation) => educationinformation.online_profile)
+    education_informations: EducationInformation[]
+
+    @OneToMany(() => AnotherDegree, (anotherdegree) => anotherdegree.online_profile)
+    another_degrees: AnotherDegree[]
 
 }
