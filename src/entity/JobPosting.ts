@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, BeforeUpdate, InsertEvent, OneToMany, ManyToOne, CreateDateColumn } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn } from "typeorm"
 import { Employer } from "./Employer"
 import { degree, sex, employmentType, experience, positionLevel, approvalStatus } from "../utils/enum"
 import { Application } from "./Application"

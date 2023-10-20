@@ -1,9 +1,5 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, BeforeUpdate, InsertEvent, OneToMany, ManyToOne, CreateDateColumn } from "typeorm"
-import { Employer } from "./Employer"
-import { degree, sex, employmentType, experience, positionLevel, approvalStatus } from "../utils/enum"
-import { Application } from "./Application"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm"
 import { OnlineProfile } from "./OnlineProfile"
-
 
 @Entity()
 export class EducationInformation extends BaseEntity {
