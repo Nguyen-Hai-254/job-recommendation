@@ -321,9 +321,14 @@ export default class UserServices {
         await notificationRepository.save(notification);
 
         return ({
-            message: `Update ảnh đại diện thành công`,
+            message: `Cập nhật ảnh đại diện thành công`,
             status: 200,
-            data: null
+            data: {
+                userId: findUser.userId,
+                email: findUser.email,
+                avatar: findUser.avatar,
+                role: findUser.role
+            }
         })
     }
 }
