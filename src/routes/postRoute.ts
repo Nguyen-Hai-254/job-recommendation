@@ -13,7 +13,7 @@ route.get('/api/v1/employer/job-postings/:postId', verifyToken, verifyRole(userR
 route.post('/api/v1/employer/job-postings', verifyToken, verifyRole(userRole.Employer), JobPostingController.createNewJobPosting);
 route.put('/api/v1/employer/job-postings/:postId', verifyToken, verifyRole(userRole.Employer), JobPostingController.updateJobPosting);
 
-route.put('/api/v1/admin/job-postings/:id', verifyToken, verifyRole(userRole.Admin), JobPostingController.updateApprovalStatus);
+route.put('/api/v1/admin/job-postings/:postId', verifyToken, verifyRole(userRole.Admin), JobPostingController.updateApprovalStatus);
 
 
 
