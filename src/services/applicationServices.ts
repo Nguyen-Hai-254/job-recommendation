@@ -7,7 +7,7 @@ import { JobPosting } from "../entity/JobPosting"
 import { Application } from "../entity/Application"
 import { AttachedDocument } from "../entity/AttachedDocument"
 import { OnlineProfile } from "../entity/OnlineProfile"
-import { EnumApplicationType, EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } from "../utils/enumAction"
+import { EnumApplicationType, EnumApprovalStatus } from "../utils/enumAction"
 import { applicationType } from "../utils/enum"
 import moment from "moment"
 
@@ -20,6 +20,54 @@ const attached_documentRepository = myDataSource.getRepository(AttachedDocument)
 const online_profileRepository = myDataSource.getRepository(OnlineProfile);
 
 export default class ApplicationServices {
+    static handleGetApplicationsbyEmployee = async (req) => {
+        const applications = await employeeRepository.findOne({
+            where: { userId: req.user.userId },
+            relations: ['applications']
+        })
+
+        if (!applications) {
+            return ({
+                message: `User ${req.user.userId} don't have  any applications`,
+                status: 400,
+                data: null
+            })
+        }
+        return ({
+            message: `Find applications successful!`,
+            status: 200,
+            data: applications.applications
+        })
+
+    }
+
+    static handleGetApplication = async (req) => {
+        if (!req?.params?.id) {
+            return ({
+                message: 'id is required',
+                status: 400,
+                data: null
+            })
+        }
+        const application = await applicationRepository.findOne({
+            where: { application_id: req.params.id },
+            relations: ['employee']
+        })
+        if (!application) {
+            return ({
+                message: `No Application matches id: ${req.params.id}`,
+                status: 400,
+                data: null
+            })
+        }
+
+        return ({
+            message: `Find Application has id: ${req.params.id} successes`,
+            status: 200,
+            data: application
+        })
+    }
+
     static handleCreateNewApplication = async (req) => {
         // Check applicationType and postId
         if (!req?.body?.applicationType || !req?.body?.postId) {
@@ -112,46 +160,6 @@ export default class ApplicationServices {
         })
     }
 
-    static handleGetAllApplications = async () => {
-        const applications = await applicationRepository.find({
-            relations: ['employee']
-        })
-        if (!applications || applications.length === 0) {
-            return ({
-                message: 'No Applications found',
-                status: 204,
-                data: null
-            })
-        }
-
-        return ({
-            message: 'Find AllJobpostings success',
-            status: 200,
-            data: applications
-        })
-    }
-
-    static handleGetApplicationsbyEmployee = async (req) => {
-        const applications = await employeeRepository.findOne({
-            where: { userId: req.user.userId },
-            relations: ['applications']
-        })
-
-        if (!applications) {
-            return ({
-                message: `User ${req.user.userId} don't have  any applications`,
-                status: 400,
-                data: null
-            })
-        }
-        return ({
-            message: `Find applications successful!`,
-            status: 200,
-            data: applications.applications
-        })
-
-    }
-
     static handleGetApplicationsbyEmployer = async (req) => {
         const posts = await jobpostingRepository.find({
             where: { employer: { userId: req.user.userId } },
@@ -181,33 +189,6 @@ export default class ApplicationServices {
 
     }
 
-    static handleGetApplication = async (req) => {
-        if (!req?.params?.id) {
-            return ({
-                message: 'id is required',
-                status: 400,
-                data: null
-            })
-        }
-        const application = await applicationRepository.findOne({
-            where: { application_id: req.params.id },
-            relations: ['employee']
-        })
-        if (!application) {
-            return ({
-                message: `No Application matches id: ${req.params.id}`,
-                status: 400,
-                data: null
-            })
-        }
-
-        return ({
-            message: `Find Application has id: ${req.params.id} successes`,
-            status: 200,
-            data: application
-        })
-    }
-    
     static handleUpdateApprovalStatus = async (req) => {
         if (!req?.params?.id) {
             return ({
@@ -228,9 +209,27 @@ export default class ApplicationServices {
                 data: null
             })
         }
-
+        // Check employer is owner of application
+        const post = await jobpostingRepository.findOne({
+            where: { applications: { application_id: req.params.id } },
+            relations: ['applications', 'employer']
+        })
+        if (!post) {
+            return ({
+                message: `Find employer is owner of application id: ${req.params.id} failed`,
+                status: 400,
+                data: null
+            })
+        }
+        if (post.employer.userId !== req.user.userId) {
+            return ({
+                message: `You isn't owner of application id: ${req.params.id}`,
+                status: 400,
+                data: null
+            })
+        }
         // Update with req.body
-        if (req.body?.status) application.status = req.body.status
+        if (req.body?.status) application.status = EnumApprovalStatus(req.body.status)
 
         await applicationRepository.save(application)
 
@@ -238,6 +237,25 @@ export default class ApplicationServices {
             message: `Status of Application has id: ${req.params.id} are changed successfully`,
             status: 200,
             data: application
+        })
+    }
+
+    static handleGetAllApplications = async () => {
+        const applications = await applicationRepository.find({
+            relations: ['employee']
+        })
+        if (!applications || applications.length === 0) {
+            return ({
+                message: 'No Applications found',
+                status: 204,
+                data: null
+            })
+        }
+
+        return ({
+            message: 'Find AllJobpostings success',
+            status: 200,
+            data: applications
         })
     }
 }

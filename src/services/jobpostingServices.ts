@@ -34,7 +34,7 @@ export default class JobPostingServices {
         })
     }
 
-    static handleGetJobPostingsByUser = async (req) => {
+    static handleGetJobPostingsByEmployer = async (req) => {
         const jobpostings = await jobPostingRepository.find({
             where: { employer: { userId: req.user.userId } },
             relations: ['employer']
@@ -82,7 +82,7 @@ export default class JobPostingServices {
         })
     }
 
-    static handleGetJobPostingByUser = async (req) => {
+    static handleGetJobPostingByEmployer = async (req) => {
         if (!req?.params?.postId) {
             return ({
                 message: 'postId is required',
@@ -281,21 +281,21 @@ export default class JobPostingServices {
     }
 
     static handleUpdateApprovalStatus = async (req) => {
-        if (!req?.params?.id) {
+        if (!req?.params?.postId) {
             return ({
-                message: 'id is required',
+                message: 'postId is required',
                 status: 400,
                 data: null
             })
         }
 
         const post = await jobPostingRepository.findOne({
-            where: { postId: req.params.id },
+            where: { postId: req.params.postId },
             relations: ['employer']
         })
         if (!post) {
             return ({
-                message: `No Post matches id: ${req.params.id}`,
+                message: `No Post matches postId: ${req.params.postId}`,
                 status: 400,
                 data: null
             })
@@ -307,7 +307,7 @@ export default class JobPostingServices {
         await jobPostingRepository.save(post)
 
         return ({
-            message: `Status of Post has id: ${req.params.id} are changed successfully`,
+            message: `Status of Post has id: ${req.params.postId} are changed successfully`,
             status: 200,
             data: post
         })
