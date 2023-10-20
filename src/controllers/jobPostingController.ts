@@ -18,9 +18,9 @@ export default class JobPostingController {
         }
     }
 
-    static getJobPostingsByUser = async (req, res) => {
+    static getJobPostingsByEmployer = async (req, res) => {
         try {
-            const jobPostings = await JobPostingServices.handleGetJobPostingsByUser(req);
+            const jobPostings = await JobPostingServices.handleGetJobPostingsByEmployer(req);
             return res.status(jobPostings.status).json({
                 message: jobPostings.message,
                 status: 200,
@@ -52,9 +52,9 @@ export default class JobPostingController {
         }
     }
 
-    static getJobPostingByUser = async (req, res) => {
+    static getJobPostingByEmployer = async (req, res) => {
         try {
-            const jobPosting = await JobPostingServices.handleGetJobPostingByUser(req);
+            const jobPosting = await JobPostingServices.handleGetJobPostingByEmployer(req);
             return res.status(jobPosting.status).json({
                 message: jobPosting.message,
                 status: jobPosting.status,

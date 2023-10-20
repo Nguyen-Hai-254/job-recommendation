@@ -34,7 +34,7 @@ export default class JobPostingServices {
         })
     }
 
-    static handleGetJobPostingsByUser = async (req) => {
+    static handleGetJobPostingsByEmployer = async (req) => {
         const jobpostings = await jobPostingRepository.find({
             where: { employer: { userId: req.user.userId } },
             relations: ['employer']
@@ -82,7 +82,7 @@ export default class JobPostingServices {
         })
     }
 
-    static handleGetJobPostingByUser = async (req) => {
+    static handleGetJobPostingByEmployer = async (req) => {
         if (!req?.params?.postId) {
             return ({
                 message: 'postId is required',
