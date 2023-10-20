@@ -137,6 +137,7 @@ export default class JobPostingServices {
                 data: null
             })
         }
+
         // Update with req.body
         if (req.body?.name) jobPosting.name = req.body.name
         if (req.body?.email) jobPosting.email = req.body.email
@@ -155,7 +156,7 @@ export default class JobPostingServices {
         if (req.body?.sex) jobPosting.sex = EnumSex(req.body.sex)
         if (req.body?.numberOfVacancies) jobPosting.numberOfVacancies = req.body.numberOfVacancies
         if (req.body?.trialPeriod) jobPosting.trialPeriod = req.body.trialPeriod
-        if (req.body?.applicationDeadline) jobPosting.applicationDeadline = new Date(moment(req.body.applicationDeadline, "DD-MM-YYYY").format("MM-DD-YYYY"));
+        if (req.body?.applicationDeadline) jobPosting.applicationDeadline = new Date(moment(req.body.applicationDeadline).format("YYYY-MM-DD"));
         if (req.body?.minSalary) jobPosting.minSalary = req.body.minSalary
         if (req.body?.maxSalary) jobPosting.maxSalary = req.body.maxSalary
         if (req.body?.skills) jobPosting.skills = req.body.skills
@@ -227,7 +228,7 @@ export default class JobPostingServices {
             sex: req.body.sex ? req.body.sex : null,
             numberOfVacancies: req.body.numberOfVacancies,
             trialPeriod: req.body.trialPeriod ? req.body.trialPeriod : null,
-            applicationDeadline: new Date(moment(req.body.applicationDeadline, "DD-MM-YYYY").format("MM-DD-YYYY")),
+            // applicationDeadline: new Date(moment(req.body.applicationDeadline, "DD-MM-YYYY").format("MM-DD-YYYY")),
             minSalary: req.body.minSalary,
             maxSalary: req.body.maxSalary,
             skills: req.body.skills ? req.body.skills : null,

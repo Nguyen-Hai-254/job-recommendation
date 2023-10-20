@@ -153,6 +153,7 @@ export default class UserServices {
                 address: getUserProfile.address,
                 phone: getUserProfile.phone,
                 sex: getUserProfile.sex,
+                avatar: getUserProfile.avatar,
                 isMarried: getUserProfile.employee?.isMarried ? getUserProfile.employee.isMarried : null
             }
         })
@@ -295,6 +296,34 @@ export default class UserServices {
                 companyLocation: findEmployer.employer.companyLocation,
                 careerField: findEmployer.employer.careerField,
             }
+        })
+    }
+
+    static handleUploadAvatar = async (user, avatar) => {
+        let findUser = await userRepository.findOne({
+            where: { userId: user.userId }
+        })
+
+        if (!findUser) {
+            return ({
+                message: `This account isn't registered`,
+                status: 404,
+                data: null
+            })
+        }
+
+        findUser.avatar = avatar;
+        await userRepository.save(findUser);
+        const notification = notificationRepository.create({
+            content: 'Bạn đã cập nhật ảnh đại diện',
+            user: findUser
+        })
+        await notificationRepository.save(notification);
+
+        return ({
+            message: `Update ảnh đại diện thành công`,
+            status: 200,
+            data: null
         })
     }
 }

@@ -45,10 +45,10 @@ export const EnumUserRole = (x) => {
 export const EnumSex = (x) => {
     let y = sex.Other
     switch (x) {
-        case 'Male':
+        case 'Male': case sex.Male:
             y = sex.Male;
             break;
-        case 'Female':
+        case 'Female': case sex.Female:
             y = sex.Female;
             break;
         default:

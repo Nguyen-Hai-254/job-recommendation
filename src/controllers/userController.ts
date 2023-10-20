@@ -79,7 +79,7 @@ export default class UserController {
             const getUser = await UserServices.handleGetProfile(req.user);
             return res.status(getUser.status).json({
                 message: getUser.message,
-                status: 200,
+                status: getUser.status,
                 data: getUser.data ? getUser.data : []
             });
         } catch (e) {
@@ -96,7 +96,7 @@ export default class UserController {
             const editUser = await UserServices.handleEditProfile(req.user, req.body)
             return res.status(editUser.status).json({
                 message: editUser.message,
-                status: 200,
+                status: editUser.status,
                 data: editUser.data ? editUser.data : []
             });
         } catch (e) {
@@ -113,7 +113,7 @@ export default class UserController {
             const getCompany = await UserServices.handleGetInformationCompany(req.user);
             return res.status(getCompany.status).json({
                 message: getCompany.message,
-                status: 200,
+                status: getCompany.status,
                 data: getCompany.data ? getCompany.data : []
             });
         } catch (e) {
@@ -130,9 +130,29 @@ export default class UserController {
             const editCompany = await UserServices.handleEditInformationCompany(req.user, req.body);
             return res.status(editCompany.status).json({
                 message: editCompany.message,
-                status: 200,
+                status: editCompany.status,
                 data: editCompany.data ? editCompany.data : []
             });
+        } catch (e) {
+            return res.status(500).json({
+                message: e.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
+    static uploadAvatar = async (req, res) => {
+        try {
+            if (!req.body.avatar) {
+                return res.status(500).json({
+                    message: "Missing input parameter!",
+                    status: 500,
+                    error: 'Internal Server Error',
+                });
+            }
+            const avatar = await UserServices.handleUploadAvatar(req.user, req.body.avatar);
+            return res.status(avatar.status).json(avatar);
         } catch (e) {
             return res.status(500).json({
                 message: e.message,
