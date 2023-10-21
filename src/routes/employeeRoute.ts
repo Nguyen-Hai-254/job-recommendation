@@ -14,6 +14,9 @@ route.post('/api/v1/employee/online-profile', verifyToken, verifyRole(userRole.E
 route.put('/api/v1/employee/online-profile', verifyToken, verifyRole(userRole.Employee), EmployeeController.updateOnlineProfile);
 
 route.post('/api/v1/employee/online-profile/another-degree', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewAnotherDegree);
+route.put('/api/v1/employee/online-profile/another-degree/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.updateAnotherDegree);
+route.delete('/api/v1/employee/online-profile/another-degree/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.deleteAnotherDegree);
+
 route.post('/api/v1/employee/online-profile/education-information', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewEducationInformation);
 route.post('/api/v1/employee/online-profile/work-experience', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewWorkExperience);
 export default route

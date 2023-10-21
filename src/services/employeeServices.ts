@@ -47,26 +47,6 @@ export default class EmployeeServices {
         })
     }
 
-    static handleGetOnlineProfile = async (req) => {
-        const online_profile = await online_profileRepository.findOne({
-            where: { employee: { userId: req.user.userId } },
-            relations: ['employee', 'another_degrees', 'education_informations', 'work_experiences']
-        })
-        if (!online_profile) {
-            return ({
-                message: 'No online profile found',
-                status: 400,
-                data: null
-            })
-        }
-
-        return ({
-            message: 'Find online profile success',
-            status: 200,
-            data: online_profile
-        })
-    }
-
     static handleCreateNewAttachedDocument = async (req) => {
         // Check general information
         if (!req?.body?.jobTitle || !req?.body?.profession || !req?.body?.currentPosition ||
@@ -144,6 +124,83 @@ export default class EmployeeServices {
         })
     }
 
+    static handleUpdateAttachedDocument = async (req) => {
+        // Check attached document exists?
+        const attached_document = await attached_documentRepository.findOne({
+            where: { userId: req.user.userId },
+            relations: ['employee']
+        })
+        if (!attached_document) {
+            return ({
+                message: `No attached document matches userId: ${req.user.userId}`,
+                status: 400,
+                data: null
+            })
+        }
+
+        // Update with req.body
+        // general information
+        if (req.body?.jobTitle) attached_document.jobTitle = req.body.jobTitle
+        if (req.body?.profession) attached_document.profession = req.body.profession
+        if (req.body?.currentPosition) attached_document.currentPosition = EnumPositionLevel(req.body.currentPosition)
+        if (req.body?.desiredPosition) attached_document.desiredPosition = EnumPositionLevel(req.body.desiredPosition)
+        if (req.body?.desiredSalary) attached_document.desiredSalary = req.body.desiredSalary
+        if (req.body?.degree) attached_document.degree = EnumDegree(req.body.degree)
+        if (req.body?.workAddress) attached_document.workAddress = req.body.workAddress
+        if (req.body?.experience) attached_document.experience = EnumExperience(req.body.experience);
+        if (req.body?.employmentType) attached_document.employmentType = EnumEmploymentType(req.body.employmentType);
+        if (req.body?.careerGoal) attached_document.careerGoal = req.body.careerGoal
+        if (req.body?.skills) attached_document.skills = req.body.skills
+        // other information
+        if (req.body?.CV) attached_document.CV = req.body.CV
+        if (req.body?.isHidden) attached_document.isHidden = req.body.isHidden
+
+        await attached_documentRepository.save(attached_document);
+        // add a new notification
+        const findUser = await userRepository.findOne({
+            where: { userId: req.user.userId }
+        })
+        if (!findUser) {
+            return ({
+                message: `Không tìm thấy người dùng`,
+                status: 400,
+                data: null
+            })
+        }
+        const createNotification = notificationRepository.create({
+            content: 'Bạn đã cập nhật hồ sơ đính kèm',
+            user: findUser
+        })
+        await notificationRepository.save(createNotification);
+
+        return ({
+            message: `attached document has userId: ${req.user.userId} are updated successfully`,
+            status: 200,
+            data: attached_document
+        })
+
+    }
+
+    static handleGetOnlineProfile = async (req) => {
+        const online_profile = await online_profileRepository.findOne({
+            where: { employee: { userId: req.user.userId } },
+            relations: ['employee', 'another_degrees', 'education_informations', 'work_experiences']
+        })
+        if (!online_profile) {
+            return ({
+                message: 'No online profile found',
+                status: 400,
+                data: null
+            })
+        }
+
+        return ({
+            message: 'Find online profile success',
+            status: 200,
+            data: online_profile
+        })
+    }
+
     static handleCreateNewOnlineProfile = async (req) => {
         // Check general information
         if (!req?.body?.jobTitle || !req?.body?.profession || !req?.body?.currentPosition ||
@@ -209,63 +266,6 @@ export default class EmployeeServices {
             status: 200,
             data: online_profile
         })
-    }
-
-    static handleUpdateAttachedDocument = async (req) => {
-        // Check attached document exists?
-        const attached_document = await attached_documentRepository.findOne({
-            where: { userId: req.user.userId },
-            relations: ['employee']
-        })
-        if (!attached_document) {
-            return ({
-                message: `No attached document matches userId: ${req.user.userId}`,
-                status: 400,
-                data: null
-            })
-        }
-
-        // Update with req.body
-        // general information
-        if (req.body?.jobTitle) attached_document.jobTitle = req.body.jobTitle
-        if (req.body?.profession) attached_document.profession = req.body.profession
-        if (req.body?.currentPosition) attached_document.currentPosition = EnumPositionLevel(req.body.currentPosition)
-        if (req.body?.desiredPosition) attached_document.desiredPosition = EnumPositionLevel(req.body.desiredPosition)
-        if (req.body?.desiredSalary) attached_document.desiredSalary = req.body.desiredSalary
-        if (req.body?.degree) attached_document.degree = EnumDegree(req.body.degree)
-        if (req.body?.workAddress) attached_document.workAddress = req.body.workAddress
-        if (req.body?.experience) attached_document.experience = EnumExperience(req.body.experience);
-        if (req.body?.employmentType) attached_document.employmentType = EnumEmploymentType(req.body.employmentType);
-        if (req.body?.careerGoal) attached_document.careerGoal = req.body.careerGoal
-        if (req.body?.skills) attached_document.skills = req.body.skills
-        // other information
-        if (req.body?.CV) attached_document.CV = req.body.CV
-        if (req.body?.isHidden) attached_document.isHidden = req.body.isHidden
-
-        await attached_documentRepository.save(attached_document);
-        // add a new notification
-        const findUser = await userRepository.findOne({
-            where: { userId: req.user.userId }
-        })
-        if (!findUser) {
-            return ({
-                message: `Không tìm thấy người dùng`,
-                status: 400,
-                data: null
-            })
-        }
-        const createNotification = notificationRepository.create({
-            content: 'Bạn đã cập nhật hồ sơ đính kèm',
-            user: findUser
-        })
-        await notificationRepository.save(createNotification);
-
-        return ({
-            message: `attached document has userId: ${req.user.userId} are updated successfully`,
-            status: 200,
-            data: attached_document
-        })
-
     }
 
     static handleUpdateOnlineProfile = async (req) => {
@@ -359,6 +359,98 @@ export default class EmployeeServices {
             message: 'Create New Another Degree successfully',
             status: 200,
             data: online_profile.another_degrees
+        })
+
+    }
+
+    static handleUpdateAnotherDegree = async (req) => {
+        // Check parameters
+        if (!req?.params.id) {
+            return ({
+                message: 'id of another degree  is required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check another degree exists?
+        const another_degree = await another_degreeRepository.findOne({
+            where: { id: req.params.id },
+            relations: ['online_profile']
+        })
+        if (!another_degree) {
+            return ({
+                message: `another degree has id: ${req.params.id} not found`,
+                status: 400,
+                data: null
+            })
+        }
+        // Check employee is owner of another degree ?
+        if (another_degree.online_profile.userId !== req.user.userId) {
+            return ({
+                message: `You are not the owner of another degree has id: ${req.params.id}`,
+                status: 403,
+                data: null
+            })
+        }
+
+        if (req.body?.degreeName) another_degree.degreeName = req.body.degreeName
+        if (req.body?.level) another_degree.level = req.body.level
+        await another_degreeRepository.save(another_degree)
+
+        return ({
+            message: `Update Another Degree has id: ${req.params.id}  successfully`,
+            status: 200,
+            data: {
+                userId: another_degree.online_profile.userId,
+                id: another_degree.id,
+                degreeName: another_degree.degreeName,
+                level: another_degree.level
+            }
+        })
+
+    }
+
+    static handleDeleteAnotherDegree = async (req) => {
+        // Check parameters
+        if (!req?.params.id) {
+            return ({
+                message: 'id of another degree  is required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check another degree exists?
+        const another_degree = await another_degreeRepository.findOne({
+            where: { id: req.params.id },
+            relations: ['online_profile']
+        })
+        if (!another_degree) {
+            return ({
+                message: `another degree has id: ${req.params.id} not found`,
+                status: 400,
+                data: null
+            })
+        }
+        // Check employee is owner of another degree ?
+        if (another_degree.online_profile.userId !== req.user.userId) {
+            return ({
+                message: `You are not the owner of another degree has id: ${req.params.id}`,
+                status: 403,
+                data: null
+            })
+        }
+
+        await another_degreeRepository.delete(another_degree.id)
+
+        return ({
+            message: `Delete Another Degree has id: ${another_degree.id}  successfully`,
+            status: 200,
+            data: {
+                userId: another_degree.online_profile.userId,
+                id: another_degree.id,
+                degreeName: another_degree.degreeName,
+                level: another_degree.level
+            }
         })
 
     }
