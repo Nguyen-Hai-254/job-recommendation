@@ -163,7 +163,7 @@ export default class JobPostingServices {
         if (req.body?.jobDescription) jobPosting.jobDescription = req.body.jobDescription
         if (req.body?.jobRequirements) jobPosting.jobRequirements = req.body.jobRequirements
         if (req.body?.benefits) jobPosting.benefits = req.body.benefits
-        if (req.body?.isHidden) jobPosting.isHidden = req.body.isHidden
+        if (req.body?.isHidden !== null) jobPosting.isHidden = req.body.isHidden
 
         await jobPostingRepository.save(jobPosting);
         const createNotification = notificationRepository.create({

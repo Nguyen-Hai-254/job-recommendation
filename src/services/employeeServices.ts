@@ -153,7 +153,7 @@ export default class EmployeeServices {
         if (req.body?.skills) attached_document.skills = req.body.skills
         // other information
         if (req.body?.CV) attached_document.CV = req.body.CV
-        if (req.body?.isHidden) attached_document.isHidden = req.body.isHidden
+        if (req.body?.isHidden !== null) attached_document.isHidden = req.body.isHidden
 
         await attached_documentRepository.save(attached_document);
         // add a new notification
@@ -296,7 +296,8 @@ export default class EmployeeServices {
         if (req.body?.careerGoal) online_profile.careerGoal = req.body.careerGoal
         if (req.body?.skills) online_profile.skills = req.body.skills
         // other information
-        if (req.body?.isHidden) online_profile.isHidden = req.body.isHidden
+        if (req.body?.isHidden !== null) online_profile.isHidden = req.body.isHidden
+        else online_profile.isHidden = false
         await online_profileRepository.save(online_profile);
         // add a new notification
         const findUser = await userRepository.findOneBy({
