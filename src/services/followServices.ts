@@ -1,0 +1,175 @@
+import { myDataSource } from "../config/connectDB";
+import { Employee } from "../entity/Employee";
+import { Employer } from "../entity/Employer";
+import { Follow } from "../entity/follow";
+import { Save } from "../entity/save";
+
+const employeeRepository = myDataSource.getRepository(Employee);
+const employerRepository = myDataSource.getRepository(Employer);
+const followRepository = myDataSource.getRepository(Follow);
+const saveRepository = myDataSource.getRepository(Save);
+
+export default class FollowServices {
+    static handleFollowCompany = async (user, employerId) => {
+        let findUser = await employeeRepository.findOne({
+            where: { userId: user.userId },
+            relations: ['follow']
+        })
+
+        if (!findUser) {
+            return ({
+                message: 'Người dùng không tồn tại',
+                status: 404,
+                data: null
+            })
+        }
+
+        let findEmployer = await employerRepository.findOne({
+            where: { userId: employerId }
+        })
+
+        if (!findEmployer) {
+            return ({
+                message: 'Công ty không tồn tại!',
+                status: 404,
+                data: null
+            })
+        }
+        const find = findUser.follow.findIndex((follow) => follow.employerId == employerId);
+
+        if (find !== -1) {
+            await followRepository.delete({
+                employeeId: findUser.userId,
+                employerId: findEmployer.userId
+            })
+        }
+        else {
+            const createFollow = followRepository.create({
+                employeeId: findUser.userId,
+                employerId: findEmployer.userId
+            })
+
+            await followRepository.save(createFollow);
+        };
+
+        return ({
+            message: find !== -1 ? 'Đã bỏ theo dõi công ty' : 'Đã theo dõi công ty',
+            status: 200,
+            data: true
+        })
+    }
+
+    static handleSaveEmployee = async (user, emloyeeId) => {
+        let findEmployer = await employerRepository.findOne({
+            where: { userId: user.userId },
+            relations: ['saveEmployee']
+        })
+
+        if (!findEmployer) {
+            return ({
+                message: 'Không tìm thấy thông tin công ty!',
+                status: 404,
+                data: null
+            })
+        }
+
+        const findEmployee = await employeeRepository.findOne({
+            where: { userId: emloyeeId }
+        })
+
+        if (!findEmployee) {
+            return ({
+                message: 'Không tìm thấy thông tin người xin việc!',
+                status: 404,
+                data: null
+            })
+        }
+
+        const find = findEmployer.saveEmployee.findIndex((save) => save.employeeId == emloyeeId)
+        if (find !== -1) {
+            await saveRepository.delete({
+                employeeId: findEmployee.userId,
+                employerId: findEmployer.userId
+            })
+        }
+        else {
+            const createSave = saveRepository.create({
+                employeeId: findEmployee.userId,
+                employerId: findEmployer.userId
+            })
+            await saveRepository.save(createSave);
+        };
+
+        return ({
+            message: find !== -1 ? 'Đã bỏ lưu hồ sơ' : 'Đã lưu hồ sơ',
+            status: 200,
+            data: true
+        })
+    }
+
+    static handleGetFollowByEmployee = async (user) => {
+        const findEmployee = await followRepository.find({
+            where: { employeeId: user.userId },
+            relations: ['employer.jobPostings']
+        })
+
+        if (!findEmployee) {
+            return ({
+                message: 'Không tìm thấy thông tin người xin việc!',
+                status: 404,
+                data: null
+            })
+        }
+
+        const company = findEmployee.map((follow) => {
+            return ({
+                employerId: follow.employerId,
+                companyName: follow.employer.companyName,
+                companyLocation: follow.employer.companyLocation,
+                logo: follow.employer.logo,
+                numberCurrentlyRecruiting: follow.employer.jobPostings.length,
+                followDate: follow.createAt
+            })
+        })
+
+        return ({
+            message: 'OK',
+            status: 200,
+            data: {
+                employeeId: user.userId,
+                email: user.email,
+                followCompany: company
+            }
+        })
+    }
+
+    static handleGetSaveEmployeeByEmployer = async (user) => {
+        const findEmployer = await saveRepository.find({
+            where: { employerId: user.userId },
+            relations: ['employee.user']
+        })
+
+        if (!findEmployer) {
+            return ({
+                message: 'Không tìm thấy thông tin công ty!',
+                status: 404,
+                data: null
+            })
+        }
+
+        const data = findEmployer.map((save) => {
+            return ({
+                userId: save.employee.user.userId,
+                email: save.employee.user.email,
+                name: save.employee.user.name,
+                createAt: save.createAt
+            })
+        })
+
+        return ({
+            message: 'OK',
+            status: 200,
+            data: data
+        })
+    }
+}

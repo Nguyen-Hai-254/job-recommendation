@@ -2,6 +2,7 @@ import { BaseEntity, Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMan
 import { User } from "./Users";
 import { JobPosting } from "./JobPosting";
 import { Employee } from "./Employee";
+import { Save } from "./save";
 
 @Entity()
 export class Employer extends BaseEntity {
@@ -20,6 +21,9 @@ export class Employer extends BaseEntity {
     @Column({ nullable: true })
     careerField: string
 
+    @Column({nullable: true})
+    logo: string
+
     @OneToOne(() => User, {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
@@ -33,18 +37,6 @@ export class Employer extends BaseEntity {
     @OneToMany(() => JobPosting, (jobPosting) => jobPosting.employer)
     jobPostings: JobPosting[]
 
-    @ManyToMany(() => Employee,
-        (employee) => employee.follow)
-    @JoinTable({
-        name: 'save',
-        joinColumn: {
-            name: 'employerId',
-            referencedColumnName: 'userId'
-        },
-        inverseJoinColumn: {
-            name: 'employeeId',
-            referencedColumnName: 'userId'
-        }
-    })
-    saveEmployee: Employee[]
+    @OneToMany(() => Save, (save) => save.employer)
+    saveEmployee: Save[]
 }

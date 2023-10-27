@@ -4,6 +4,7 @@ import { Application } from "./Application";
 import { OnlineProfile } from "./OnlineProfile";
 import { AttachedDocument } from "./AttachedDocument";
 import { Employer } from "./Employer";
+import { Follow } from "./follow";
 
 @Entity()
 export class Employee extends BaseEntity {
@@ -33,18 +34,6 @@ export class Employee extends BaseEntity {
     @OneToMany(() => Application, (application) => application.employee)
     applications: Application[]
 
-    @ManyToMany(() => Employer,
-        (employer) => employer.save)
-    @JoinTable({
-        name: 'follow',
-        joinColumn: {
-            name: 'employeeId',
-            referencedColumnName: 'userId'
-        },
-        inverseJoinColumn: {
-            name: 'employerId',
-            referencedColumnName: 'userId'
-        }
-    })
-    follow: Employer[]
+    @OneToMany(() => Follow, (follow) => follow.employee)
+    follow: Follow[]
 }

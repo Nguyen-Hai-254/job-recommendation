@@ -11,7 +11,7 @@ export default class UserController {
                     error: 'Internal Server Error',
                 });
             }
-
+            
             const { email, password, confirmPassword, role } = req.body;
 
             const data = await UserServices.handleRegister(email, password, confirmPassword, role)

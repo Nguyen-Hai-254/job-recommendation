@@ -16,4 +16,6 @@ route.put('/api/v1/employee/online-profile', verifyToken, verifyRole(userRole.Em
 route.post('/api/v1/employee/online-profile/another-degree', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewAnotherDegree);
 route.post('/api/v1/employee/online-profile/education-information', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewEducationInformation);
 route.post('/api/v1/employee/online-profile/work-experience', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewWorkExperience);
+
+
 export default route
