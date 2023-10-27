@@ -520,10 +520,10 @@ export default class EmployeeServices {
                 data: null
             })
         }
-        // Check employee is owner of another degree ?
+        // Check employee is owner of education information ?
         if (education_information.online_profile.userId !== req.user.userId) {
             return ({
-                message: `You are not the owner of another degree has id: ${req.params.id}`,
+                message: `You are not the owner of education information has id: ${req.params.id}`,
                 status: 403,
                 data: null
             })
@@ -624,6 +624,114 @@ export default class EmployeeServices {
             message: 'Create New Another Degree successfully',
             status: 200,
             data: online_profile.work_experiences
+        })
+
+    }
+
+    static handleUpdateWorkExperience = async (req) => {
+        // Check parameters
+        if (!req?.params.id) {
+            return ({
+                message: 'id of work experience  is required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check work experience exists?
+        const work_experience = await work_experienceRepository.findOne({
+            where: { id: req.params.id },
+            relations: ['online_profile']
+        })
+        if (!work_experience) {
+            return ({
+                message: `Work experience has id: ${req.params.id} not found`,
+                status: 400,
+                data: null
+            })
+        }
+        // Check employee is owner of work experience ?
+        if (work_experience.online_profile.userId !== req.user.userId) {
+            return ({
+                message: `You are not the owner of work experience has id: ${req.params.id}`,
+                status: 403,
+                data: null
+            })
+        }
+
+        if (req.body?.jobTitle) work_experience.jobTitle = req.body.jobTitle
+        if (req.body?.companyName) work_experience.companyName = req.body.companyName
+        if (req.body?.jobDescription) work_experience.jobDescription = req.body.jobDescription
+        if (req.body?.startDate) work_experience.startDate = new Date(moment(req.body.startDate, "DD-MM-YYYY").format("MM-DD-YYYY"))
+        // handle isDoing and endDate
+        if (req.body?.isDoing && req.body?.endDate) {
+            return ({
+                message: `cannot update when body has: isDoing is true and endDate exist`,
+                status: 400,
+                data: null
+            })
+        }
+        if (req.body?.isDoing && !req.body?.endDate) {
+            work_experience.endDate = new Date(moment(null, "DD-MM-YYYY").format("MM-DD-YYYY"));
+            work_experience.isDoing = true;
+        }
+        if (req.body?.isDoing !== null && req.body?.isDoing !== undefined && req.body?.isDoing === false && !req.body?.endDate) {
+            return ({
+                message: `cannot update when body has: isDoing is false and endDate not exist`,
+                status: 400,
+                data: null
+            })
+        }
+        if (!req.body?.isDoing && req.body?.endDate) {
+            work_experience.endDate = new Date(moment(req.body.endDate, "DD-MM-YYYY").format("MM-DD-YYYY"));
+            work_experience.isDoing = false;
+        }
+
+        await work_experienceRepository.save(work_experience)
+
+        return ({
+            message: `Update Work Experience has id: ${req.params.id}  successfully`,
+            status: 200,
+            data: work_experience
+        })
+
+    }
+
+    static handleDeleteWorkExperience = async (req) => {
+        // Check parameters
+        if (!req?.params.id) {
+            return ({
+                message: 'id of education information  is required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check education information exists?
+        const work_experience = await work_experienceRepository.findOne({
+            where: { id: req.params.id },
+            relations: ['online_profile']
+        })
+        if (!work_experience) {
+            return ({
+                message: `work experience has id: ${req.params.id} not found`,
+                status: 400,
+                data: null
+            })
+        }
+        // Check employee is owner of work experience ?
+        if (work_experience.online_profile.userId !== req.user.userId) {
+            return ({
+                message: `You are not the owner of work experience has id: ${req.params.id}`,
+                status: 403,
+                data: null
+            })
+        }
+
+        await work_experienceRepository.delete(work_experience.id)
+
+        return ({
+            message: `Delete work experience has id: ${work_experience.id}  successfully`,
+            status: 200,
+            data: work_experience
         })
 
     }

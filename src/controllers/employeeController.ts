@@ -225,4 +225,38 @@ export default class EmployeeController {
             });
         }
     }
+
+    static updateWorkExperience = async (req, res) => {
+        try {
+            const workexperiences = await EmployeeServices.handleUpdateWorkExperience(req);
+            return res.status(workexperiences.status).json({
+                message: workexperiences.message,
+                status: workexperiences.status,
+                data: workexperiences.data
+            })
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
+    static deleteWorkExperience = async (req, res) => {
+        try {
+            const workexperiences = await EmployeeServices.handleDeleteWorkExperience(req);
+            return res.status(workexperiences.status).json({
+                message: workexperiences.message,
+                status: workexperiences.status,
+                data: workexperiences.data
+            })
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
 }

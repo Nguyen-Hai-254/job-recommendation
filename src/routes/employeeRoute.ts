@@ -22,4 +22,6 @@ route.put('/api/v1/employee/online-profile/education-information/:id', verifyTok
 route.delete('/api/v1/employee/online-profile/education-information/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.deleteEducationInformation);
 
 route.post('/api/v1/employee/online-profile/work-experience', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewWorkExperience);
+route.put('/api/v1/employee/online-profile/work-experience/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.updateWorkExperience);
+route.delete('/api/v1/employee/online-profile/work-experience/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.deleteWorkExperience);
 export default route
