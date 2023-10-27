@@ -103,7 +103,8 @@ export default class EmployeeController {
         }
     }
 
-    // online profile: another degree, education information, work experience
+    // online profile : another degree, education information, work experience
+    // 1. another degree
     static createNewAnotherDegree = async (req, res) => {
         try {
             const another_degrees = await EmployeeServices.handleCreateNewAnotherDegree(req);
@@ -155,6 +156,7 @@ export default class EmployeeController {
         }
     }
 
+    // 2. education information
     static createNewEducationInformation = async (req, res) => {
         try {
             const education_informations = await EmployeeServices.handleCreateNewEducationInformation(req);
@@ -172,6 +174,41 @@ export default class EmployeeController {
         }
     }
 
+    static updateEducationInformation = async (req, res) => {
+        try {
+            const education_informations = await EmployeeServices.handleUpdateEducationInformation(req);
+            return res.status(education_informations.status).json({
+                message: education_informations.message,
+                status: education_informations.status,
+                data: education_informations.data
+            })
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
+    static deleteEducationInformation = async (req, res) => {
+        try {
+            const education_informations = await EmployeeServices.handleDeleteEducationInformation(req);
+            return res.status(education_informations.status).json({
+                message: education_informations.message,
+                status: education_informations.status,
+                data: education_informations.data
+            })
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
+    // 3. work experience
     static createNewWorkExperience = async (req, res) => {
         try {
             const workexperiences = await EmployeeServices.handleCreateNewWorkExperience(req);

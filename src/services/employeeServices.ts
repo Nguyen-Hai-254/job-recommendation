@@ -327,6 +327,7 @@ export default class EmployeeServices {
     }
 
     // Update online profile: another degree, education information, work experience
+    // 1. another degree
     static handleCreateNewAnotherDegree = async (req) => {
         // Check parameters
         if (!req?.body?.degreeName || !req?.body?.level) {
@@ -456,6 +457,7 @@ export default class EmployeeServices {
 
     }
 
+    // 2. education information
     static handleCreateNewEducationInformation = async (req) => {
         // Check parameters
         if (!req?.body?.schoolName || !req?.body?.specialization || !req?.body?.degreeName ||
@@ -497,6 +499,92 @@ export default class EmployeeServices {
 
     }
 
+    static handleUpdateEducationInformation = async (req) => {
+        // Check parameters
+        if (!req?.params.id) {
+            return ({
+                message: 'id of education information  is required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check education information exists?
+        const education_information = await education_informationRepository.findOne({
+            where: { id: req.params.id },
+            relations: ['online_profile']
+        })
+        if (!education_information) {
+            return ({
+                message: `education information has id: ${req.params.id} not found`,
+                status: 400,
+                data: null
+            })
+        }
+        // Check employee is owner of another degree ?
+        if (education_information.online_profile.userId !== req.user.userId) {
+            return ({
+                message: `You are not the owner of another degree has id: ${req.params.id}`,
+                status: 403,
+                data: null
+            })
+        }
+
+        if (req.body?.schoolName) education_information.schoolName = req.body.schoolName
+        if (req.body?.specialization) education_information.specialization = req.body.specialization
+        if (req.body?.degreeName) education_information.degreeName = req.body.degreeName
+        if (req.body?.startDate) education_information.startDate = new Date(moment(req.body.startDate, "DD-MM-YYYY").format("MM-DD-YYYY"))
+        if (req.body?.endDate) education_information.endDate = new Date(moment(req.body.endDate, "DD-MM-YYYY").format("MM-DD-YYYY"))
+        await education_informationRepository.save(education_information)
+
+        return ({
+            message: `Update Education information has id: ${req.params.id}  successfully`,
+            status: 200,
+            data: education_information
+        })
+
+    }
+
+    static handleDeleteEducationInformation = async (req) => {
+        // Check parameters
+        if (!req?.params.id) {
+            return ({
+                message: 'id of education information  is required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check education information exists?
+        const education_information = await education_informationRepository.findOne({
+            where: { id: req.params.id },
+            relations: ['online_profile']
+        })
+        if (!education_information) {
+            return ({
+                message: `education information has id: ${req.params.id} not found`,
+                status: 400,
+                data: null
+            })
+        }
+        // Check employee is owner of another degree ?
+        if (education_information.online_profile.userId !== req.user.userId) {
+            return ({
+                message: `You are not the owner of education information has id: ${req.params.id}`,
+                status: 403,
+                data: null
+            })
+        }
+
+        await education_informationRepository.delete(education_information.id)
+
+        return ({
+            message: `Delete Education Information has id: ${education_information.id}  successfully`,
+            status: 200,
+            data: education_information
+        })
+
+    }
+
+    // 3. work experience
     static handleCreateNewWorkExperience = async (req) => {
         // Check parameters
         if (!req?.body?.jobTitle || !req?.body?.companyName || !req?.body?.jobDescription ||
