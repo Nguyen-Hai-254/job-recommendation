@@ -47,26 +47,6 @@ export default class EmployeeServices {
         })
     }
 
-    static handleGetOnlineProfile = async (req) => {
-        const online_profile = await online_profileRepository.findOne({
-            where: { employee: { userId: req.user.userId } },
-            relations: ['employee', 'another_degrees', 'education_informations', 'work_experiences']
-        })
-        if (!online_profile) {
-            return ({
-                message: 'No online profile found',
-                status: 400,
-                data: null
-            })
-        }
-
-        return ({
-            message: 'Find online profile success',
-            status: 200,
-            data: online_profile
-        })
-    }
-
     static handleCreateNewAttachedDocument = async (req) => {
         // Check general information
         if (!req?.body?.jobTitle || !req?.body?.profession || !req?.body?.currentPosition ||
@@ -144,6 +124,83 @@ export default class EmployeeServices {
         })
     }
 
+    static handleUpdateAttachedDocument = async (req) => {
+        // Check attached document exists?
+        const attached_document = await attached_documentRepository.findOne({
+            where: { userId: req.user.userId },
+            relations: ['employee']
+        })
+        if (!attached_document) {
+            return ({
+                message: `No attached document matches userId: ${req.user.userId}`,
+                status: 400,
+                data: null
+            })
+        }
+
+        // Update with req.body
+        // general information
+        if (req.body?.jobTitle) attached_document.jobTitle = req.body.jobTitle
+        if (req.body?.profession) attached_document.profession = req.body.profession
+        if (req.body?.currentPosition) attached_document.currentPosition = EnumPositionLevel(req.body.currentPosition)
+        if (req.body?.desiredPosition) attached_document.desiredPosition = EnumPositionLevel(req.body.desiredPosition)
+        if (req.body?.desiredSalary) attached_document.desiredSalary = req.body.desiredSalary
+        if (req.body?.degree) attached_document.degree = EnumDegree(req.body.degree)
+        if (req.body?.workAddress) attached_document.workAddress = req.body.workAddress
+        if (req.body?.experience) attached_document.experience = EnumExperience(req.body.experience);
+        if (req.body?.employmentType) attached_document.employmentType = EnumEmploymentType(req.body.employmentType);
+        if (req.body?.careerGoal) attached_document.careerGoal = req.body.careerGoal
+        if (req.body?.skills) attached_document.skills = req.body.skills
+        // other information
+        if (req.body?.CV) attached_document.CV = req.body.CV
+        if (req.body?.isHidden !== null) attached_document.isHidden = req.body.isHidden
+
+        await attached_documentRepository.save(attached_document);
+        // add a new notification
+        const findUser = await userRepository.findOne({
+            where: { userId: req.user.userId }
+        })
+        if (!findUser) {
+            return ({
+                message: `Không tìm thấy người dùng`,
+                status: 400,
+                data: null
+            })
+        }
+        const createNotification = notificationRepository.create({
+            content: 'Bạn đã cập nhật hồ sơ đính kèm',
+            user: findUser
+        })
+        await notificationRepository.save(createNotification);
+
+        return ({
+            message: `attached document has userId: ${req.user.userId} are updated successfully`,
+            status: 200,
+            data: attached_document
+        })
+
+    }
+
+    static handleGetOnlineProfile = async (req) => {
+        const online_profile = await online_profileRepository.findOne({
+            where: { employee: { userId: req.user.userId } },
+            relations: ['employee', 'another_degrees', 'education_informations', 'work_experiences']
+        })
+        if (!online_profile) {
+            return ({
+                message: 'No online profile found',
+                status: 400,
+                data: null
+            })
+        }
+
+        return ({
+            message: 'Find online profile success',
+            status: 200,
+            data: online_profile
+        })
+    }
+
     static handleCreateNewOnlineProfile = async (req) => {
         // Check general information
         if (!req?.body?.jobTitle || !req?.body?.profession || !req?.body?.currentPosition ||
@@ -211,63 +268,6 @@ export default class EmployeeServices {
         })
     }
 
-    static handleUpdateAttachedDocument = async (req) => {
-        // Check attached document exists?
-        const attached_document = await attached_documentRepository.findOne({
-            where: { userId: req.user.userId },
-            relations: ['employee']
-        })
-        if (!attached_document) {
-            return ({
-                message: `No attached document matches userId: ${req.user.userId}`,
-                status: 400,
-                data: null
-            })
-        }
-
-        // Update with req.body
-        // general information
-        if (req.body?.jobTitle) attached_document.jobTitle = req.body.jobTitle
-        if (req.body?.profession) attached_document.profession = req.body.profession
-        if (req.body?.currentPosition) attached_document.currentPosition = EnumPositionLevel(req.body.currentPosition)
-        if (req.body?.desiredPosition) attached_document.desiredPosition = EnumPositionLevel(req.body.desiredPosition)
-        if (req.body?.desiredSalary) attached_document.desiredSalary = req.body.desiredSalary
-        if (req.body?.degree) attached_document.degree = EnumDegree(req.body.degree)
-        if (req.body?.workAddress) attached_document.workAddress = req.body.workAddress
-        if (req.body?.experience) attached_document.experience = EnumExperience(req.body.experience);
-        if (req.body?.employmentType) attached_document.employmentType = EnumEmploymentType(req.body.employmentType);
-        if (req.body?.careerGoal) attached_document.careerGoal = req.body.careerGoal
-        if (req.body?.skills) attached_document.skills = req.body.skills
-        // other information
-        if (req.body?.CV) attached_document.CV = req.body.CV
-        if (req.body?.isHidden) attached_document.isHidden = req.body.isHidden
-
-        await attached_documentRepository.save(attached_document);
-        // add a new notification
-        const findUser = await userRepository.findOne({
-            where: { userId: req.user.userId }
-        })
-        if (!findUser) {
-            return ({
-                message: `Không tìm thấy người dùng`,
-                status: 400,
-                data: null
-            })
-        }
-        const createNotification = notificationRepository.create({
-            content: 'Bạn đã cập nhật hồ sơ đính kèm',
-            user: findUser
-        })
-        await notificationRepository.save(createNotification);
-
-        return ({
-            message: `attached document has userId: ${req.user.userId} are updated successfully`,
-            status: 200,
-            data: attached_document
-        })
-
-    }
-
     static handleUpdateOnlineProfile = async (req) => {
         // Check online profile exists?
         const online_profile = await online_profileRepository.findOne({
@@ -296,7 +296,8 @@ export default class EmployeeServices {
         if (req.body?.careerGoal) online_profile.careerGoal = req.body.careerGoal
         if (req.body?.skills) online_profile.skills = req.body.skills
         // other information
-        if (req.body?.isHidden) online_profile.isHidden = req.body.isHidden
+        if (req.body?.isHidden !== null) online_profile.isHidden = req.body.isHidden
+        else online_profile.isHidden = false
         await online_profileRepository.save(online_profile);
         // add a new notification
         const findUser = await userRepository.findOneBy({
@@ -326,6 +327,7 @@ export default class EmployeeServices {
     }
 
     // Update online profile: another degree, education information, work experience
+    // 1. another degree
     static handleCreateNewAnotherDegree = async (req) => {
         // Check parameters
         if (!req?.body?.degreeName || !req?.body?.level) {
@@ -363,6 +365,99 @@ export default class EmployeeServices {
 
     }
 
+    static handleUpdateAnotherDegree = async (req) => {
+        // Check parameters
+        if (!req?.params.id) {
+            return ({
+                message: 'id of another degree  is required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check another degree exists?
+        const another_degree = await another_degreeRepository.findOne({
+            where: { id: req.params.id },
+            relations: ['online_profile']
+        })
+        if (!another_degree) {
+            return ({
+                message: `another degree has id: ${req.params.id} not found`,
+                status: 400,
+                data: null
+            })
+        }
+        // Check employee is owner of another degree ?
+        if (another_degree.online_profile.userId !== req.user.userId) {
+            return ({
+                message: `You are not the owner of another degree has id: ${req.params.id}`,
+                status: 403,
+                data: null
+            })
+        }
+
+        if (req.body?.degreeName) another_degree.degreeName = req.body.degreeName
+        if (req.body?.level) another_degree.level = req.body.level
+        await another_degreeRepository.save(another_degree)
+
+        return ({
+            message: `Update Another Degree has id: ${req.params.id}  successfully`,
+            status: 200,
+            data: {
+                userId: another_degree.online_profile.userId,
+                id: another_degree.id,
+                degreeName: another_degree.degreeName,
+                level: another_degree.level
+            }
+        })
+
+    }
+
+    static handleDeleteAnotherDegree = async (req) => {
+        // Check parameters
+        if (!req?.params.id) {
+            return ({
+                message: 'id of another degree  is required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check another degree exists?
+        const another_degree = await another_degreeRepository.findOne({
+            where: { id: req.params.id },
+            relations: ['online_profile']
+        })
+        if (!another_degree) {
+            return ({
+                message: `another degree has id: ${req.params.id} not found`,
+                status: 400,
+                data: null
+            })
+        }
+        // Check employee is owner of another degree ?
+        if (another_degree.online_profile.userId !== req.user.userId) {
+            return ({
+                message: `You are not the owner of another degree has id: ${req.params.id}`,
+                status: 403,
+                data: null
+            })
+        }
+
+        await another_degreeRepository.delete(another_degree.id)
+
+        return ({
+            message: `Delete Another Degree has id: ${another_degree.id}  successfully`,
+            status: 200,
+            data: {
+                userId: another_degree.online_profile.userId,
+                id: another_degree.id,
+                degreeName: another_degree.degreeName,
+                level: another_degree.level
+            }
+        })
+
+    }
+
+    // 2. education information
     static handleCreateNewEducationInformation = async (req) => {
         // Check parameters
         if (!req?.body?.schoolName || !req?.body?.specialization || !req?.body?.degreeName ||
@@ -404,6 +499,92 @@ export default class EmployeeServices {
 
     }
 
+    static handleUpdateEducationInformation = async (req) => {
+        // Check parameters
+        if (!req?.params.id) {
+            return ({
+                message: 'id of education information  is required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check education information exists?
+        const education_information = await education_informationRepository.findOne({
+            where: { id: req.params.id },
+            relations: ['online_profile']
+        })
+        if (!education_information) {
+            return ({
+                message: `education information has id: ${req.params.id} not found`,
+                status: 400,
+                data: null
+            })
+        }
+        // Check employee is owner of education information ?
+        if (education_information.online_profile.userId !== req.user.userId) {
+            return ({
+                message: `You are not the owner of education information has id: ${req.params.id}`,
+                status: 403,
+                data: null
+            })
+        }
+
+        if (req.body?.schoolName) education_information.schoolName = req.body.schoolName
+        if (req.body?.specialization) education_information.specialization = req.body.specialization
+        if (req.body?.degreeName) education_information.degreeName = req.body.degreeName
+        if (req.body?.startDate) education_information.startDate = new Date(moment(req.body.startDate, "DD-MM-YYYY").format("MM-DD-YYYY"))
+        if (req.body?.endDate) education_information.endDate = new Date(moment(req.body.endDate, "DD-MM-YYYY").format("MM-DD-YYYY"))
+        await education_informationRepository.save(education_information)
+
+        return ({
+            message: `Update Education information has id: ${req.params.id}  successfully`,
+            status: 200,
+            data: education_information
+        })
+
+    }
+
+    static handleDeleteEducationInformation = async (req) => {
+        // Check parameters
+        if (!req?.params.id) {
+            return ({
+                message: 'id of education information  is required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check education information exists?
+        const education_information = await education_informationRepository.findOne({
+            where: { id: req.params.id },
+            relations: ['online_profile']
+        })
+        if (!education_information) {
+            return ({
+                message: `education information has id: ${req.params.id} not found`,
+                status: 400,
+                data: null
+            })
+        }
+        // Check employee is owner of another degree ?
+        if (education_information.online_profile.userId !== req.user.userId) {
+            return ({
+                message: `You are not the owner of education information has id: ${req.params.id}`,
+                status: 403,
+                data: null
+            })
+        }
+
+        await education_informationRepository.delete(education_information.id)
+
+        return ({
+            message: `Delete Education Information has id: ${education_information.id}  successfully`,
+            status: 200,
+            data: education_information
+        })
+
+    }
+
+    // 3. work experience
     static handleCreateNewWorkExperience = async (req) => {
         // Check parameters
         if (!req?.body?.jobTitle || !req?.body?.companyName || !req?.body?.jobDescription ||
@@ -443,6 +624,114 @@ export default class EmployeeServices {
             message: 'Create New Another Degree successfully',
             status: 200,
             data: online_profile.work_experiences
+        })
+
+    }
+
+    static handleUpdateWorkExperience = async (req) => {
+        // Check parameters
+        if (!req?.params.id) {
+            return ({
+                message: 'id of work experience  is required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check work experience exists?
+        const work_experience = await work_experienceRepository.findOne({
+            where: { id: req.params.id },
+            relations: ['online_profile']
+        })
+        if (!work_experience) {
+            return ({
+                message: `Work experience has id: ${req.params.id} not found`,
+                status: 400,
+                data: null
+            })
+        }
+        // Check employee is owner of work experience ?
+        if (work_experience.online_profile.userId !== req.user.userId) {
+            return ({
+                message: `You are not the owner of work experience has id: ${req.params.id}`,
+                status: 403,
+                data: null
+            })
+        }
+
+        if (req.body?.jobTitle) work_experience.jobTitle = req.body.jobTitle
+        if (req.body?.companyName) work_experience.companyName = req.body.companyName
+        if (req.body?.jobDescription) work_experience.jobDescription = req.body.jobDescription
+        if (req.body?.startDate) work_experience.startDate = new Date(moment(req.body.startDate, "DD-MM-YYYY").format("MM-DD-YYYY"))
+        // handle isDoing and endDate
+        if (req.body?.isDoing && req.body?.endDate) {
+            return ({
+                message: `cannot update when body has: isDoing is true and endDate exist`,
+                status: 400,
+                data: null
+            })
+        }
+        if (req.body?.isDoing && !req.body?.endDate) {
+            work_experience.endDate = new Date(moment(null, "DD-MM-YYYY").format("MM-DD-YYYY"));
+            work_experience.isDoing = true;
+        }
+        if (req.body?.isDoing !== null && req.body?.isDoing !== undefined && req.body?.isDoing === false && !req.body?.endDate) {
+            return ({
+                message: `cannot update when body has: isDoing is false and endDate not exist`,
+                status: 400,
+                data: null
+            })
+        }
+        if (!req.body?.isDoing && req.body?.endDate) {
+            work_experience.endDate = new Date(moment(req.body.endDate, "DD-MM-YYYY").format("MM-DD-YYYY"));
+            work_experience.isDoing = false;
+        }
+
+        await work_experienceRepository.save(work_experience)
+
+        return ({
+            message: `Update Work Experience has id: ${req.params.id}  successfully`,
+            status: 200,
+            data: work_experience
+        })
+
+    }
+
+    static handleDeleteWorkExperience = async (req) => {
+        // Check parameters
+        if (!req?.params.id) {
+            return ({
+                message: 'id of education information  is required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check education information exists?
+        const work_experience = await work_experienceRepository.findOne({
+            where: { id: req.params.id },
+            relations: ['online_profile']
+        })
+        if (!work_experience) {
+            return ({
+                message: `work experience has id: ${req.params.id} not found`,
+                status: 400,
+                data: null
+            })
+        }
+        // Check employee is owner of work experience ?
+        if (work_experience.online_profile.userId !== req.user.userId) {
+            return ({
+                message: `You are not the owner of work experience has id: ${req.params.id}`,
+                status: 403,
+                data: null
+            })
+        }
+
+        await work_experienceRepository.delete(work_experience.id)
+
+        return ({
+            message: `Delete work experience has id: ${work_experience.id}  successfully`,
+            status: 200,
+            data: work_experience
         })
 
     }

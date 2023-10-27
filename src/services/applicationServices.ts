@@ -2,7 +2,6 @@ import { myDataSource } from "../config/connectDB"
 import { Employee } from "../entity/Employee"
 import { Employer } from "../entity/Employer"
 import { User } from "../entity/Users"
-import { userRole } from "../utils/enum"
 import { JobPosting } from "../entity/JobPosting"
 import { Application } from "../entity/Application"
 import { AttachedDocument } from "../entity/AttachedDocument"
@@ -185,6 +184,112 @@ export default class ApplicationServices {
             message: `Find applications successful!`,
             status: 200,
             data: applications
+        })
+
+    }
+
+    static handleGetApplicationbyEmployer = async (req) => {
+        if (!req?.params?.id) {
+            return ({
+                message: 'id is required',
+                status: 400,
+                data: null
+            })
+        }
+        const application = await applicationRepository.findOne({
+            where: { application_id: req.params.id },
+            relations: ['employee']
+        })
+        if (!application) {
+            return ({
+                message: `No Application matches id: ${req.params.id}`,
+                status: 400,
+                data: null
+            })
+        }
+        // Check employer is owner of application
+        const post = await jobpostingRepository.findOne({
+            where: { applications: { application_id: req.params.id } },
+            relations: ['applications', 'employer']
+        })
+        if (!post) {
+            return ({
+                message: `Find employer is owner of application id: ${req.params.id} failed`,
+                status: 400,
+                data: null
+            })
+        }
+        if (post.employer.userId !== req.user.userId) {
+            return ({
+                message: `You isn't owner of application id: ${req.params.id}`,
+                status: 400,
+                data: null
+            })
+        }
+        // Find information about details of CV with applicationType: cv_enclosed, online-profile, attached-document
+        // TH1: cv_enclosed
+        if (application.applicationType === applicationType.cv_enclosed) {
+            return ({
+                message: `Find details of Application has id: ${req.params.id} successes`,
+                status: 200,
+                data: { application }
+            })
+        }
+        // Find personal information about employee of application if applicationType != cv_enclosed
+        const user = await userRepository.findOne({
+            where: { userId: application.employee.userId },
+            relations: ['employee']
+        })
+        if (!user) {
+            return ({
+                message: `Find personal information of employee of Application has id: ${req.params.id} failures`,
+                status: 400,
+                data: null
+            })
+        }
+        const personal_information = {
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            address: user.address,
+            dob: user.dob,
+            sex: user.sex,
+            isMarried: user.employee.isMarried
+        }
+        // TH2 : attached_document
+        if (application.applicationType === applicationType.attached_document) {
+            const attached_document = await attached_documentRepository.findOne({
+                where: { userId: application.employee.userId }
+            })
+            if (!attached_document) {
+                return ({
+                    message: `Find attached documet of employee of Application has id: ${req.params.id} failures`,
+                    status: 400,
+                    data: null
+                })
+            }
+            return ({
+                message: `Find details of Application has id: ${req.params.id} successes`,
+                status: 200,
+                data: { application, personal_information, attached_document }
+            })
+        }
+        // TH3 : online_profile 
+        const online_profile = await online_profileRepository.findOne({
+            where: { userId: application.employee.userId },
+            relations: ['another_degrees', 'education_informations', 'work_experiences']
+        })
+        if (!online_profile) {
+            return ({
+                message: `Find online profile of employee of Application has id: ${req.params.id} failures`,
+                status: 400,
+                data: null
+            })
+        }
+        return ({
+            message: `Find details of Application has id: ${req.params.id} successes`,
+            status: 200,
+            data: { application, personal_information, online_profile }
         })
 
     }
