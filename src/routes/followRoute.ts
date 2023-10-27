@@ -12,5 +12,8 @@ route.get('/api/v1/employee/follow-company', verifyToken, verifyRole(userRole.Em
 route.post('/api/v1/employer/save-employee', verifyToken, verifyRole(userRole.Employer), FollowController.saveEmployee);
 route.get('/api/v1/employer/save-employee', verifyToken, verifyRole(userRole.Employer), FollowController.getSaveEmployeeByEmployer);
 
+route.post('/api/v1/employee/follow-job', verifyToken, verifyRole(userRole.Employee), FollowController.followJobPosting);
+route.get('/api/v1/employee/follow-job', verifyToken, verifyRole(userRole.Employee), FollowController.getFollowJobPosting);
+
 
 export default route

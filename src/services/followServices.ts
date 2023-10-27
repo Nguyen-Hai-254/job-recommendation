@@ -1,13 +1,16 @@
 import { myDataSource } from "../config/connectDB";
 import { Employee } from "../entity/Employee";
 import { Employer } from "../entity/Employer";
+import { JobPosting } from "../entity/JobPosting";
 import { Follow } from "../entity/follow";
 import { Save } from "../entity/save";
+import { approvalStatus } from "../utils/enum";
 
 const employeeRepository = myDataSource.getRepository(Employee);
 const employerRepository = myDataSource.getRepository(Employer);
 const followRepository = myDataSource.getRepository(Follow);
 const saveRepository = myDataSource.getRepository(Save);
+const jobPostingRepository = myDataSource.getRepository(JobPosting);
 
 export default class FollowServices {
     static handleFollowCompany = async (user, employerId) => {
@@ -170,6 +173,99 @@ export default class FollowServices {
             message: 'OK',
             status: 200,
             data: data
+        })
+    }
+
+    static handleFollowJobPosting = async (user, jobId) => {
+        const findEmployee = await employeeRepository.findOne({
+            where: { userId: user.userId },
+            relations: ['jobs']
+        })
+
+        if (!findEmployee) {
+            return ({
+                message: 'Không tìm thấy thông tin người xin việc!',
+                status: 404,
+                data: null
+            })
+        }
+
+        const findJobPosing = await jobPostingRepository.findOneBy({
+            postId: jobId
+        })
+
+        if (!findJobPosing) {
+            return ({
+                message: 'Không tìm thấy thông tin đăng tuyển!',
+                status: 404,
+                data: null
+            })
+        }
+        if (findJobPosing.status === approvalStatus.pending || findJobPosing.status === approvalStatus.rejected || findJobPosing.isHidden) {
+            return ({
+                message: 'Bạn không thể theo dõi đăng tuyển này',
+                status: 403,
+                data: null
+            })
+        }
+
+        let findFollow = -1;
+        if (findEmployee.jobs.length !== 0) {
+            findFollow = findEmployee.jobs.findIndex((job) => job.postId == jobId)
+        }
+
+        if (findFollow === -1) {
+            findEmployee.jobs.push(findJobPosing);
+        }
+        else {
+            delete findEmployee.jobs[findFollow];
+        }
+
+        await employeeRepository.save(findEmployee);
+
+        return ({
+            message: findFollow === -1 ? 'Theo dõi đăng tuyển thành công' : 'Đã bỏ theo dõi đăng tuyển',
+            status: 200,
+            data: []
+        })
+    }
+
+    static handleGetFollowJobPosting = async (user) => {
+        const findEmployee = await employeeRepository.findOne({
+            where: { userId: user.userId },
+            relations: ['jobs.employer']
+        })
+
+        if (!findEmployee) {
+            return ({
+                message: 'Không tìm thấy thông tin người xin việc!',
+                status: 404,
+                data: null
+            })
+        }
+
+        return ({
+            message: 'OK',
+            status: 200,
+            data: {
+                userId: findEmployee.userId,
+                jobs: findEmployee.jobs.filter((job) => {
+                    return (
+                        job.isHidden === false
+                    )
+                }).map((job) => {
+                    return ({
+                        postId: job.postId,
+                        jobTitle: job.jobTitle,
+                        companyName: job.employer.companyName,
+                        minSalary: job.minSalary,
+                        maxSalary: job.maxSalary,
+                        workAddress: job.workAddress,
+                        createAt: job.createAt,
+                        logo: job.employer.logo
+                    })
+                })
+            }
         })
     }
 }

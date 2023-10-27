@@ -85,4 +85,45 @@ export default class FollowController {
             });
         }
     }
+
+    static followJobPosting = async (req, res) => {
+        try {
+            if (!req.body.jobPosting) {
+                return res.status(500).json({
+                    message: 'Thiếu id của đăng tuyển',
+                    status: 500,
+                    error: 'Internal Server Error',
+                });
+            }
+            const data = await FollowServices.handleFollowJobPosting(req.user, req.body.jobPosting)
+            return res.status(data.status).json({
+                status: data.status,
+                message: data.message,
+                data: data.data ? data.data : []
+            });
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
+    static getFollowJobPosting = async (req, res) => {
+        try {
+            const data = await FollowServices.handleGetFollowJobPosting(req.user)
+            return res.status(data.status).json({
+                status: data.status,
+                message: data.message,
+                data: data.data ? data.data : []
+            });
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
 }
