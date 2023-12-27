@@ -202,6 +202,7 @@ export default class EmployeeServices {
     }
 
     static handleCreateNewOnlineProfile = async (req) => {
+        console.log(req.body);
         // Check general information
         if (!req?.body?.jobTitle || !req?.body?.profession || !req?.body?.currentPosition ||
             !req?.body?.desiredPosition || !req?.body?.desiredSalary || !req?.body?.degree ||
