@@ -1,4 +1,4 @@
-import JobPostingServices from "../services/jobPostingServices";
+import JobPostingServices from "../services/jobpostingServices";
 
 export default class JobPostingController {
     static getAllJobPostings = async (req, res) => {

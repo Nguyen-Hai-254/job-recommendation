@@ -22,7 +22,7 @@ export default class ApplicationServices {
     static handleGetApplicationsbyEmployee = async (req) => {
         const applications = await employeeRepository.findOne({
             where: { userId: req.user.userId },
-            relations: ['applications']
+            relations: ['applications', 'applications.jobPosting.employer']
         })
 
         if (!applications) {
@@ -32,10 +32,27 @@ export default class ApplicationServices {
                 data: null
             })
         }
+        let data = applications.applications.flatMap(application => {
+            return {
+                application_id: application.application_id,
+                applicationType: application.applicationType,
+                createAt: application.createAt,
+                CV: application.CV,
+                name: application.name,
+                email: application.email,
+                phone: application.phone,
+                status: application.status,
+                jobTitle: application.jobPosting.jobTitle,
+                companyName: application.jobPosting.employer.companyName,
+                postId: application.jobPosting.postId,
+                applicationDeadline: application.jobPosting.applicationDeadline
+            }
+        })
+
         return ({
             message: `Find applications successful!`,
             status: 200,
-            data: applications.applications
+            data: data
         })
 
     }

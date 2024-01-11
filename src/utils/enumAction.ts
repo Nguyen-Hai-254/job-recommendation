@@ -3,22 +3,22 @@ import { applicationType, approvalStatus, degree, employmentType, experience, po
 export const EnumDegree = (x) => {
     let y = degree.Other
     switch (x) {
-        case 'highSchool':
+        case 'highSchool': case degree.highSchool:
             y = degree.highSchool;
             break;
-        case 'intermediate':
+        case 'intermediate': case degree.intermediate:
             y = degree.intermediate;
             break;
-        case 'associate':
+        case 'associate': case degree.associate:
             y = degree.associate;
             break;
-        case 'bachelor':
+        case 'bachelor': case degree.bachelor:
             y = degree.bachelor;
             break;
-        case 'doctor':
+        case 'doctor': case degree.doctor:
             y = degree.doctor;
             break;
-        case 'master':
+        case 'master': case degree.master:
             y = degree.master;
             break;
         default:
@@ -60,22 +60,22 @@ export const EnumSex = (x) => {
 export const EnumEmploymentType = (x) => {
     let y = employmentType.Other
     switch (x) {
-        case 'FulltimePermanent':
+        case employmentType.FulltimePermanent:
             y = employmentType.FulltimePermanent;
             break;
-        case 'FulltimeTemporary':
+        case employmentType.FulltimeTemporary:
             y = employmentType.FulltimeTemporary;
             break;
-        case 'ParttimePermanent':
+        case employmentType.ParttimePermanent:
             y = employmentType.ParttimePermanent;
             break;
-        case 'ParttimeTemporary':
+        case employmentType.ParttimeTemporary:
             y = employmentType.ParttimeTemporary;
             break;
-        case 'ConsultingContract':
+        case employmentType.ConsultingContract:
             y = employmentType.ConsultingContract;
             break;
-        case 'Internship':
+        case employmentType.Internship:
             y = employmentType.Internship;
             break;
         default:
@@ -87,25 +87,25 @@ export const EnumEmploymentType = (x) => {
 export const EnumExperience = (x) => {
     let y = experience.OverFive
     switch (x) {
-        case 'Zero':
+        case 'Zero': case experience.Zero:
             y = experience.Zero;
             break;
-        case 'UnderOne':
+        case 'UnderOne': case experience.UnderOne:
             y = experience.UnderOne;
             break;
-        case 'One':
+        case 'One': case experience.One:
             y = experience.One;
             break;
-        case 'Two':
+        case 'Two': case experience.Two:
             y = experience.Two;
             break;
-        case 'Three':
+        case 'Three': case experience.Three:
             y = experience.Three;
             break;
-        case 'Four':
+        case 'Four': case experience.Four:
             y = experience.Four;
             break;
-        case 'Five':
+        case 'Five': case experience.Five:
             y = experience.Five;
             break;
         default:
@@ -117,19 +117,19 @@ export const EnumExperience = (x) => {
 export const EnumPositionLevel = (x) => {
     let y = positionLevel.Employee;
     switch (x) {
-        case 'ExecutiveManagement':
+        case 'ExecutiveManagement': case positionLevel.ExecutiveManagement:
             y = positionLevel.ExecutiveManagement;
             break;
-        case 'MiddleManagement':
+        case 'MiddleManagement': case positionLevel.MiddleManagement:
             y = positionLevel.MiddleManagement;
             break;
-        case 'TeamLeader':
+        case 'TeamLeader': case positionLevel.TeamLeader:
             y = positionLevel.TeamLeader;
             break;
-        case 'Specialist':
+        case 'Specialist': case positionLevel.Specialist:
             y = positionLevel.Specialist;
             break;
-        case 'Contributor':
+        case 'Contributor': case positionLevel.Contributor:
             y = positionLevel.Contributor;
             break;
         default:
@@ -142,13 +142,13 @@ export const EnumPositionLevel = (x) => {
 export const EnumApprovalStatus = (status) => {
     let y = approvalStatus.pending;
     switch (status) {
-        case 'approved':
+        case 'approved': case approvalStatus.approved:
             y = approvalStatus.approved;
             break;
-        case 'rejected':
+        case 'rejected': case approvalStatus.rejected:
             y = approvalStatus.rejected;
             break;
-        case 'expired':
+        case 'expired': case approvalStatus.expired:
             y = approvalStatus.expired;
             break;
         default:
@@ -160,10 +160,10 @@ export const EnumApprovalStatus = (status) => {
 export const EnumApplicationType = (type) => {
     let y = applicationType.online_profile;
     switch (type) {
-        case 'attached_document':
+        case 'attached_document': case applicationType.attached_document:
             y = applicationType.attached_document;
             break;
-        case 'cv_enclosed':
+        case 'cv_enclosed': case applicationType.cv_enclosed:
             y = applicationType.cv_enclosed;
             break;
         default:
