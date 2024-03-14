@@ -161,4 +161,24 @@ export default class UserController {
             });
         }
     }
+
+    static uploadLogo = async (req, res) => {
+        try {
+            if (!req.body.logo) {
+                return res.status(500).json({
+                    message: "Missing input parameter!",
+                    status: 500,
+                    error: 'Internal Server Error',
+                });
+            }
+            const logo = await UserServices.handleUploadLogo(req.user, req.body.logo);
+            return res.status(logo.status).json(logo);
+        } catch (e) {
+            return res.status(500).json({
+                message: e.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
 }

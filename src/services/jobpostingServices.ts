@@ -31,7 +31,6 @@ export default class JobPostingServices {
             })
         }
 
-
         const jobPostings = await jobPostingRepository.find({
             relations: ['employer'],
             where: {
