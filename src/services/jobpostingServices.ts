@@ -24,10 +24,13 @@ export default class JobPostingServices {
             }
         })
 
-        findExpiredPosts.map(async (post) => {
-            post.status = approvalStatus.expired
-            await jobPostingRepository.save(post)
-        })
+        if (findExpiredPosts.length > 0) {
+            findExpiredPosts.map(async (post) => {
+                post.status = approvalStatus.expired
+                await jobPostingRepository.save(post)
+            })
+        }
+
 
         const jobPostings = await jobPostingRepository.find({
             relations: ['employer'],
