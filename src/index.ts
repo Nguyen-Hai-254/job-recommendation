@@ -1,12 +1,11 @@
+require('dotenv').config();
+
 import express from "express"
 import bodyParser from "body-parser"
 import cookieParser from "cookie-parser"
 import cors from "cors";
 import { connectDB } from "./config/connectDB"
 const routes = require('./routes/web')
-
-require('dotenv').config();
-
 
 let app = express();
 app.use(cors({ credentials: true, origin: true }));
