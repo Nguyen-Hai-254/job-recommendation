@@ -7,7 +7,7 @@ import { JobPosting } from "../entity/JobPosting"
 import moment from "moment"
 import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex, EnumApprovalStatus } from "../utils/enumAction"
 import { Notification } from "../entity/Notification"
-import { MoreThanOrEqual } from "typeorm"
+import { LessThan, MoreThanOrEqual } from "typeorm"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -17,6 +17,18 @@ const notificationRepository = myDataSource.getRepository(Notification);
 
 export default class JobPostingServices {
     static handleGetAllJobPostings = async () => {
+        let findExpiredPosts = await jobPostingRepository.find({
+            where: {
+                applicationDeadline: LessThan(moment(new Date()).subtract(1, 'days').toDate()),
+                status: approvalStatus.approved
+            }
+        })
+
+        findExpiredPosts.map(async (post) => {
+            post.status = approvalStatus.expired
+            await jobPostingRepository.save(post)
+        })
+
         const jobPostings = await jobPostingRepository.find({
             relations: ['employer'],
             where: {
