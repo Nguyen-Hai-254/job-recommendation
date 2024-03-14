@@ -2,11 +2,12 @@ import { myDataSource } from "../config/connectDB"
 import { Employee } from "../entity/Employee"
 import { Employer } from "../entity/Employer"
 import { User } from "../entity/Users"
-import { userRole } from "../utils/enum"
+import { approvalStatus, userRole } from "../utils/enum"
 import { JobPosting } from "../entity/JobPosting"
 import moment from "moment"
 import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex, EnumApprovalStatus } from "../utils/enumAction"
 import { Notification } from "../entity/Notification"
+import { MoreThanOrEqual } from "typeorm"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -17,7 +18,11 @@ const notificationRepository = myDataSource.getRepository(Notification);
 export default class JobPostingServices {
     static handleGetAllJobPostings = async () => {
         const jobPostings = await jobPostingRepository.find({
-            relations: ['employer']
+            relations: ['employer'],
+            where: {
+                applicationDeadline: MoreThanOrEqual(new Date()),
+                status: approvalStatus.approved
+            }
         })
         if (!jobPostings || jobPostings.length === 0) {
             return ({
@@ -228,7 +233,7 @@ export default class JobPostingServices {
             sex: req.body.sex ? req.body.sex : null,
             numberOfVacancies: req.body.numberOfVacancies,
             trialPeriod: req.body.trialPeriod ? req.body.trialPeriod : null,
-            // applicationDeadline: new Date(moment(req.body.applicationDeadline, "DD-MM-YYYY").format("MM-DD-YYYY")),
+            applicationDeadline: new Date(moment(req.body.applicationDeadline, "DD-MM-YYYY").format("MM-DD-YYYY")),
             minSalary: req.body.minSalary,
             maxSalary: req.body.maxSalary,
             skills: req.body.skills ? req.body.skills : null,
