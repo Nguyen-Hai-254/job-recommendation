@@ -3,7 +3,24 @@ import JobPostingServices from "../services/jobpostingServices";
 export default class JobPostingController {
     static getAllJobPostings = async (req, res) => {
         try {
-            const jobPostings = await JobPostingServices.handleGetAllJobPostings();
+            const jobPostings = await JobPostingServices.handleGetAllJobPostings(req);
+            return res.status(jobPostings.status).json({
+                message: jobPostings.message,
+                status: jobPostings.status,
+                data: jobPostings.data ? jobPostings.data : []
+            });
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
+    static getAllJobPostingsByAdmin = async (req, res) => {
+        try {
+            const jobPostings = await JobPostingServices.handleGetAllJobPostingsByAdmin(req);
             return res.status(jobPostings.status).json({
                 message: jobPostings.message,
                 status: jobPostings.status,

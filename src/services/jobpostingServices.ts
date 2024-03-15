@@ -16,7 +16,8 @@ const jobPostingRepository = myDataSource.getRepository(JobPosting);
 const notificationRepository = myDataSource.getRepository(Notification);
 
 export default class JobPostingServices {
-    static handleGetAllJobPostings = async () => {
+    static handleGetAllJobPostings = async (req) => {
+        // Update status of job postings when job postings were expried.
         let findExpiredPosts = await jobPostingRepository.find({
             where: {
                 applicationDeadline: LessThan(moment(new Date()).subtract(1, 'days').toDate()),
@@ -29,13 +30,112 @@ export default class JobPostingServices {
             await jobPostingRepository.save(post)
         })
 
-        const jobPostings = await jobPostingRepository.find({
-            relations: ['employer'],
+        // Query for job postings
+        // workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary.
+        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary} = req.query;
+        let query = jobPostingRepository.createQueryBuilder('job-postings');
+        // jobposting fo employee, employer, unknown
+        query = query.leftJoinAndSelect("job-postings.employer", "employer")
+                     .where('job-postings.status = :status', {status: approvalStatus.approved})
+                     .andWhere('job-postings.applicationDeadline >= :applicationDeadline', {applicationDeadline: new Date()});
+        // Public
+        if (workAddress) {
+            query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
+        }
+        if (jobTitle) {
+            query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
+        }
+        if (profession) {
+            query = query.andWhere('job-postings.profession = :profession', { profession});
+        }
+        if (employmentType) {
+            query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType});
+        }
+        if (degree) {
+            query = query.andWhere('job-postings.degree = :degree', { degree});
+        }
+        if (experience) {
+            query = query.andWhere('job-postings.experience = :experience', { experience});
+        }
+        if (positionLevel) {
+            query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel});
+        }
+        if (sex) {
+            query = query.andWhere('job-postings.sex = :sex', { sex});
+        }
+        if (salary) {
+            query = query.where(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
+        }
+        const jobPostings = await query.getMany();
+        
+        if (!jobPostings || jobPostings.length === 0) {
+            return ({
+                message: 'No jobPostings found',
+                status: 204,
+                data: null
+            })
+        }
+
+        return ({
+            message: 'Find all jobPostings success',
+            status: 200,
+            data: jobPostings
+        })
+    }
+
+    static handleGetAllJobPostingsByAdmin = async (req) => {
+        // Update status of job postings when job postings were expried.
+        let findExpiredPosts = await jobPostingRepository.find({
             where: {
-                applicationDeadline: MoreThanOrEqual(new Date()),
+                applicationDeadline: LessThan(moment(new Date()).subtract(1, 'days').toDate()),
                 status: approvalStatus.approved
             }
         })
+
+        findExpiredPosts.map(async (post) => {
+            post.status = approvalStatus.expired
+            await jobPostingRepository.save(post)
+        })
+
+        // Query for job postings
+        // workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary.
+        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, status} = req.query;
+        let query = jobPostingRepository.createQueryBuilder('job-postings');
+        // all jobposting for admin
+        query = query.leftJoinAndSelect("job-postings.employer", "employer");
+        if ( status) {
+            query = query.where('job-postings.status = :status', {status});
+        }
+        // Public
+        if (workAddress) {
+            query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
+        }
+        if (jobTitle) {
+            query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
+        }
+        if (profession) {
+            query = query.andWhere('job-postings.profession = :profession', { profession});
+        }
+        if (employmentType) {
+            query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType});
+        }
+        if (degree) {
+            query = query.andWhere('job-postings.degree = :degree', { degree});
+        }
+        if (experience) {
+            query = query.andWhere('job-postings.experience = :experience', { experience});
+        }
+        if (positionLevel) {
+            query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel});
+        }
+        if (sex) {
+            query = query.andWhere('job-postings.sex = :sex', { sex});
+        }
+        if (salary) {
+            query = query.where(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
+        }
+        const jobPostings = await query.getMany();
+        
         if (!jobPostings || jobPostings.length === 0) {
             return ({
                 message: 'No jobPostings found',
