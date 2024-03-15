@@ -34,6 +34,84 @@ export default class JobPostingServices {
 
         // Query for job postings
         // workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary.
+        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, num, page} = req.query;
+        let query = jobPostingRepository.createQueryBuilder('job-postings');
+        // jobposting fo employee, employer, unknown
+        query = query.leftJoinAndSelect("job-postings.employer", "employer")
+                     .where('job-postings.status = :status', {status: approvalStatus.approved})
+                     .andWhere('job-postings.applicationDeadline >= :applicationDeadline', {applicationDeadline: new Date()});
+        // Public
+        if (workAddress) {
+            query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
+        }
+        if (jobTitle) {
+            query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
+        }
+        if (profession) {
+            query = query.andWhere('job-postings.profession = :profession', { profession});
+        }
+        if (employmentType) {
+            query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType});
+        }
+        if (degree) {
+            query = query.andWhere('job-postings.degree = :degree', { degree});
+        }
+        if (experience) {
+            query = query.andWhere('job-postings.experience = :experience', { experience});
+        }
+        if (positionLevel) {
+            query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel});
+        }
+        if (sex) {
+            query = query.andWhere('job-postings.sex = :sex', { sex});
+        }
+        if (salary) {
+            query = query.where(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
+        }
+        // Pagination
+        if (num && page) {
+            const skip = (parseInt(page) - 1) * parseInt(num);
+            const take = parseInt(num);
+      
+            query = query.skip(skip).take(take);
+        }
+      
+
+        const jobPostings = await query.getMany();
+        
+        if (!jobPostings || jobPostings.length === 0) {
+            return ({
+                message: 'No jobPostings found',
+                status: 204,
+                data: null
+            })
+        }
+
+        return ({
+            message: 'Find all jobPostings success',
+            status: 200,
+            data: jobPostings
+        })
+    }
+
+    static handleGetTotalResultsOfAllJobPostings = async (req) => {
+        // Update status of job postings when job postings were expried.
+        let findExpiredPosts = await jobPostingRepository.find({
+            where: {
+                applicationDeadline: LessThan(moment(new Date()).subtract(1, 'days').toDate()),
+                status: approvalStatus.approved
+            }
+        })
+
+        if (findExpiredPosts.length > 0) {
+            findExpiredPosts.map(async (post) => {
+                post.status = approvalStatus.expired
+                await jobPostingRepository.save(post)
+            })
+        }
+
+        // Query for job postings
+        // workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary.
         const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary} = req.query;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // jobposting fo employee, employer, unknown
@@ -74,14 +152,14 @@ export default class JobPostingServices {
             return ({
                 message: 'No jobPostings found',
                 status: 204,
-                data: null
+                data: {totalResults: jobPostings.length}
             })
         }
 
         return ({
             message: 'Find all jobPostings success',
             status: 200,
-            data: jobPostings
+            data: {totalResults: jobPostings.length}
         })
     }
 
