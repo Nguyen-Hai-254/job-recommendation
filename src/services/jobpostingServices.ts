@@ -25,10 +25,12 @@ export default class JobPostingServices {
             }
         })
 
-        findExpiredPosts.map(async (post) => {
-            post.status = approvalStatus.expired
-            await jobPostingRepository.save(post)
-        })
+        if (findExpiredPosts.length > 0) {
+            findExpiredPosts.map(async (post) => {
+                post.status = approvalStatus.expired
+                await jobPostingRepository.save(post)
+            })
+        }
 
         // Query for job postings
         // workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary.

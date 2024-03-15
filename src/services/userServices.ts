@@ -240,7 +240,7 @@ export default class UserServices {
         }
 
         return ({
-            message: `Edit your company successful!`,
+            message: `OK!`,
             status: 200,
             data: {
                 userId: getEmployer.userId,
@@ -251,6 +251,7 @@ export default class UserServices {
                 companyName: getEmployer.employer.companyName,
                 companyLocation: getEmployer.employer.companyLocation,
                 careerField: getEmployer.employer.careerField,
+                logo: getEmployer.employer.logo
             }
         })
     }
@@ -268,7 +269,6 @@ export default class UserServices {
                 data: null
             })
         }
-
 
         findEmployer.employer.taxCode = body.taxCode;
         findEmployer.employer.companyName = body.companyName;
@@ -328,6 +328,38 @@ export default class UserServices {
                 email: findUser.email,
                 avatar: findUser.avatar,
                 role: findUser.role
+            }
+        })
+    }
+
+    static handleUploadLogo = async (user, logo) => {
+        let findEmployer = await employerRepository.findOne({
+            where: { userId: user.userId }
+        })
+
+        if (!findEmployer) {
+            return ({
+                message: `This account isn't registered`,
+                status: 404,
+                data: null
+            })
+        }
+
+        findEmployer.logo = logo;
+        await employerRepository.save(findEmployer);
+        const notification = notificationRepository.create({
+            content: 'Bạn đã cập nhật ảnh đại diện',
+            user: findEmployer
+        })
+        await notificationRepository.save(notification);
+
+        return ({
+            message: `Cập nhật logo công ty thành công`,
+            status: 200,
+            data: {
+                userId: findEmployer.userId,
+                companyName: findEmployer.companyName,
+                avatar: findEmployer.logo
             }
         })
     }
