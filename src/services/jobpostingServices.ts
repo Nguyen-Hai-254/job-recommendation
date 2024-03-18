@@ -17,21 +17,6 @@ const notificationRepository = myDataSource.getRepository(Notification);
 
 export default class JobPostingServices {
     static handleGetAllJobPostings = async (req) => {
-        // Update status of job postings when job postings were expried.
-        let findExpiredPosts = await jobPostingRepository.find({
-            where: {
-                applicationDeadline: LessThan(moment(new Date()).subtract(1, 'days').toDate()),
-                status: approvalStatus.approved
-            }
-        })
-
-        if (findExpiredPosts.length > 0) {
-            findExpiredPosts.map(async (post) => {
-                post.status = approvalStatus.expired
-                await jobPostingRepository.save(post)
-            })
-        }
-
         // Query for job postings
         // workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary.
         const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, num, page} = req.query;
