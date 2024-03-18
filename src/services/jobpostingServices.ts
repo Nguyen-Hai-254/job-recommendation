@@ -17,11 +17,9 @@ const notificationRepository = myDataSource.getRepository(Notification);
 
 export default class JobPostingServices {
     static handleGetAllJobPostings = async (req) => {
-        // Query for job postings
-        // workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary.
         const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, num, page} = req.query;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
-        // jobposting fo employee, employer, unknown
+        // jobposting for employee, employer, unknown
         query = query.leftJoinAndSelect("job-postings.employer", "employer")
                      .where('job-postings.status = :status', {status: approvalStatus.approved})
                      .andWhere('job-postings.applicationDeadline >= :applicationDeadline', {applicationDeadline: new Date()});
