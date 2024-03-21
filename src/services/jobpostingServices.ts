@@ -22,7 +22,7 @@ export default class JobPostingServices {
         // jobposting for employee, employer, unknown
         query = query.leftJoinAndSelect("job-postings.employer", "employer")
                      .where('job-postings.status = :status', {status: approvalStatus.approved})
-                     .andWhere('job-postings.applicationDeadline >= :applicationDeadline', {applicationDeadline: new Date()});
+                     .andWhere('job-postings.applicationDeadline >= :applicationDeadline', {applicationDeadline: moment(new Date()).subtract(1, 'days').toDate()});
         // Public
         if (workAddress) {
             query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
@@ -49,7 +49,7 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.sex = :sex', { sex});
         }
         if (salary) {
-            query = query.where(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
+            query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
         }
         // Pagination
         if (num && page) {
@@ -98,7 +98,7 @@ export default class JobPostingServices {
         // jobposting for employee, employer, unknown
         query = query.leftJoinAndSelect("job-postings.employer", "employer")
                      .where('job-postings.status = :status', {status: approvalStatus.approved})
-                     .andWhere('job-postings.applicationDeadline >= :applicationDeadline', {applicationDeadline: new Date()});
+                     .andWhere('job-postings.applicationDeadline >= :applicationDeadline', {applicationDeadline: moment(new Date()).subtract(1, 'days').toDate()});
         // Public
         if (workAddress) {
             query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
@@ -125,7 +125,7 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.sex = :sex', { sex});
         }
         if (salary) {
-            query = query.where(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
+            query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
         }
         const jobPostings = await query.getMany();
         
@@ -178,7 +178,7 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.sex = :sex', { sex});
         }
         if (salary) {
-            query = query.where(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
+            query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
         }
         // Pagination
         if (num && page) {
@@ -252,7 +252,7 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.sex = :sex', { sex});
         }
         if (salary) {
-            query = query.where(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
+            query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
         }
         const jobPostings = await query.getMany();
         
