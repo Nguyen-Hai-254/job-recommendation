@@ -93,6 +93,15 @@ export default class ApplicationServices {
                 data: null
             })
         }
+        // Check CV, name, email and phone
+        if (!req?.body?.CV || !req?.body?.name || !req?.body?.email || !req?.body?.phone) {
+            return ({
+                message: 'CV,name,email, phone are required',
+                status: 400,
+                data: null
+            })
+        }
+
         // Check applicationType is correct
         if (EnumApplicationType(req.body.applicationType) === applicationType.attached_document) {
             const attached_document = await attached_documentRepository.findOne({
@@ -106,16 +115,7 @@ export default class ApplicationServices {
                 })
             }
         }
-        else if (EnumApplicationType(req.body.applicationType) === applicationType.cv_enclosed) {
-            if (!req?.body?.CV || !req?.body?.name || !req?.body?.email || !req?.body?.phone) {
-                return ({
-                    message: 'You choosed application type is cv_enclosed, CV,name,email, phone are required',
-                    status: 400,
-                    data: null
-                })
-            }
-        }
-        else {
+        else if (EnumApplicationType(req.body.applicationType) === applicationType.online_profile) {
             const online_profile = await online_profileRepository.findOne({
                 where: { userId: req.user.userId }
             })
@@ -156,12 +156,12 @@ export default class ApplicationServices {
         // Create new application
         const application = await applicationRepository.create({
             applicationType: EnumApplicationType(req.body.applicationType),
-            CV: req.body.applicationType === 'cv_enclosed' ? req.body.CV : null,
-            name: req.body.applicationType === 'cv_enclosed' ? req.body.name : null,
-            email: req.body.applicationType === 'cv_enclosed' ? req.body.email : null,
-            phone: req.body.applicationType === 'cv_enclosed' ? req.body.phone : null
+            CV: req.body.CV,
+            name: req.body.name,
+            email: req.body.email,
+            phone: req.body.phone
         })
-        const application1 = await applicationRepository.save(application)
+        const application1 = await applicationRepository.save(application);
 
         employee.applications.push(application1);
         await employeeRepository.save(employee);
