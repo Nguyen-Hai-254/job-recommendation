@@ -47,6 +47,6 @@ export class Application extends BaseEntity {
     @ManyToOne(() => JobPosting, (jobPosting) => jobPosting.applications)
     jobPosting: JobPosting
 
-    @RelationId((application: Application) => application.jobPosting)
-    postId: number;
+    // @RelationId((application: Application) => application.jobPosting)
+    // postId: number;
 }

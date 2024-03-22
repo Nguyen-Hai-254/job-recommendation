@@ -9,6 +9,7 @@ import { OnlineProfile } from "../entity/OnlineProfile"
 import { EnumApplicationType, EnumApprovalStatus } from "../utils/enumAction"
 import { applicationType } from "../utils/enum"
 import moment from "moment"
+import { application } from "express"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -177,25 +178,14 @@ export default class ApplicationServices {
     }
 
     static handleGetApplicationsbyEmployer = async (req) => {
-        const posts = await jobpostingRepository.find({
-            where: { employer: { userId: req.user.userId } },
-            relations: ['applications']
-        })
-
-        if (!posts) {
-            return ({
-                message: `User ${req.user.userId} don't have  any jobPosting`,
-                status: 400,
-                data: null
-            })
-        }
-
-        const applications = posts.flatMap(post => {
-            return post.applications.map(application => ({
-                ...application,
-                postId: post.postId,
-            }));
-        });
+        const applications = await applicationRepository
+            .createQueryBuilder('application')
+            .select(['application', 'employee.userId', 'jobPosting.postId'])
+            .leftJoin('application.employee','employee')
+            .leftJoin('application.jobPosting', 'jobPosting')
+            .leftJoin('jobPosting.employer', 'employer')
+            .where('employer.userId = :userId', { userId: req.user.userId })
+            .getMany();
 
         return ({
             message: `Find applications successful!`,
