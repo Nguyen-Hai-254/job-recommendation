@@ -255,6 +255,7 @@ export default class ApplicationServices {
             })
         }
         const personal_information = {
+            avatar: user.avatar,
             name: user.name,
             email: user.email,
             phone: user.phone,
