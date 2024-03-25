@@ -9,6 +9,7 @@ import { OnlineProfile } from "../entity/OnlineProfile"
 import { EnumApplicationType, EnumApprovalStatus } from "../utils/enumAction"
 import { applicationType } from "../utils/enum"
 import moment from "moment"
+import { application } from "express"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -93,6 +94,15 @@ export default class ApplicationServices {
                 data: null
             })
         }
+        // Check CV, name, email and phone
+        if (!req?.body?.CV || !req?.body?.name || !req?.body?.email || !req?.body?.phone) {
+            return ({
+                message: 'CV,name,email, phone are required',
+                status: 400,
+                data: null
+            })
+        }
+
         // Check applicationType is correct
         if (EnumApplicationType(req.body.applicationType) === applicationType.attached_document) {
             const attached_document = await attached_documentRepository.findOne({
@@ -106,16 +116,7 @@ export default class ApplicationServices {
                 })
             }
         }
-        else if (EnumApplicationType(req.body.applicationType) === applicationType.cv_enclosed) {
-            if (!req?.body?.CV || !req?.body?.name || !req?.body?.email || !req?.body?.phone) {
-                return ({
-                    message: 'You choosed application type is cv_enclosed, CV,name,email, phone are required',
-                    status: 400,
-                    data: null
-                })
-            }
-        }
-        else {
+        else if (EnumApplicationType(req.body.applicationType) === applicationType.online_profile) {
             const online_profile = await online_profileRepository.findOne({
                 where: { userId: req.user.userId }
             })
@@ -156,12 +157,12 @@ export default class ApplicationServices {
         // Create new application
         const application = await applicationRepository.create({
             applicationType: EnumApplicationType(req.body.applicationType),
-            CV: req.body.applicationType === 'cv_enclosed' ? req.body.CV : null,
-            name: req.body.applicationType === 'cv_enclosed' ? req.body.name : null,
-            email: req.body.applicationType === 'cv_enclosed' ? req.body.email : null,
-            phone: req.body.applicationType === 'cv_enclosed' ? req.body.phone : null
+            CV: req.body.CV,
+            name: req.body.name,
+            email: req.body.email,
+            phone: req.body.phone
         })
-        const application1 = await applicationRepository.save(application)
+        const application1 = await applicationRepository.save(application);
 
         employee.applications.push(application1);
         await employeeRepository.save(employee);
@@ -177,25 +178,14 @@ export default class ApplicationServices {
     }
 
     static handleGetApplicationsbyEmployer = async (req) => {
-        const posts = await jobpostingRepository.find({
-            where: { employer: { userId: req.user.userId } },
-            relations: ['applications']
-        })
-
-        if (!posts) {
-            return ({
-                message: `User ${req.user.userId} don't have  any jobPosting`,
-                status: 400,
-                data: null
-            })
-        }
-
-        const applications = posts.flatMap(post => {
-            return post.applications.map(application => ({
-                ...application,
-                postId: post.postId,
-            }));
-        });
+        const applications = await applicationRepository
+            .createQueryBuilder('application')
+            .select(['application', 'employee.userId', 'jobPosting.postId'])
+            .leftJoin('application.employee','employee')
+            .leftJoin('application.jobPosting', 'jobPosting')
+            .leftJoin('jobPosting.employer', 'employer')
+            .where('employer.userId = :userId', { userId: req.user.userId })
+            .getMany();
 
         return ({
             message: `Find applications successful!`,
@@ -265,6 +255,7 @@ export default class ApplicationServices {
             })
         }
         const personal_information = {
+            avatar: user.avatar,
             name: user.name,
             email: user.email,
             phone: user.phone,
