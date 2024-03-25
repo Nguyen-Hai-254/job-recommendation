@@ -4,7 +4,8 @@ import postRoute from "./postRoute"
 import applicationRoute from "./applicationRoute"
 import employeeRoute from "./employeeRoute"
 import utilsRoute from "./utilsRoute"
-import follow from "./followRoute"
+import followRoute from "./followRoute"
+import adminRoute from './adminRoute'
 const route = express.Router();
 
 
@@ -13,6 +14,7 @@ route.use('/', postRoute)
 route.use('/', applicationRoute)
 route.use('/', employeeRoute)
 route.use('/', utilsRoute)
-route.use('/', follow)
+route.use('/', followRoute)
+route.use('/', adminRoute)
 
 module.exports = route
