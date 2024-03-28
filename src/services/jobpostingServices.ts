@@ -145,12 +145,11 @@ export default class JobPostingServices {
 
     static handleGetAllJobPostingsByAdmin = async (req) => {
         const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, status, num, page } = req.query;
-        console.log(req.query)
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // all jobposting for admin
         query = query.leftJoinAndSelect("job-postings.employer", "employer");
         if (status) {
-            query = query.where('job-postings.status = :status', { status });
+            query = query.where('job-postings.status = :status', { status: approvalStatus[status] });
         }
         // Public
         if (workAddress) {
@@ -180,9 +179,7 @@ export default class JobPostingServices {
         if (salary) {
             query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
         }
-        if (status) {
-            query = query.andWhere('job-postings.status = :status', { status });
-        }
+
         // Pagination
         if (num && page) {
             const skip = (parseInt(page) - 1) * parseInt(num);
@@ -230,7 +227,7 @@ export default class JobPostingServices {
         // all jobposting for admin
         query = query.leftJoinAndSelect("job-postings.employer", "employer");
         if (status) {
-            query = query.where('job-postings.status = :status', { status });
+            query = query.where('job-postings.status = :status', { status: approvalStatus[status] });
         }
         // Public
         if (workAddress) {
