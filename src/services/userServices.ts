@@ -251,7 +251,9 @@ export default class UserServices {
                 companyName: getEmployer.employer.companyName,
                 companyLocation: getEmployer.employer.companyLocation,
                 careerField: getEmployer.employer.careerField,
-                logo: getEmployer.employer.logo
+                logo: getEmployer.employer.logo,
+                banner: getEmployer.employer.banner,
+                description: getEmployer.employer.description
             }
         })
     }
@@ -274,6 +276,7 @@ export default class UserServices {
         findEmployer.employer.companyName = body.companyName;
         findEmployer.employer.companyLocation = body.companyLocation;
         findEmployer.employer.careerField = body.careerField;
+        findEmployer.employer.description = body.description;
 
         await employerRepository.save(findEmployer.employer);
 
@@ -360,6 +363,38 @@ export default class UserServices {
                 userId: findEmployer.userId,
                 companyName: findEmployer.companyName,
                 avatar: findEmployer.logo
+            }
+        })
+    }
+
+    static handleUploadBanner = async (user, banner) => {
+        let findEmployer = await employerRepository.findOne({
+            where: { userId: user.userId }
+        })
+
+        if (!findEmployer) {
+            return ({
+                message: `This account isn't registered`,
+                status: 404,
+                data: null
+            })
+        }
+
+        findEmployer.banner = banner;
+        await employerRepository.save(findEmployer);
+        const notification = notificationRepository.create({
+            content: 'Bạn đã cập nhật ảnh đại diện',
+            user: findEmployer
+        })
+        await notificationRepository.save(notification);
+
+        return ({
+            message: `Cập nhật banner công ty thành công`,
+            status: 200,
+            data: {
+                userId: findEmployer.userId,
+                companyName: findEmployer.companyName,
+                banner: findEmployer.banner
             }
         })
     }
