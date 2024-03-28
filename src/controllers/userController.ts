@@ -181,4 +181,24 @@ export default class UserController {
             });
         }
     }
+
+    static uploadBanner = async (req, res) => {
+        try {
+            if (!req.body.banner) {
+                return res.status(500).json({
+                    message: "Missing input parameter!",
+                    status: 500,
+                    error: 'Internal Server Error',
+                });
+            }
+            const banner = await UserServices.handleUploadBanner(req.user, req.body.banner);
+            return res.status(banner.status).json(banner);
+        } catch (e) {
+            return res.status(500).json({
+                message: e.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
 }

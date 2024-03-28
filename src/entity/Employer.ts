@@ -27,7 +27,7 @@ export class Employer extends BaseEntity {
     @Column({ nullable: true })
     banner: string
 
-    @Column({ nullable: true })
+    @Column({ type: 'longtext', nullable: true })
     description: string
 
     @OneToOne(() => User, {

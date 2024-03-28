@@ -50,7 +50,7 @@ export default class UserServices {
 
         const salt = await bcrypt.genSalt(10);
         const hashPassWord = await bcrypt.hash(password, salt);
-        
+
         const createUser = await userRepository.create({
             email: email,
             password: hashPassWord,
@@ -298,6 +298,7 @@ export default class UserServices {
                 companyName: findEmployer.employer.companyName,
                 companyLocation: findEmployer.employer.companyLocation,
                 careerField: findEmployer.employer.careerField,
+                description: findEmployer.employer.description
             }
         })
     }
