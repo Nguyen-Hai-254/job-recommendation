@@ -1,9 +1,11 @@
 import { JobPosting } from "../entity/JobPosting"
 import moment from "moment"
 import { myDataSource } from "../config/connectDB";
-import { monthMap } from "../utils/enum";
+import { monthMap, userRole } from "../utils/enum";
+import { User } from "../entity/Users";
 
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
+const userRepository = myDataSource.getRepository(User);
 
 export default class AdminServices {
     static handleGetJobPostingsReport = async () => {
@@ -30,6 +32,63 @@ export default class AdminServices {
             message: 'OK',
             status: 200,
             data: formattedResults
+        })
+    }
+
+    static handleGetAllUser = async (req) => {
+        const { page, num, role } = req.query;
+        const skip = (parseInt(page) - 1) * parseInt(num);
+        const take = parseInt(num);
+
+        if (role) {
+            const findAllUser = await userRepository.find({
+                where: { role: userRole[role] },
+                select: ['userId', 'email', 'name', 'dob', 'address', 'phone', 'sex', 'role', 'avatar'],
+                skip: skip,
+                take: take
+            })
+
+            return ({
+                message: 'OK',
+                status: 200,
+                data: findAllUser
+            })
+        }
+
+        const findAllUser = await userRepository.find({
+            select: ['userId', 'email', 'name', 'dob', 'address', 'phone', 'sex', 'role', 'avatar'],
+            skip: skip,
+            take: take
+        })
+
+        return ({
+            message: 'OK',
+            status: 200,
+            data: findAllUser
+        })
+    }
+
+    static handleGetTotalUser = async (req) => {
+        const { role } = req.query;
+
+        if (role) {
+            const findAllUser = await userRepository.find({
+                where: { role: userRole[role] }
+            })
+
+            return ({
+                message: 'OK',
+                status: 200,
+                data: findAllUser.length
+            })
+        }
+
+        const findAllUser = await userRepository.find()
+
+        return ({
+            message: 'OK',
+            status: 200,
+            data: findAllUser.length
         })
     }
 }

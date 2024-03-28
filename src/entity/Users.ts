@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, OneToMany } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, OneToMany, CreateDateColumn } from "typeorm"
 import { Employer } from "./Employer"
 import { Employee } from "./Employee"
 import { sex, userRole } from "../utils/enum"
@@ -45,6 +45,9 @@ export class User extends BaseEntity {
         default: userRole.Employee
     })
     role: userRole
+
+    @CreateDateColumn({ type: 'timestamp' })
+    createAt: Date
 
     @OneToOne(() => Employer,
         (employer) => employer.user)
