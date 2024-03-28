@@ -351,7 +351,7 @@ export default class UserServices {
         findEmployer.logo = logo;
         await employerRepository.save(findEmployer);
         const notification = notificationRepository.create({
-            content: 'Bạn đã cập nhật ảnh đại diện',
+            content: 'Bạn đã cập nhật logo của công ty',
             user: findEmployer
         })
         await notificationRepository.save(notification);
@@ -383,7 +383,7 @@ export default class UserServices {
         findEmployer.banner = banner;
         await employerRepository.save(findEmployer);
         const notification = notificationRepository.create({
-            content: 'Bạn đã cập nhật ảnh đại diện',
+            content: 'Bạn đã cập nhật banner của công ty',
             user: findEmployer
         })
         await notificationRepository.save(notification);
