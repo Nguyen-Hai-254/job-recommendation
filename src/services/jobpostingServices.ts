@@ -77,7 +77,7 @@ export default class JobPostingServices {
         })
     }
 
-    static handleGetTotalResultsOfAllJobPostings = async (req) => {
+    static handleGetLengthOfAllJobPostings = async (req) => {
         // Update status of job postings when job postings were expried.
         let findExpiredPosts = await jobPostingRepository.find({
             where: {
@@ -205,7 +205,7 @@ export default class JobPostingServices {
         })
     }
 
-    static handleGetTotalResultsOfAllJobPostingsByAdmin = async (req) => {
+    static handleGetLengthOfAllJobPostingsByAdmin = async (req) => {
         // Update status of job postings when job postings were expried.
         let findExpiredPosts = await jobPostingRepository.find({
             where: {

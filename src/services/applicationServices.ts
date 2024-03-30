@@ -178,19 +178,76 @@ export default class ApplicationServices {
     }
 
     static handleGetApplicationsbyEmployer = async (req) => {
-        const applications = await applicationRepository
+        const { applicationType, name, status, postId, num, page} = req.query;
+        // get list of applications by employer
+        let query = applicationRepository
             .createQueryBuilder('application')
             .select(['application', 'employee.userId', 'jobPosting.postId'])
             .leftJoin('application.employee','employee')
             .leftJoin('application.jobPosting', 'jobPosting')
             .leftJoin('jobPosting.employer', 'employer')
-            .where('employer.userId = :userId', { userId: req.user.userId })
-            .getMany();
+            .where('employer.userId = :userId', { userId: req.user.userId });
+        // query by applicationType, name, status, postId
+        if (applicationType) {
+            query = query.andWhere('application.applicationType = :applicationType', { applicationType });
+        }
+        if (name) {
+            query = query.andWhere('application.name LIKE :name', {name : `%${name}%`});
+        }
+        if (status) {
+            query = query.andWhere('application.status = :status', {status});
+        }
+        if (postId) {
+            query = query.andWhere('application.jobPosting.postId = :postId', {postId});
+        }
+        
+        // Pagination
+        if (num && page) {
+            const skip = (parseInt(page) - 1) * parseInt(num);
+            const take = parseInt(num);
+      
+            query = query.skip(skip).take(take);
+        }
+
+        const applications = await query.getMany();
 
         return ({
             message: `Find applications successful!`,
             status: 200,
             data: applications
+        })
+
+    }
+
+    static handleGetLengthOfApplicationsbyEmployer = async (req) => {
+        const { applicationType, name, status, postId} = req.query;
+        // get list of applications by employer
+        let query = applicationRepository
+            .createQueryBuilder('application')
+            .select(['application', 'employee.userId', 'jobPosting.postId'])
+            .leftJoin('application.employee','employee')
+            .leftJoin('application.jobPosting', 'jobPosting')
+            .leftJoin('jobPosting.employer', 'employer')
+            .where('employer.userId = :userId', { userId: req.user.userId });
+        // query by applicationType, name, status, postId
+        if (applicationType) {
+            query = query.andWhere('application.applicationType = :applicationType', { applicationType });
+        }
+        if (name) {
+            query = query.andWhere('application.name LIKE :name', {name : `%${name}%`});
+        }
+        if (status) {
+            query = query.andWhere('application.status = :status', {status});
+        }
+        if (postId) {
+            query = query.andWhere('application.jobPosting.postId = :postId', {postId});
+        }
+        const applications = await query.getMany();
+
+        return ({
+            message: `Find applications successful!`,
+            status: 200,
+            data: {totalResults: applications.length}
         })
 
     }

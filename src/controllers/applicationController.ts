@@ -69,6 +69,23 @@ export default class ApplicationController {
         }
     }
 
+    static getLengthOfApplicationsbyEmployer = async (req, res) => {
+        try {
+            const applications = await ApplicationServices.handleGetLengthOfApplicationsbyEmployer(req);
+            return res.status(applications.status).json({
+                message: applications.message,
+                status: 200,
+                data: applications.data ? applications.data : []
+            });
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
     static getApplicationbyEmployer = async (req, res) => {
         try {
             const applications = await ApplicationServices.handleGetApplicationbyEmployer(req);
