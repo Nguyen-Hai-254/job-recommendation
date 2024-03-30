@@ -21,8 +21,14 @@ export class Employer extends BaseEntity {
     @Column({ nullable: true })
     careerField: string
 
-    @Column({nullable: true})
+    @Column({ nullable: true })
     logo: string
+
+    @Column({ nullable: true })
+    banner: string
+
+    @Column({ type: 'longtext', nullable: true })
+    description: string
 
     @OneToOne(() => User, {
         onDelete: 'CASCADE',

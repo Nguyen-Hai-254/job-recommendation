@@ -14,5 +14,6 @@ route.get('/api/v1/get-information-company', verifyToken, UserController.getInfo
 route.post('/api/v1/edit-information-company', verifyToken, verifyRole(userRole.Employer), UserController.editInformationCompany);
 route.post('/api/v1/user/upload-avatar', verifyToken, UserController.uploadAvatar);
 route.post('/api/v1/user/upload-logo', verifyToken, verifyRole(userRole.Employer), UserController.uploadLogo);
+route.post('/api/v1/user/upload-banner', verifyToken, verifyRole(userRole.Employer), UserController.uploadBanner);
 
 export default route

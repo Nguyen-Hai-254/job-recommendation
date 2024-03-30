@@ -17,12 +17,12 @@ const notificationRepository = myDataSource.getRepository(Notification);
 
 export default class JobPostingServices {
     static handleGetAllJobPostings = async (req) => {
-        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, num, page} = req.query;
+        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, num, page } = req.query;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // jobposting for employee, employer, unknown
         query = query.leftJoinAndSelect("job-postings.employer", "employer")
-                     .where('job-postings.status = :status', {status: approvalStatus.approved})
-                     .andWhere('job-postings.applicationDeadline >= :applicationDeadline', {applicationDeadline: moment(new Date()).subtract(1, 'days').toDate()});
+            .where('job-postings.status = :status', { status: approvalStatus.approved })
+            .andWhere('job-postings.applicationDeadline >= :applicationDeadline', { applicationDeadline: moment(new Date()).subtract(1, 'days').toDate() });
         // Public
         if (workAddress) {
             query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
@@ -31,22 +31,22 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            query = query.andWhere('job-postings.profession = :profession', { profession});
+            query = query.andWhere('job-postings.profession = :profession', { profession });
         }
         if (employmentType) {
-            query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType});
+            query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
         }
         if (degree) {
-            query = query.andWhere('job-postings.degree = :degree', { degree});
+            query = query.andWhere('job-postings.degree = :degree', { degree });
         }
         if (experience) {
-            query = query.andWhere('job-postings.experience = :experience', { experience});
+            query = query.andWhere('job-postings.experience = :experience', { experience });
         }
         if (positionLevel) {
-            query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel});
+            query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel });
         }
         if (sex) {
-            query = query.andWhere('job-postings.sex = :sex', { sex});
+            query = query.andWhere('job-postings.sex = :sex', { sex });
         }
         if (salary) {
             query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
@@ -55,13 +55,12 @@ export default class JobPostingServices {
         if (num && page) {
             const skip = (parseInt(page) - 1) * parseInt(num);
             const take = parseInt(num);
-      
+
             query = query.skip(skip).take(take);
         }
-      
 
         const jobPostings = await query.getMany();
-        
+
         if (!jobPostings || jobPostings.length === 0) {
             return ({
                 message: 'No jobPostings found',
@@ -93,12 +92,12 @@ export default class JobPostingServices {
             })
         }
 
-        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary} = req.query;
+        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary } = req.query;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // jobposting for employee, employer, unknown
         query = query.leftJoinAndSelect("job-postings.employer", "employer")
-                     .where('job-postings.status = :status', {status: approvalStatus.approved})
-                     .andWhere('job-postings.applicationDeadline >= :applicationDeadline', {applicationDeadline: moment(new Date()).subtract(1, 'days').toDate()});
+            .where('job-postings.status = :status', { status: approvalStatus.approved })
+            .andWhere('job-postings.applicationDeadline >= :applicationDeadline', { applicationDeadline: moment(new Date()).subtract(1, 'days').toDate() });
         // Public
         if (workAddress) {
             query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
@@ -107,50 +106,50 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            query = query.andWhere('job-postings.profession = :profession', { profession});
+            query = query.andWhere('job-postings.profession = :profession', { profession });
         }
         if (employmentType) {
-            query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType});
+            query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
         }
         if (degree) {
-            query = query.andWhere('job-postings.degree = :degree', { degree});
+            query = query.andWhere('job-postings.degree = :degree', { degree });
         }
         if (experience) {
-            query = query.andWhere('job-postings.experience = :experience', { experience});
+            query = query.andWhere('job-postings.experience = :experience', { experience });
         }
         if (positionLevel) {
-            query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel});
+            query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel });
         }
         if (sex) {
-            query = query.andWhere('job-postings.sex = :sex', { sex});
+            query = query.andWhere('job-postings.sex = :sex', { sex });
         }
         if (salary) {
             query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
         }
         const jobPostings = await query.getMany();
-        
+
         if (!jobPostings || jobPostings.length === 0) {
             return ({
                 message: 'No jobPostings found',
                 status: 204,
-                data: {totalResults: jobPostings.length}
+                data: { totalResults: jobPostings.length }
             })
         }
 
         return ({
             message: 'Find all jobPostings success',
             status: 200,
-            data: {totalResults: jobPostings.length}
+            data: { totalResults: jobPostings.length }
         })
     }
 
     static handleGetAllJobPostingsByAdmin = async (req) => {
-        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, status, num, page} = req.query;
+        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, status, num, page } = req.query;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // all jobposting for admin
         query = query.leftJoinAndSelect("job-postings.employer", "employer");
-        if ( status) {
-            query = query.where('job-postings.status = :status', {status});
+        if (status) {
+            query = query.where('job-postings.status = :status', { status: approvalStatus[status] });
         }
         // Public
         if (workAddress) {
@@ -160,36 +159,40 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            query = query.andWhere('job-postings.profession = :profession', { profession});
+            query = query.andWhere('job-postings.profession = :profession', { profession });
         }
         if (employmentType) {
-            query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType});
+            query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
         }
         if (degree) {
-            query = query.andWhere('job-postings.degree = :degree', { degree});
+            query = query.andWhere('job-postings.degree = :degree', { degree });
         }
         if (experience) {
-            query = query.andWhere('job-postings.experience = :experience', { experience});
+            query = query.andWhere('job-postings.experience = :experience', { experience });
         }
         if (positionLevel) {
-            query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel});
+            query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel });
         }
         if (sex) {
-            query = query.andWhere('job-postings.sex = :sex', { sex});
+            query = query.andWhere('job-postings.sex = :sex', { sex });
         }
         if (salary) {
             query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
         }
+
         // Pagination
         if (num && page) {
             const skip = (parseInt(page) - 1) * parseInt(num);
             const take = parseInt(num);
-      
+
             query = query.skip(skip).take(take);
+        }
+        else {
+            query = query.skip(0).take(10);
         }
 
         const jobPostings = await query.getMany();
-        
+
         if (!jobPostings || jobPostings.length === 0) {
             return ({
                 message: 'No jobPostings found',
@@ -219,12 +222,12 @@ export default class JobPostingServices {
             await jobPostingRepository.save(post)
         })
 
-        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, status} = req.query;
+        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, status } = req.query;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // all jobposting for admin
         query = query.leftJoinAndSelect("job-postings.employer", "employer");
-        if ( status) {
-            query = query.where('job-postings.status = :status', {status});
+        if (status) {
+            query = query.where('job-postings.status = :status', { status: approvalStatus[status] });
         }
         // Public
         if (workAddress) {
@@ -234,40 +237,40 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            query = query.andWhere('job-postings.profession = :profession', { profession});
+            query = query.andWhere('job-postings.profession = :profession', { profession });
         }
         if (employmentType) {
-            query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType});
+            query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
         }
         if (degree) {
-            query = query.andWhere('job-postings.degree = :degree', { degree});
+            query = query.andWhere('job-postings.degree = :degree', { degree });
         }
         if (experience) {
-            query = query.andWhere('job-postings.experience = :experience', { experience});
+            query = query.andWhere('job-postings.experience = :experience', { experience });
         }
         if (positionLevel) {
-            query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel});
+            query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel });
         }
         if (sex) {
-            query = query.andWhere('job-postings.sex = :sex', { sex});
+            query = query.andWhere('job-postings.sex = :sex', { sex });
         }
         if (salary) {
             query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
         }
         const jobPostings = await query.getMany();
-        
+
         if (!jobPostings || jobPostings.length === 0) {
             return ({
                 message: 'No jobPostings found',
                 status: 204,
-                data: {totalResults: jobPostings.length}
+                data: { totalResults: jobPostings.length }
             })
         }
 
         return ({
             message: 'Find all jobPostings success',
             status: 200,
-            data: {totalResults: jobPostings.length}
+            data: { totalResults: jobPostings.length }
         })
     }
 
@@ -311,6 +314,9 @@ export default class JobPostingServices {
                 data: null
             })
         }
+
+        jobPosting.view += 1
+        await jobPosting.save()
 
         return ({
             message: `Find Job posting has postId: ${req.params.postId} successes`,
