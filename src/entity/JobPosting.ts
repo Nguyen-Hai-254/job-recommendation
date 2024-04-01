@@ -120,10 +120,10 @@ export class JobPosting extends BaseEntity {
     status: approvalStatus
 
     // Properties of Chat GPT to score
-    @Column({ nullable: true }) // Use to score applications (100 points)
+    @Column({ type: 'longtext', nullable: true }) // Use to score applications (100 points)
     requiredSkills: string
 
-    @Column({ nullable: true }) // Use to score applications (30 points)
+    @Column({ type: 'longtext', nullable: true }) // Use to score applications (30 points)
     keywords: string
 
     @ManyToOne(() => Employer, (employer) => employer.jobPostings)

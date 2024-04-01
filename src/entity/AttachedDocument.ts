@@ -73,7 +73,7 @@ export class AttachedDocument extends BaseEntity {
     isHidden: boolean
 
     // Properties of Chat GPT
-    @Column({ nullable: true })
+    @Column({ type: 'longtext', nullable: true })
     keywords: string
 
     // Relationship ------------------------
