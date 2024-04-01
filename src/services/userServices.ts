@@ -5,7 +5,7 @@ import { Employer } from "../entity/Employer"
 import { Notification } from "../entity/Notification"
 import { OnlineProfile } from "../entity/OnlineProfile"
 import { User } from "../entity/Users"
-import { sex, userRole } from "../utils/enum"
+import { approvalStatus, sex, userRole } from "../utils/enum"
 import { EnumDegree } from "../utils/enumAction"
 import { createToken } from "../utils/JWTAction"
 import bcrypt from "bcrypt"
@@ -397,6 +397,60 @@ export default class UserServices {
                 companyName: findEmployer.companyName,
                 banner: findEmployer.banner
             }
+        })
+    }
+
+    static handleGetInformationCompanyByUser = async (id) => {
+        const getEmployer = await userRepository.findOne({
+            where: {
+                userId: id,
+                employer: {
+                    jobPostings: {
+                        status: approvalStatus.approved
+                    }
+                }
+            },
+            relations: ['employer.jobPostings']
+        })
+
+        if (!getEmployer) {
+            return ({
+                message: `Công ty không tồn tại`,
+                status: 404,
+                data: null
+            })
+        }
+
+        return ({
+            message: `OK!`,
+            status: 200,
+            data: {
+                userId: getEmployer.userId,
+                email: getEmployer.email,
+                name: getEmployer.name,
+                role: getEmployer.role,
+                taxCode: getEmployer.employer.taxCode,
+                companyName: getEmployer.employer.companyName,
+                companyLocation: getEmployer.employer.companyLocation,
+                careerField: getEmployer.employer.careerField,
+                logo: getEmployer.employer.logo,
+                banner: getEmployer.employer.banner,
+                description: getEmployer.employer.description,
+                list_job_postings: getEmployer.employer?.jobPostings
+            }
+        })
+    }
+
+    static handleGetAllCompanyByUser = async (num, page) => {
+        const skip = (parseInt(page) - 1) * parseInt(num);
+        const take = parseInt(num);
+
+        const getEmployer = await employerRepository.find({ skip: skip, take: take })
+
+        return ({
+            message: `OK!`,
+            status: 200,
+            data: getEmployer
         })
     }
 }
