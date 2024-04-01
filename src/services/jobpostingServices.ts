@@ -31,7 +31,7 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            query = query.andWhere('job-postings.profession = :profession', { profession });
+            query = query.andWhere('job-postings.profession LIKE :profession', { profession: `%${profession}%` });
         }
         if (employmentType) {
             query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
@@ -111,7 +111,7 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            query = query.andWhere('job-postings.profession = :profession', { profession });
+            query = query.andWhere('job-postings.profession LIKE :profession', { profession: `%${profession}%` });
         }
         if (employmentType) {
             query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
@@ -161,7 +161,7 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            query = query.andWhere('job-postings.profession = :profession', { profession });
+            query = query.andWhere('job-postings.profession LIKE :profession', { profession: `%${profession}%` });
         }
         if (employmentType) {
             query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
@@ -239,7 +239,7 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            query = query.andWhere('job-postings.profession = :profession', { profession });
+            query = query.andWhere('job-postings.profession LIKE :profession', { profession: `%${profession}%` });
         }
         if (employmentType) {
             query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
