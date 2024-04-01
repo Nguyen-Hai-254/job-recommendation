@@ -407,6 +407,8 @@ export default class JobPostingServices {
         if (req.body?.jobRequirements) jobPosting.jobRequirements = req.body.jobRequirements
         if (req.body?.benefits) jobPosting.benefits = req.body.benefits
         if (req.body?.isHidden !== null) jobPosting.isHidden = req.body.isHidden
+        if (req.body?.requiredSkills) jobPosting.requiredSkills = req.body.requiredSkills
+        if (req.body?.keywords) jobPosting.keywords = req.body.keywords
 
         await jobPostingRepository.save(jobPosting);
         const createNotification = notificationRepository.create({
@@ -480,7 +482,9 @@ export default class JobPostingServices {
             benefits: req.body.benefits,
             submissionCount: 0,
             view: 0,
-            isHidden: req?.body?.isHidden ? req.body.isHidden : false
+            isHidden: req?.body?.isHidden ? req.body.isHidden : false,
+            requiredSkills: req.body?.requiredSkills ? req.body?.requiredSkills : null,
+            keywords: req.body?.keywords ? req.body?.keywords : null
         })
         const post1 = await jobPostingRepository.save(post)
 

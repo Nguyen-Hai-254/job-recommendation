@@ -103,9 +103,9 @@ export default class ApplicationController {
         }
     }
 
-    static updateApprovalStatus = async (req, res) => {
+    static updateApplicationbyEmployer = async (req, res) => {
         try {
-            const application = await ApplicationServices.handleUpdateApprovalStatus(req);
+            const application = await ApplicationServices.handleUpdateApplicationbyEmployer(req);
             return res.status(application.status).json({
                 message: application.message,
                 status: application.status,
