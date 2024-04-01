@@ -7,6 +7,7 @@ const route = express.Router()
 
 route.get('/api/v1/job-postings', JobPostingController.getAllJobPostings);
 route.get('/api/v1/job-postings/totalResults', JobPostingController.getLengthOfAllJobPostings);
+route.get('/api/v1/job-postings/totalResultsOfProfession', JobPostingController.getTotalResultsOfProfession);
 route.get('/api/v1/admin/job-postings', verifyToken, verifyRole(userRole.Admin), JobPostingController.getAllJobPostingsByAdmin);
 route.get('/api/v1/admin/job-postings/totalResults', verifyToken, verifyRole(userRole.Admin), JobPostingController.getLengthOfAllJobPostingsByAdmin);
 route.get('/api/v1/job-postings/:postId', JobPostingController.getJobPosting);

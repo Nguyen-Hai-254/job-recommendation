@@ -268,6 +268,24 @@ export default class JobPostingServices {
         })
     }
 
+    static handleGetTotalResultsOfProfession = async () =>{
+        const minCount = 1;
+      
+        const result = await jobPostingRepository
+            .createQueryBuilder('jobPosting')
+            .select(`SUBSTRING_INDEX(SUBSTRING_INDEX(jobPosting.profession, ',', ${minCount}), ',', -1)`, 'profession_value')
+            .addSelect('COUNT(*)', 'count')
+            .where(`LENGTH(jobPosting.profession) - LENGTH(REPLACE(jobPosting.profession, ',', '')) + 1 >= ${minCount}`)
+            .groupBy('profession_value')
+            .getRawMany();
+
+         return ({
+            message: `Find job postings successful!`,
+            status: 200,
+            data: result
+        })
+    }
+
     static handleGetJobPostingsByEmployer = async (req) => {
         const jobpostings = await jobPostingRepository.find({
             where: { employer: { userId: req.user.userId } },
