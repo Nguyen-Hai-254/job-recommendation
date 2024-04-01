@@ -17,7 +17,7 @@ const notificationRepository = myDataSource.getRepository(Notification);
 
 export default class JobPostingServices {
     static handleGetAllJobPostings = async (req) => {
-        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, num, page } = req.query;
+        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, employerId, num, page } = req.query;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // jobposting for employee, employer, unknown
         query = query.leftJoinAndSelect("job-postings.employer", "employer")
@@ -51,6 +51,11 @@ export default class JobPostingServices {
         if (salary) {
             query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
         }
+        // query by employerId
+        if (employerId) {
+            query = query.andWhere('job-postings.employer.userId = :employerId', { employerId });
+        }
+
         // Pagination
         if (num && page) {
             const skip = (parseInt(page) - 1) * parseInt(num);
@@ -92,7 +97,7 @@ export default class JobPostingServices {
             })
         }
 
-        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary } = req.query;
+        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, employerId } = req.query;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // jobposting for employee, employer, unknown
         query = query.leftJoinAndSelect("job-postings.employer", "employer")
@@ -126,6 +131,11 @@ export default class JobPostingServices {
         if (salary) {
             query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
         }
+        // query by employerId
+        if (employerId) {
+            query = query.andWhere('job-postings.employer.userId = :employerId', { employerId });
+        }
+        
         const jobPostings = await query.getMany();
 
         if (!jobPostings || jobPostings.length === 0) {

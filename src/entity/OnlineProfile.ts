@@ -71,6 +71,10 @@ export class OnlineProfile extends BaseEntity {
     @Column({ default: false })
     isHidden: boolean
 
+    // Properties of Chat GPT
+    @Column({ nullable: true })
+    keywords: string
+
     // Relations ------------------------
     @OneToOne(() => Employee, {
         onDelete: 'CASCADE',

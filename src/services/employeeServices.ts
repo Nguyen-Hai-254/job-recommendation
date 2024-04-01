@@ -157,6 +157,8 @@ export default class EmployeeServices {
         // other information
         if (req.body?.CV) attached_document.CV = req.body.CV
         if (req.body?.isHidden !== null) attached_document.isHidden = req.body.isHidden
+        // update keywords
+        if (req.body?.keywords) attached_document.keywords = req.body.keywords
 
         await attached_documentRepository.save(attached_document);
         // add a new notification
@@ -301,6 +303,10 @@ export default class EmployeeServices {
         // other information
         if (req.body?.isHidden !== null) online_profile.isHidden = req.body.isHidden
         else online_profile.isHidden = false
+        // update keywords
+        if (req.body?.keywords) online_profile.keywords = req.body.keywords
+
+        
         await online_profileRepository.save(online_profile);
         // add a new notification
         const findUser = await userRepository.findOneBy({
