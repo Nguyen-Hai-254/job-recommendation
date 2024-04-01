@@ -450,9 +450,7 @@ export default class UserServices {
         return ({
             message: `OK!`,
             status: 200,
-            data: {
-                getEmployer
-            }
+            data: getEmployer
         })
     }
 }
