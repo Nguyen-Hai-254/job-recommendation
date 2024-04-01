@@ -49,6 +49,7 @@ export default class EmployeeServices {
 
     static handleCreateNewAttachedDocument = async (req) => {
         // Check general information
+        console.log(req.body)
         if (!req?.body?.jobTitle || !req?.body?.profession || !req?.body?.currentPosition ||
             !req?.body?.desiredPosition || !req?.body?.desiredSalary || !req?.body?.degree ||
             !req?.body?.workAddress || !req?.body?.experience || !req?.body?.employmentType) {
@@ -96,13 +97,14 @@ export default class EmployeeServices {
             view: 0,
             isHidden: req?.body?.isHidden ? req.body.isHidden : false
         })
-
+        console.log("check1");
         await attached_documentRepository.save(attached_document);
-
+        console.log("check2");
         // add a notification
         const foundUser = await userRepository.findOne({
             where: { userId: req.user.userId }
         })
+        console.log("check3");
         if (!foundUser) {
             return ({
                 message: 'User not found',
@@ -110,12 +112,13 @@ export default class EmployeeServices {
                 data: null
             })
         }
+        console.log("check4");
         const createNotification = notificationRepository.create({
             content: 'Bạn đã tạo hồ sơ đính kèm',
             user: foundUser
         })
         await notificationRepository.save(createNotification);
-
+        console.log("check5");
 
         return ({
             message: 'Tạo hồ sơ đính kèm thành công',
