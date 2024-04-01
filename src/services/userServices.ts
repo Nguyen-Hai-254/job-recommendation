@@ -440,4 +440,19 @@ export default class UserServices {
             }
         })
     }
+
+    static handleGetAllCompanyByUser = async (num, page) => {
+        const skip = (parseInt(page) - 1) * parseInt(num);
+        const take = parseInt(num);
+
+        const getEmployer = await employerRepository.find({ skip: skip, take: take })
+
+        return ({
+            message: `OK!`,
+            status: 200,
+            data: {
+                getEmployer
+            }
+        })
+    }
 }

@@ -221,4 +221,25 @@ export default class UserController {
             });
         }
     }
+
+    static getAllCompanyByUser = async (req, res) => {
+        try {
+            if (!req.query.num || !req.query.page) {
+                return res.status(500).json({
+                    message: "Missing input parameter!",
+                    status: 500,
+                    error: 'Internal Server Error',
+                });
+            }
+
+            const companyList = await UserServices.handleGetAllCompanyByUser(req.query.num, req.query.page);
+            return res.status(companyList.status).json(companyList);
+        } catch (e) {
+            return res.status(500).json({
+                message: e.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
 }
