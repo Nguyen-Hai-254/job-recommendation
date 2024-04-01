@@ -72,6 +72,10 @@ export class AttachedDocument extends BaseEntity {
     @Column({ default: false })
     isHidden: boolean
 
+    // Properties of Chat GPT
+    @Column({ nullable: true })
+    keywords: string
+
     // Relationship ------------------------
     @OneToOne(() => Employee, {
         onDelete: 'CASCADE',
