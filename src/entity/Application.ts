@@ -33,15 +33,12 @@ export class Application extends BaseEntity {
     @Column({ nullable: true })
     phone: string
 
-    // // Properties of Chat GPT
-    // @Column({ nullable: true }) // type document of CV
-    // cv_docs: string
+    // Properties of Chat GPT
+    @Column({ nullable: true })
+    keywords: string
 
-    // @Column({ nullable: true })
-    // keywords: string
-    // // jobApplicationMatch, only display for employer
-    // @Column({ nullable: true })
-    // matchingScore: string
+    @Column({ nullable: true })
+    matchingScore: number
 
     ///////////////////////////////////////////////////////////
     @Column({

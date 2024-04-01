@@ -160,7 +160,8 @@ export default class ApplicationServices {
             CV: req.body.CV,
             name: req.body.name,
             email: req.body.email,
-            phone: req.body.phone
+            phone: req.body.phone,
+            keywords: req.body.keywords ? req.body.keywords : null,
         })
         const application1 = await applicationRepository.save(application);
 
@@ -359,7 +360,7 @@ export default class ApplicationServices {
 
     }
 
-    static handleUpdateApprovalStatus = async (req) => {
+    static handleUpdateApplicationbyEmployer = async (req) => {
         if (!req?.params?.id) {
             return ({
                 message: 'id is required',
@@ -400,6 +401,7 @@ export default class ApplicationServices {
         }
         // Update with req.body
         if (req.body?.status) application.status = EnumApprovalStatus(req.body.status)
+        if (req.body?.matchingScore) application.matchingScore = req.body.matchingScore
 
         await applicationRepository.save(application)
 

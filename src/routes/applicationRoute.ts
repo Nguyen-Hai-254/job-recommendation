@@ -12,7 +12,7 @@ route.post('/api/v1/employee/applications', verifyToken, verifyRole(userRole.Emp
 route.get('/api/v1/employer/applications', verifyToken, verifyRole(userRole.Employer), ApplicationController.getApplicationsbyEmployer);
 route.get('/api/v1/employer/applications/totalResults', verifyToken, verifyRole(userRole.Employer), ApplicationController.getLengthOfApplicationsbyEmployer);
 route.get('/api/v1/employer/applications/:id', verifyToken, verifyRole(userRole.Employer), ApplicationController.getApplicationbyEmployer);
-route.put('/api/v1/employer/applications/:id', verifyToken, verifyRole(userRole.Employer), ApplicationController.updateApprovalStatus);
+route.put('/api/v1/employer/applications/:id', verifyToken, verifyRole(userRole.Employer), ApplicationController.updateApplicationbyEmployer);
 
 route.get('/api/v1/admin/applications', verifyToken, verifyRole(userRole.Admin), ApplicationController.getAllApplications);
 
