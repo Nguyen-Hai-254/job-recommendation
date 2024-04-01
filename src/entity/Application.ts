@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, RelationId, CreateDateColumn } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne,  CreateDateColumn } from "typeorm"
 import { Employee } from "./Employee"
 import { JobPosting } from "./JobPosting"
 import { applicationType, approvalStatus } from "../utils/enum"
@@ -33,6 +33,16 @@ export class Application extends BaseEntity {
     @Column({ nullable: true })
     phone: string
 
+    // // Properties of Chat GPT
+    // @Column({ nullable: true }) // type document of CV
+    // cv_docs: string
+
+    // @Column({ nullable: true })
+    // keywords: string
+    // // jobApplicationMatch, only display for employer
+    // @Column({ nullable: true })
+    // matchingScore: string
+
     ///////////////////////////////////////////////////////////
     @Column({
         type: 'enum',
@@ -46,7 +56,4 @@ export class Application extends BaseEntity {
 
     @ManyToOne(() => JobPosting, (jobPosting) => jobPosting.applications)
     jobPosting: JobPosting
-
-    // @RelationId((application: Application) => application.jobPosting)
-    // postId: number;
 }

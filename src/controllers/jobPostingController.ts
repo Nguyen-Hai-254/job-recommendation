@@ -18,9 +18,9 @@ export default class JobPostingController {
         }
     }
 
-    static getTotalResultsOfAllJobPostings = async (req, res) => {
+    static getLengthOfAllJobPostings = async (req, res) => {
         try {
-            const jobPostings = await JobPostingServices.handleGetTotalResultsOfAllJobPostings(req);
+            const jobPostings = await JobPostingServices.handleGetLengthOfAllJobPostings(req);
             return res.status(jobPostings.status).json({
                 message: jobPostings.message,
                 status: jobPostings.status,
@@ -52,9 +52,9 @@ export default class JobPostingController {
         }
     }
 
-    static getTotalResultsOfAllJobPostingsByAdmin = async (req, res) => {
+    static getLengthOfAllJobPostingsByAdmin = async (req, res) => {
         try {
-            const jobPostings = await JobPostingServices.handleGetTotalResultsOfAllJobPostingsByAdmin(req);
+            const jobPostings = await JobPostingServices.handleGetLengthOfAllJobPostingsByAdmin(req);
             return res.status(jobPostings.status).json({
                 message: jobPostings.message,
                 status: jobPostings.status,
