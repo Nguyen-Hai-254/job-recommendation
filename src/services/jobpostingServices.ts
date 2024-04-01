@@ -259,20 +259,12 @@ export default class JobPostingServices {
         if (salary) {
             query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
         }
-        const jobPostings = await query.getMany();
-
-        if (!jobPostings || jobPostings.length === 0) {
-            return ({
-                message: 'No jobPostings found',
-                status: 204,
-                data: { totalResults: jobPostings.length }
-            })
-        }
+        const totalResults = await query.getCount();
 
         return ({
-            message: 'Find all jobPostings success',
+            message: 'Find length of jobPostings success',
             status: 200,
-            data: { totalResults: jobPostings.length }
+            data: { totalResults: totalResults }
         })
     }
 
