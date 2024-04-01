@@ -161,7 +161,7 @@ export default class ApplicationServices {
             name: req.body.name,
             email: req.body.email,
             phone: req.body.phone,
-            keywords: req.body.keywords ? req.body.keywords : null,
+            keywords: req.body?.keywords ? req.body?.keywords : null,
         })
         const application1 = await applicationRepository.save(application);
 

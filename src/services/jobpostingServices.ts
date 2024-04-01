@@ -484,7 +484,7 @@ export default class JobPostingServices {
             view: 0,
             isHidden: req?.body?.isHidden ? req.body.isHidden : false,
             requiredSkills: req.body?.requiredSkills ? req.body?.requiredSkills : null,
-            keywords: req.body.keywords ? req.body.keywords : null
+            keywords: req.body?.keywords ? req.body?.keywords : null
         })
         const post1 = await jobPostingRepository.save(post)
 
