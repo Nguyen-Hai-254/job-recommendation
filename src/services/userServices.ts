@@ -446,11 +446,15 @@ export default class UserServices {
         const take = parseInt(num);
 
         const getEmployer = await employerRepository.find({ skip: skip, take: take })
+        const totalCompany = await employerRepository.count({})
 
         return ({
             message: `OK!`,
             status: 200,
-            data: getEmployer
+            data: {
+                companyList: getEmployer,
+                totalCompany
+            }
         })
     }
 }
