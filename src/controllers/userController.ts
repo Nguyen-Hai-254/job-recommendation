@@ -201,4 +201,24 @@ export default class UserController {
             });
         }
     }
+
+    static getInformationCompanyByUser = async (req, res) => {
+        try {
+            if (!req.query.employerId) {
+                return res.status(500).json({
+                    message: "Missing input parameter!",
+                    status: 500,
+                    error: 'Internal Server Error',
+                });
+            }
+            const company = await UserServices.handleGetInformationCompanyByUser(req.query.employerId);
+            return res.status(company.status).json(company);
+        } catch (e) {
+            return res.status(500).json({
+                message: e.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
 }
