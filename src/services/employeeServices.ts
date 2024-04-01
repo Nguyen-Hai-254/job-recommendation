@@ -96,13 +96,14 @@ export default class EmployeeServices {
             view: 0,
             isHidden: req?.body?.isHidden ? req.body.isHidden : false
         })
-
+        
         await attached_documentRepository.save(attached_document);
-
+        
         // add a notification
         const foundUser = await userRepository.findOne({
             where: { userId: req.user.userId }
         })
+        
         if (!foundUser) {
             return ({
                 message: 'User not found',
@@ -110,12 +111,12 @@ export default class EmployeeServices {
                 data: null
             })
         }
+        
         const createNotification = notificationRepository.create({
             content: 'Bạn đã tạo hồ sơ đính kèm',
             user: foundUser
         })
         await notificationRepository.save(createNotification);
-
 
         return ({
             message: 'Tạo hồ sơ đính kèm thành công',

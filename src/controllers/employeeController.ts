@@ -28,7 +28,7 @@ export default class EmployeeController {
             })
         } catch (err) {
             return res.status(500).json({
-                message: err.message,
+                message: err,
                 status: 500,
                 error: 'Internal Server Error',
             });
