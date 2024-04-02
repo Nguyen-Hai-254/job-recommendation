@@ -270,21 +270,46 @@ export default class JobPostingServices {
 
     static handleGetTotalResultsOfProfession = async () =>{
         const minCount = 1;
-      
         const result = await jobPostingRepository
             .createQueryBuilder('jobPosting')
+            .where('jobPosting.status = :status', { status: approvalStatus.approved })
             .select(`SUBSTRING_INDEX(SUBSTRING_INDEX(jobPosting.profession, ',', ${minCount}), ',', -1)`, 'profession_value')
             .addSelect('COUNT(*)', 'count')
-            .where(`LENGTH(jobPosting.profession) - LENGTH(REPLACE(jobPosting.profession, ',', '')) + 1 >= ${minCount}`)
+            .andWhere(`LENGTH(jobPosting.profession) - LENGTH(REPLACE(jobPosting.profession, ',', '')) + 1 >= ${minCount}`)
             .groupBy('profession_value')
             .getRawMany();
 
-         return ({
+        return ({
             message: `Find job postings successful!`,
             status: 200,
             data: result
         })
     }
+
+    static handleGetTotalResultsOfProfessionByAdmin = async (req) =>{
+        const minCount = 1;
+        const { status } = req.query;
+
+        let query = jobPostingRepository.createQueryBuilder('jobPosting');
+      
+        if (status) {
+            query = query.where('jobPosting.status = :status', {  status  });
+        }
+
+        query = query.select(`SUBSTRING_INDEX(SUBSTRING_INDEX(jobPosting.profession, ',', ${minCount}), ',', -1)`, 'profession_value')
+                     .addSelect('COUNT(*)', 'count')
+                     .andWhere(`LENGTH(jobPosting.profession) - LENGTH(REPLACE(jobPosting.profession, ',', '')) + 1 >= ${minCount}`)
+                     .groupBy('profession_value');
+
+        const result =  await query.getRawMany();
+
+        return ({
+            message: `Find job postings successful!`,
+            status: 200,
+            data: result
+        })
+    }
+
 
     static handleGetJobPostingsByEmployer = async (req) => {
         const jobpostings = await jobPostingRepository.find({
