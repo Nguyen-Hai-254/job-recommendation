@@ -151,7 +151,7 @@ export default class JobPostingServices {
         // all jobposting for admin
         query = query.leftJoinAndSelect("job-postings.employer", "employer");
         if (status) {
-            query = query.where('job-postings.status = :status', { status: approvalStatus[status] });
+            query = query.where('job-postings.status = :status', { status });
         }
         // Public
         if (workAddress) {
@@ -229,7 +229,7 @@ export default class JobPostingServices {
         // all jobposting for admin
         query = query.leftJoinAndSelect("job-postings.employer", "employer");
         if (status) {
-            query = query.where('job-postings.status = :status', { status: approvalStatus[status] });
+            query = query.where('job-postings.status = :status', { status });
         }
         // Public
         if (workAddress) {
