@@ -457,5 +457,36 @@ export default class UserServices {
             }
         })
     }
+
+    static handleDeleteUser = async (req) => {
+        // Check parameters
+        if (!req?.params.id) {
+            return ({
+                message: 'id of user  is required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check education information exists?
+        const user = await userRepository.findOne({
+            where: { userId: req.params.id },
+        })
+        if (!user) {
+            return ({
+                message: `user has id: ${req.params.id} not found`,
+                status: 400,
+                data: null
+            })
+        }
+      
+        await userRepository.delete(user.userId)
+
+        return ({
+            message: `Delete Education Information has id: ${user.userId}  successfully`,
+            status: 200,
+            data: user
+        })
+
+    }
     
 }

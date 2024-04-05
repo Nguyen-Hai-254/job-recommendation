@@ -242,4 +242,21 @@ export default class UserController {
             });
         }
     }
+
+    static deleteUser = async (req, res) => {
+        try {
+            const user = await UserServices.handleDeleteUser(req);
+            return res.status(user.status).json({
+                message: user.message,
+                status: user.status,
+                data: user.data
+            });
+        } catch (e) {
+            return res.status(500).json({
+                message: e.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
 }

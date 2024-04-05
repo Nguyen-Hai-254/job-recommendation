@@ -17,5 +17,6 @@ route.post('/api/v1/edit-information-company', verifyToken, verifyRole(userRole.
 route.post('/api/v1/user/upload-avatar', verifyToken, UserController.uploadAvatar);
 route.post('/api/v1/user/upload-logo', verifyToken, verifyRole(userRole.Employer), UserController.uploadLogo);
 route.post('/api/v1/user/upload-banner', verifyToken, verifyRole(userRole.Employer), UserController.uploadBanner);
+route.delete('/api/v1/users/:id', verifyToken, verifyRole(userRole.Admin), UserController.deleteUser);
 
 export default route
