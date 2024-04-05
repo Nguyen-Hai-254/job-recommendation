@@ -259,4 +259,73 @@ export default class EmployeeController {
             });
         }
     }
+
+    static getEmployeesByAdmin = async (req, res) => {
+        try {
+            const employees = await EmployeeServices.handleGetEmployeesByAdmin(req);
+            return res.status(employees.status).json({
+                message: employees.message,
+                status: employees.status,
+                data: employees.data
+            })
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
+    static getLengthOfEmployeesByAdmin = async (req, res) => {
+        try {
+            const employees = await EmployeeServices.handleGetLengthOfEmployeesByAdmin(req);
+            return res.status(employees.status).json({
+                message: employees.message,
+                status: employees.status,
+                data: employees.data
+            })
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
+    static getEmployeesByEmployer = async (req, res) => {
+        try {
+            const employees = await EmployeeServices.handleGetEmployeesByEmployer(req);
+            return res.status(employees.status).json({
+                message: employees.message,
+                status: employees.status,
+                data: employees.data
+            })
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
+    static getLengthOfEmployeesByEmployer = async (req, res) => {
+        try {
+            const employees = await EmployeeServices.handleGetLengthOfEmployeesByEmployer(req);
+            return res.status(employees.status).json({
+                message: employees.message,
+                status: employees.status,
+                data: employees.data
+            })
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
 }
