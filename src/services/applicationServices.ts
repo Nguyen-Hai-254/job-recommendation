@@ -243,12 +243,12 @@ export default class ApplicationServices {
         if (postId) {
             query = query.andWhere('application.jobPosting.postId = :postId', {postId});
         }
-        const applications = await query.getMany();
+        const totalResults = await query.getCount();
 
         return ({
             message: `Find applications successful!`,
             status: 200,
-            data: {totalResults: applications.length}
+            data: {totalResults: totalResults}
         })
 
     }
