@@ -17,7 +17,7 @@ const notificationRepository = myDataSource.getRepository(Notification);
 
 export default class JobPostingServices {
     static handleGetAllJobPostings = async (req) => {
-        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, employerId, num, page } = req.query;
+        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, employerId, keywords, num, page } = req.query;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // jobposting for employee, employer, unknown
         query = query.leftJoinAndSelect("job-postings.employer", "employer")
@@ -54,6 +54,22 @@ export default class JobPostingServices {
         // query by employerId
         if (employerId) {
             query = query.andWhere('job-postings.employer.userId = :employerId', { employerId });
+        }
+        // query by keywords
+        if (keywords) {
+            const keywordArray = keywords.split(',');
+
+            const conditions = keywordArray.map((keyword, index) => {
+              query.setParameter(`keyword${index}`, `%${keyword}%`);
+              return `job-postings.keywords LIKE :keyword${index}`;
+            });
+            query.andWhere(`(${conditions.join(' OR ')})`);
+        
+            const orderByConditions = keywordArray.map((keyword, index) => {
+              query.setParameter(`keyword${index}`, `%${keyword}%`);
+              return `IF(job-postings.keywords LIKE :keyword${index}, 1, 0)`;
+            });
+            query.orderBy(`(${orderByConditions.join(' + ')})`, 'DESC');
         }
 
         // Pagination
@@ -97,7 +113,7 @@ export default class JobPostingServices {
             })
         }
 
-        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, employerId } = req.query;
+        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, employerId, keywords } = req.query;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // jobposting for employee, employer, unknown
         query = query.leftJoinAndSelect("job-postings.employer", "employer")
@@ -134,6 +150,22 @@ export default class JobPostingServices {
         // query by employerId
         if (employerId) {
             query = query.andWhere('job-postings.employer.userId = :employerId', { employerId });
+        }
+         // query by keywords
+         if (keywords) {
+            const keywordArray = keywords.split(',');
+
+            const conditions = keywordArray.map((keyword, index) => {
+              query.setParameter(`keyword${index}`, `%${keyword}%`);
+              return `job-postings.keywords LIKE :keyword${index}`;
+            });
+            query.andWhere(`(${conditions.join(' OR ')})`);
+        
+            const orderByConditions = keywordArray.map((keyword, index) => {
+              query.setParameter(`keyword${index}`, `%${keyword}%`);
+              return `IF(job-postings.keywords LIKE :keyword${index}, 1, 0)`;
+            });
+            query.orderBy(`(${orderByConditions.join(' + ')})`, 'DESC');
         }
         
         const totalResults = await query.getCount();
