@@ -462,7 +462,7 @@ export default class UserServices {
         // Check parameters
         if (!req?.params.id) {
             return ({
-                message: 'id of user  is required',
+                message: 'id of user is required',
                 status: 400,
                 data: null
             })

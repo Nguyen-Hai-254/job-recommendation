@@ -1,11 +1,16 @@
 import { JobPosting } from "../entity/JobPosting"
-import moment from "moment"
 import { myDataSource } from "../config/connectDB";
 import { monthMap, userRole } from "../utils/enum";
 import { User } from "../entity/Users";
+import { OnlineProfile } from "../entity/OnlineProfile";
+import { AttachedDocument } from "../entity/AttachedDocument";
+import { countCandidatesbyProfession, mergerTwoObject } from "../utils/utilsFunction";
+import { Int32 } from "typeorm";
 
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
 const userRepository = myDataSource.getRepository(User);
+const online_profileRepository = myDataSource.getRepository(OnlineProfile);
+const attachedDocumentRepository = myDataSource.getRepository(AttachedDocument);
 
 export default class AdminServices {
     static handleGetJobPostingsReport = async () => {
@@ -32,6 +37,41 @@ export default class AdminServices {
             message: 'OK',
             status: 200,
             data: formattedResults
+        })
+    }
+
+    static handleCandidateStatistics = async () => {
+        const getAllOnlineProfile = await online_profileRepository.createQueryBuilder('profile')
+            .select('profile.profession AS profession, COUNT(*) AS userCount')
+            .groupBy('profile.profession')
+            .getRawMany()
+
+        const getAllAttachedDocument = await attachedDocumentRepository.createQueryBuilder('profile')
+            .select('profile.profession AS profession, COUNT(*) AS userCount')
+            .groupBy('profile.profession')
+            .getRawMany()
+
+        const resultOnlineProlife = countCandidatesbyProfession(getAllOnlineProfile);
+        const resultAttachedDocument = countCandidatesbyProfession(getAllAttachedDocument);
+
+        const totalResult = mergerTwoObject(resultOnlineProlife, resultAttachedDocument);
+        // Chuyển đổi totalResult thành mảng objects
+        let result = Object.entries(totalResult).map(([profession, count]) => ({
+            name: profession,
+            value: count
+        }));
+
+        const sortedData = result.sort((a: { name, value }, b: { name, value }) => b.value - a.value);
+
+        const top5 = sortedData.slice(0, 5);
+        const otherSum = sortedData.reduce((sum, currenItem: { name, value }) => sum + currenItem.value, 0) - top5.reduce((sum, currenItem: { name, value }) => sum + currenItem.value, 0)
+
+        const top5AndOther = [...top5, { "name": "Khác", value: otherSum }];
+
+        return ({
+            message: 'OK',
+            status: 200,
+            data: top5AndOther
         })
     }
 

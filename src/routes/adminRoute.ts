@@ -6,8 +6,8 @@ import AdminController from "../controllers/adminController";
 const route = express.Router()
 
 route.get('/api/v1/admin/get-job-postings-report', verifyToken, verifyRole(userRole.Admin), AdminController.jobPostingsReport);
-// route.get('/api/v1/admin/get-all-user', verifyToken, verifyRole(userRole.Admin), AdminController.getAllUser);
-route.get('/api/v1/admin/get-all-user', AdminController.getAllUser);
-route.get('/api/v1/admin/get-total-user', AdminController.getTotalUser);
+route.get('/api/v1/admin/candidate-statistics', verifyToken, verifyRole(userRole.Admin), AdminController.candidateStatistics);
+route.get('/api/v1/admin/get-all-user', verifyToken, verifyRole(userRole.Admin), AdminController.getAllUser);
+route.get('/api/v1/admin/get-total-user', verifyToken, verifyRole(userRole.Admin), AdminController.getTotalUser);
 
 export default route

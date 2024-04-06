@@ -25,9 +25,9 @@ route.post('/api/v1/employee/online-profile/work-experience', verifyToken, verif
 route.put('/api/v1/employee/online-profile/work-experience/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.updateWorkExperience);
 route.delete('/api/v1/employee/online-profile/work-experience/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.deleteWorkExperience);
 
-route.get('/api/v1/admin/employees',  verifyToken, verifyRole(userRole.Admin), EmployeeController.getEmployeesByAdmin);
-route.get('/api/v1/admin/employees/totalResults',  verifyToken, verifyRole(userRole.Admin), EmployeeController.getLengthOfEmployeesByAdmin);
-route.get('/api/v1/employer/employees',  verifyToken, verifyRole(userRole.Employer), EmployeeController.getEmployeesByEmployer);
-route.get('/api/v1/employer/employees/totalResults',  verifyToken, verifyRole(userRole.Employer), EmployeeController.getLengthOfEmployeesByEmployer);
+route.get('/api/v1/admin/employees', verifyToken, verifyRole(userRole.Admin), EmployeeController.getEmployeesByAdmin);
+route.get('/api/v1/admin/employees/totalResults', verifyToken, verifyRole(userRole.Admin), EmployeeController.getLengthOfEmployeesByAdmin);
+route.get('/api/v1/employer/employees', verifyToken, verifyRole(userRole.Employer), EmployeeController.getEmployeesByEmployer);
+route.get('/api/v1/employer/employees/totalResults', verifyToken, verifyRole(userRole.Employer), EmployeeController.getLengthOfEmployeesByEmployer);
 
 export default route
