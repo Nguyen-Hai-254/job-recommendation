@@ -19,6 +19,23 @@ export default class AdminController {
         }
     }
 
+    static candidateStatistics = async (req, res) => {
+        try {
+            const data = await AdminServices.handleCandidateStatistics();
+            return res.status(data.status).json({
+                message: data.message,
+                status: data.status,
+                data: data.data ? data.data : []
+            });
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
     static getAllUser = async (req, res) => {
         try {
             const allUser = await AdminServices.handleGetAllUser(req);
