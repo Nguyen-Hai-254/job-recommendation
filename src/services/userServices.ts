@@ -81,11 +81,12 @@ export default class UserServices {
     }
 
     static handleLogin = async (email, password) => {
-        const findUser = await userRepository.findOne({
-            where: {
-                email: email
-            }
-        })
+        const findUser = await userRepository
+            .createQueryBuilder('user')
+            .select("user")
+            .addSelect("user.password")
+            .where('user.email = :email', {email})
+            .getOne()
 
         if (!findUser) {
             return ({
@@ -482,7 +483,7 @@ export default class UserServices {
         await userRepository.delete(user.userId)
 
         return ({
-            message: `Delete Education Information has id: ${user.userId}  successfully`,
+            message: `Delete user has id: ${user.userId}  successfully`,
             status: 200,
             data: user
         })
