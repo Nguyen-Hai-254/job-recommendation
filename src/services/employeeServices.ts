@@ -97,14 +97,14 @@ export default class EmployeeServices {
             view: 0,
             isHidden: req?.body?.isHidden ? req.body.isHidden : false
         })
-        
+
         await attached_documentRepository.save(attached_document);
-        
+
         // add a notification
         const foundUser = await userRepository.findOne({
             where: { userId: req.user.userId }
         })
-        
+
         if (!foundUser) {
             return ({
                 message: 'User not found',
@@ -112,7 +112,7 @@ export default class EmployeeServices {
                 data: null
             })
         }
-        
+
         const createNotification = notificationRepository.create({
             content: 'Bạn đã tạo hồ sơ đính kèm',
             user: foundUser
@@ -305,7 +305,7 @@ export default class EmployeeServices {
         // update keywords
         if (req.body?.keywords) online_profile.keywords = req.body.keywords
 
-        
+
         await online_profileRepository.save(online_profile);
         // add a new notification
         const findUser = await userRepository.findOneBy({
@@ -750,24 +750,24 @@ export default class EmployeeServices {
 
         let query = employeeRepository
             .createQueryBuilder('employee')
-            .select(['employee','online_profile','work_experiences','education_informations','another_degrees','attached_document','user.name','user.email','user.dob','user.address','user.phone','user.sex','user.avatar','user.role','user.createAt'])
+            .select(['employee', 'online_profile', 'work_experiences', 'education_informations', 'another_degrees', 'attached_document', 'user.name', 'user.email', 'user.dob', 'user.address', 'user.phone', 'user.sex', 'user.avatar', 'user.role', 'user.createAt'])
             .leftJoin('employee.online_profile', 'online_profile')
             .leftJoin('online_profile.work_experiences', 'work_experiences')
-            .leftJoin('online_profile.education_informations','education_informations')
-            .leftJoin('online_profile.another_degrees','another_degrees')
+            .leftJoin('online_profile.education_informations', 'education_informations')
+            .leftJoin('online_profile.another_degrees', 'another_degrees')
             .leftJoin('employee.attached_document', 'attached_document')
-            .leftJoin('employee.user','user');
+            .leftJoin('employee.user', 'user');
 
         if (profession) {
             query = query.andWhere(
                 new Brackets(qb =>
-                    qb.where('online_profile.profession LIKE :profession', {profession: `%${profession}%`})
-                      .orWhere('attached_document.profession LIKE :profession', {profession: `%${profession}%`})
+                    qb.where('online_profile.profession LIKE :profession', { profession: `%${profession}%` })
+                        .orWhere('attached_document.profession LIKE :profession', { profession: `%${profession}%` })
                 )
             );
         }
         if (name) {
-            query = query.andWhere('user.name LIKE :name', {name: `%${name}%`});
+            query = query.andWhere('user.name LIKE :name', { name: `%${name}%` });
         }
 
         // Pagination
@@ -777,7 +777,7 @@ export default class EmployeeServices {
 
             query = query.skip(skip).take(take);
         }
-        
+
         const employees = await query.getMany();
 
         return ({
@@ -792,56 +792,56 @@ export default class EmployeeServices {
 
         let query = employeeRepository
             .createQueryBuilder('employee')
-            .select(['employee','online_profile','work_experiences','education_informations','another_degrees','attached_document','user.name','user.email','user.dob','user.address','user.phone','user.sex','user.avatar','user.role','user.createAt'])
+            .select(['employee', 'online_profile', 'work_experiences', 'education_informations', 'another_degrees', 'attached_document', 'user.name', 'user.email', 'user.dob', 'user.address', 'user.phone', 'user.sex', 'user.avatar', 'user.role', 'user.createAt'])
             .leftJoin('employee.online_profile', 'online_profile')
             .leftJoin('online_profile.work_experiences', 'work_experiences')
-            .leftJoin('online_profile.education_informations','education_informations')
-            .leftJoin('online_profile.another_degrees','another_degrees')
+            .leftJoin('online_profile.education_informations', 'education_informations')
+            .leftJoin('online_profile.another_degrees', 'another_degrees')
             .leftJoin('employee.attached_document', 'attached_document')
-            .leftJoin('employee.user','user');
+            .leftJoin('employee.user', 'user');
 
         if (profession) {
             query = query.andWhere(
                 new Brackets(qb =>
-                    qb.where('online_profile.profession LIKE :profession', {profession: `%${profession}%`})
-                      .orWhere('attached_document.profession LIKE :profession', {profession: `%${profession}%`})
+                    qb.where('online_profile.profession LIKE :profession', { profession: `%${profession}%` })
+                        .orWhere('attached_document.profession LIKE :profession', { profession: `%${profession}%` })
                 )
             );
         }
 
         if (name) {
-            query = query.andWhere('user.name LIKE :name', {name: `%${name}%`});
+            query = query.andWhere('user.name LIKE :name', { name: `%${name}%` });
         }
-        
-        
+
+
         const totalResults = await query.getCount();
 
         return ({
             message: 'Get Employees By Admin sucesss',
             status: 200,
-            data: {totalResults: totalResults}
+            data: { totalResults: totalResults }
         })
     }
 
     static handleGetEmployeesByEmployer = async (req) => {
-        const {jobTitle, profession, minSalary, maxSalary, degree, workAddress, experience, employmentType, sex, num, page} = req.query;
+        const { jobTitle, profession, minSalary, maxSalary, degree, workAddress, experience, employmentType, sex, num, page } = req.query;
 
         let queryforOnlineProfile = online_profileRepository
             .createQueryBuilder('online_profile')
-            .select(['online_profile','work_experiences','education_informations','another_degrees', 'employee.isMarried', 'user.userId','user.name','user.dob','user.address','user.sex','user.avatar'])
+            .select(['online_profile', 'work_experiences', 'education_informations', 'another_degrees', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar', 'user.phone', 'user.email'])
             .where('online_profile.isHidden = false')
             .leftJoin('online_profile.work_experiences', 'work_experiences')
-            .leftJoin('online_profile.education_informations','education_informations')
-            .leftJoin('online_profile.another_degrees','another_degrees')
+            .leftJoin('online_profile.education_informations', 'education_informations')
+            .leftJoin('online_profile.another_degrees', 'another_degrees')
             .leftJoin('online_profile.employee', 'employee')
-            .leftJoin('employee.user','user')
+            .leftJoin('employee.user', 'user')
 
         let queryforAttachedDocument = attached_documentRepository
             .createQueryBuilder('attached_document')
-            .select(['attached_document','employee.isMarried', 'user.userId','user.name','user.dob','user.address','user.sex','user.avatar', 'user.phone', 'user.email'])
+            .select(['attached_document', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar', 'user.phone', 'user.email'])
             .where('attached_document.isHidden = false')
-            .leftJoin('attached_document.employee','employee')
-            .leftJoin('employee.user','user')
+            .leftJoin('attached_document.employee', 'employee')
+            .leftJoin('employee.user', 'user')
 
         // Public
         if (workAddress) {
@@ -901,7 +901,7 @@ export default class EmployeeServices {
         }
 
         const online_profiles = await queryforOnlineProfile.getMany();
-        const attached_documents = numOfAttached_documents ? await queryforAttachedDocument.getMany(): [];
+        const attached_documents = numOfAttached_documents ? await queryforAttachedDocument.getMany() : [];
 
         return ({
             message: 'Get Employees By Employer sucesss',
@@ -911,24 +911,24 @@ export default class EmployeeServices {
     }
 
     static handleGetLengthOfEmployeesByEmployer = async (req) => {
-        const {jobTitle, profession, minSalary, maxSalary, degree, workAddress, experience, employmentType, sex} = req.query;
+        const { jobTitle, profession, minSalary, maxSalary, degree, workAddress, experience, employmentType, sex } = req.query;
 
         let queryforOnlineProfile = online_profileRepository
             .createQueryBuilder('online_profile')
-            .select(['online_profile','work_experiences','education_informations','another_degrees', 'employee.isMarried', 'user.userId','user.name','user.dob','user.address','user.sex','user.avatar'])
+            .select(['online_profile', 'work_experiences', 'education_informations', 'another_degrees', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar'])
             .where('online_profile.isHidden = false')
             .leftJoin('online_profile.work_experiences', 'work_experiences')
-            .leftJoin('online_profile.education_informations','education_informations')
-            .leftJoin('online_profile.another_degrees','another_degrees')
+            .leftJoin('online_profile.education_informations', 'education_informations')
+            .leftJoin('online_profile.another_degrees', 'another_degrees')
             .leftJoin('online_profile.employee', 'employee')
-            .leftJoin('employee.user','user')
+            .leftJoin('employee.user', 'user')
 
         let queryforAttachedDocument = attached_documentRepository
             .createQueryBuilder('attached_document')
-            .select(['attached_document','employee.isMarried', 'user.userId','user.name','user.dob','user.address','user.sex','user.avatar'])
+            .select(['attached_document', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar'])
             .where('attached_document.isHidden = false')
-            .leftJoin('attached_document.employee','employee')
-            .leftJoin('employee.user','user')
+            .leftJoin('attached_document.employee', 'employee')
+            .leftJoin('employee.user', 'user')
 
         // Public
         if (workAddress) {
@@ -974,7 +974,7 @@ export default class EmployeeServices {
         return ({
             message: 'Get Length of Employees By Employer sucesss',
             status: 200,
-            data: {lengthOfOnline_profiles, lengthOfAttached_profiles}
+            data: { lengthOfOnline_profiles, lengthOfAttached_profiles }
         })
     }
 
@@ -992,38 +992,38 @@ export default class EmployeeServices {
 
         let queryforOnlineProfile = online_profileRepository
             .createQueryBuilder('online_profile')
-            .select(['online_profile','work_experiences','education_informations','another_degrees', 'employee.isMarried', 'user.userId','user.name','user.dob','user.address','user.sex','user.avatar'])
+            .select(['online_profile', 'work_experiences', 'education_informations', 'another_degrees', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar'])
             .where('online_profile.isHidden = false')
             .leftJoin('online_profile.work_experiences', 'work_experiences')
-            .leftJoin('online_profile.education_informations','education_informations')
-            .leftJoin('online_profile.another_degrees','another_degrees')
+            .leftJoin('online_profile.education_informations', 'education_informations')
+            .leftJoin('online_profile.another_degrees', 'another_degrees')
             .leftJoin('online_profile.employee', 'employee')
-            .leftJoin('employee.user','user')
+            .leftJoin('employee.user', 'user')
 
         let queryforAttachedDocument = attached_documentRepository
             .createQueryBuilder('attached_document')
-            .select(['attached_document','employee.isMarried', 'user.userId','user.name','user.dob','user.address','user.sex','user.avatar'])
+            .select(['attached_document', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar'])
             .where('attached_document.isHidden = false')
-            .leftJoin('attached_document.employee','employee')
-            .leftJoin('employee.user','user')
-    
+            .leftJoin('attached_document.employee', 'employee')
+            .leftJoin('employee.user', 'user')
+
         const results: any = [];
         const lengthOfSortByKeywords = sortByKeywords.result.length;
-        for (let i = 0; i <lengthOfSortByKeywords; i++) {
+        for (let i = 0; i < lengthOfSortByKeywords; i++) {
             if (sortByKeywords.result[i].type == '0') {
-                let tmp = await queryforOnlineProfile.andWhere('online_profile.userId = :userId', {userId: sortByKeywords.result[i].userId}).getOne();
+                let tmp = await queryforOnlineProfile.andWhere('online_profile.userId = :userId', { userId: sortByKeywords.result[i].userId }).getOne();
                 results.push(tmp);
             } else if (sortByKeywords.result[i].type == '1') {
-                let tmp = await queryforAttachedDocument.andWhere('attached_document.userId = :userId', {userId: sortByKeywords.result[i].userId}).getOne();
+                let tmp = await queryforAttachedDocument.andWhere('attached_document.userId = :userId', { userId: sortByKeywords.result[i].userId }).getOne();
                 results.push(tmp);
             }
 
         }
-            
+
         return ({
             message: 'Get Employees By Employer sort by keywords sucesss',
             status: 200,
-            data:  {
+            data: {
                 totalCount: sortByKeywords.totalCount,
                 result: results
             }
@@ -1032,11 +1032,11 @@ export default class EmployeeServices {
 
 }
 
-async function sortOnlineProfilesAndAttachedDocumentsByKeyWords (keywords: string, num: number, page: number) {
+async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(keywords: string, num: number, page: number) {
     const entityManager = myDataSource.manager as EntityManager;
 
     const keywordArray = keywords.split(',');
-      
+
     const onlineProfileQuery = `
         SELECT 
             online_profile.userId AS userId, 
@@ -1076,7 +1076,7 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords (keywords: strin
         (${onlineProfileQuery} UNION ${attachedDocumentQuery}) 
         ORDER BY count DESC 
         LIMIT ${num}
-        OFFSET ${(page-1)*num} 
+        OFFSET ${(page - 1) * num} 
         `
     );
 
