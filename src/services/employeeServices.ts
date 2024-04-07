@@ -13,7 +13,7 @@ import { AnotherDegree } from "../entity/AnotherDegree"
 import { EducationInformation } from "../entity/EducationInformation"
 import { WorkExperience } from "../entity/WorkExperience"
 import moment from "moment"
-import { EntityManager } from "typeorm"
+import { Brackets, EntityManager } from "typeorm"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -759,8 +759,12 @@ export default class EmployeeServices {
             .leftJoin('employee.user','user');
 
         if (profession) {
-            query = query.where('online_profile.profession LIKE :profession', {profession: `%${profession}%`})
-                         .orWhere('attached_document.profession LIKE :profession', {profession: `%${profession}%`})
+            query = query.andWhere(
+                new Brackets(qb =>
+                    qb.where('online_profile.profession LIKE :profession', {profession: `%${profession}%`})
+                      .orWhere('attached_document.profession LIKE :profession', {profession: `%${profession}%`})
+                )
+            );
         }
         if (name) {
             query = query.andWhere('user.name LIKE :name', {name: `%${name}%`});
@@ -797,8 +801,12 @@ export default class EmployeeServices {
             .leftJoin('employee.user','user');
 
         if (profession) {
-            query = query.where('online_profile.profession LIKE :profession', {profession: `%${profession}%`})
-                         .orWhere('attached_document.profession LIKE :profession', {profession: `%${profession}%`})
+            query = query.andWhere(
+                new Brackets(qb =>
+                    qb.where('online_profile.profession LIKE :profession', {profession: `%${profession}%`})
+                      .orWhere('attached_document.profession LIKE :profession', {profession: `%${profession}%`})
+                )
+            );
         }
 
         if (name) {
