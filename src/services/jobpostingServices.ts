@@ -304,14 +304,13 @@ export default class JobPostingServices {
         })
     }
 
-    static handleGetTotalResultsOfProfession = async () => {
-        const minCount = 1;
+    static handleGetTotalResultsOfProfession = async () =>{
         const result = await jobPostingRepository
             .createQueryBuilder('jobPosting')
             .where('jobPosting.status = :status', { status: approvalStatus.approved })
-            .select(`SUBSTRING_INDEX(SUBSTRING_INDEX(jobPosting.profession, ',', ${minCount}), ',', -1)`, 'profession_value')
+            .select(`SUBSTRING_INDEX(SUBSTRING_INDEX(jobPosting.profession, ',', 1), ',', -1)`, 'profession_value')
             .addSelect('COUNT(*)', 'count')
-            .andWhere(`LENGTH(jobPosting.profession) - LENGTH(REPLACE(jobPosting.profession, ',', '')) + 1 >= ${minCount}`)
+            .andWhere(`LENGTH(jobPosting.profession) - LENGTH(REPLACE(jobPosting.profession, ',', '')) + 1 >= 1`)
             .groupBy('profession_value')
             .getRawMany();
 
@@ -322,8 +321,7 @@ export default class JobPostingServices {
         })
     }
 
-    static handleGetTotalResultsOfProfessionByAdmin = async (req) => {
-        const minCount = 1;
+    static handleGetTotalResultsOfProfessionByAdmin = async (req) =>{
         const { status } = req.query;
 
         let query = jobPostingRepository.createQueryBuilder('jobPosting');
@@ -332,10 +330,10 @@ export default class JobPostingServices {
             query = query.where('jobPosting.status = :status', { status });
         }
 
-        query = query.select(`SUBSTRING_INDEX(SUBSTRING_INDEX(jobPosting.profession, ',', ${minCount}), ',', -1)`, 'profession_value')
-            .addSelect('COUNT(*)', 'count')
-            .andWhere(`LENGTH(jobPosting.profession) - LENGTH(REPLACE(jobPosting.profession, ',', '')) + 1 >= ${minCount}`)
-            .groupBy('profession_value');
+        query = query.select(`SUBSTRING_INDEX(SUBSTRING_INDEX(jobPosting.profession, ',', 1), ',', -1)`, 'profession_value')
+                     .addSelect('COUNT(*)', 'count')
+                     .andWhere(`LENGTH(jobPosting.profession) - LENGTH(REPLACE(jobPosting.profession, ',', '')) + 1 >= 1`)
+                     .groupBy('profession_value');
 
         const result = await query.getRawMany();
 

@@ -29,5 +29,6 @@ route.get('/api/v1/admin/employees', verifyToken, verifyRole(userRole.Admin), Em
 route.get('/api/v1/admin/employees/totalResults', verifyToken, verifyRole(userRole.Admin), EmployeeController.getLengthOfEmployeesByAdmin);
 route.get('/api/v1/employer/employees', verifyToken, verifyRole(userRole.Employer), EmployeeController.getEmployeesByEmployer);
 route.get('/api/v1/employer/employees/totalResults', verifyToken, verifyRole(userRole.Employer), EmployeeController.getLengthOfEmployeesByEmployer);
+route.get('/api/v1/employer/employees/sortbykeywords', verifyToken, verifyRole(userRole.Employer), EmployeeController.getEmployeesByEmployerSortByKeywords);
 
 export default route
