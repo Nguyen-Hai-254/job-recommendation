@@ -60,14 +60,14 @@ export default class JobPostingServices {
             const keywordArray = keywords.split(',');
 
             const conditions = keywordArray.map((keyword, index) => {
-              query.setParameter(`keyword${index}`, `%${keyword}%`);
-              return `job-postings.keywords LIKE :keyword${index}`;
+                query.setParameter(`keyword${index}`, `%${keyword}%`);
+                return `job-postings.keywords LIKE :keyword${index}`;
             });
             query.andWhere(`(${conditions.join(' OR ')})`);
-        
+
             const orderByConditions = keywordArray.map((keyword, index) => {
-              query.setParameter(`keyword${index}`, `%${keyword}%`);
-              return `IF(job-postings.keywords LIKE :keyword${index}, 1, 0)`;
+                query.setParameter(`keyword${index}`, `%${keyword}%`);
+                return `IF(job-postings.keywords LIKE :keyword${index}, 1, 0)`;
             });
             query.orderBy(`(${orderByConditions.join(' + ')})`, 'DESC');
         }
@@ -151,23 +151,23 @@ export default class JobPostingServices {
         if (employerId) {
             query = query.andWhere('job-postings.employer.userId = :employerId', { employerId });
         }
-         // query by keywords
-         if (keywords) {
+        // query by keywords
+        if (keywords) {
             const keywordArray = keywords.split(',');
 
             const conditions = keywordArray.map((keyword, index) => {
-              query.setParameter(`keyword${index}`, `%${keyword}%`);
-              return `job-postings.keywords LIKE :keyword${index}`;
+                query.setParameter(`keyword${index}`, `%${keyword}%`);
+                return `job-postings.keywords LIKE :keyword${index}`;
             });
             query.andWhere(`(${conditions.join(' OR ')})`);
-        
+
             const orderByConditions = keywordArray.map((keyword, index) => {
-              query.setParameter(`keyword${index}`, `%${keyword}%`);
-              return `IF(job-postings.keywords LIKE :keyword${index}, 1, 0)`;
+                query.setParameter(`keyword${index}`, `%${keyword}%`);
+                return `IF(job-postings.keywords LIKE :keyword${index}, 1, 0)`;
             });
             query.orderBy(`(${orderByConditions.join(' + ')})`, 'DESC');
         }
-        
+
         const totalResults = await query.getCount();
 
         return ({
@@ -182,6 +182,7 @@ export default class JobPostingServices {
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // all jobposting for admin
         query = query.leftJoinAndSelect("job-postings.employer", "employer");
+        query = query.leftJoinAndSelect("job-postings.applications", "applications");
         if (status) {
             query = query.where('job-postings.status = :status', { status });
         }
@@ -238,7 +239,10 @@ export default class JobPostingServices {
         return ({
             message: 'Find all jobPostings success',
             status: 200,
-            data: jobPostings
+            data: jobPostings.map(job => ({
+                ...job,
+                submissionCount: job.applications.length
+            }))
         })
     }
 
@@ -300,7 +304,7 @@ export default class JobPostingServices {
         })
     }
 
-    static handleGetTotalResultsOfProfession = async () =>{
+    static handleGetTotalResultsOfProfession = async () => {
         const minCount = 1;
         const result = await jobPostingRepository
             .createQueryBuilder('jobPosting')
@@ -318,22 +322,22 @@ export default class JobPostingServices {
         })
     }
 
-    static handleGetTotalResultsOfProfessionByAdmin = async (req) =>{
+    static handleGetTotalResultsOfProfessionByAdmin = async (req) => {
         const minCount = 1;
         const { status } = req.query;
 
         let query = jobPostingRepository.createQueryBuilder('jobPosting');
-      
+
         if (status) {
-            query = query.where('jobPosting.status = :status', {  status  });
+            query = query.where('jobPosting.status = :status', { status });
         }
 
         query = query.select(`SUBSTRING_INDEX(SUBSTRING_INDEX(jobPosting.profession, ',', ${minCount}), ',', -1)`, 'profession_value')
-                     .addSelect('COUNT(*)', 'count')
-                     .andWhere(`LENGTH(jobPosting.profession) - LENGTH(REPLACE(jobPosting.profession, ',', '')) + 1 >= ${minCount}`)
-                     .groupBy('profession_value');
+            .addSelect('COUNT(*)', 'count')
+            .andWhere(`LENGTH(jobPosting.profession) - LENGTH(REPLACE(jobPosting.profession, ',', '')) + 1 >= ${minCount}`)
+            .groupBy('profession_value');
 
-        const result =  await query.getRawMany();
+        const result = await query.getRawMany();
 
         return ({
             message: `Find job postings successful!`,

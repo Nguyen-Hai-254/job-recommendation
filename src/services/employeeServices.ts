@@ -829,7 +829,7 @@ export default class EmployeeServices {
 
         let queryforAttachedDocument = attached_documentRepository
             .createQueryBuilder('attached_document')
-            .select(['attached_document','employee.isMarried', 'user.userId','user.name','user.dob','user.address','user.sex','user.avatar'])
+            .select(['attached_document','employee.isMarried', 'user.userId','user.name','user.dob','user.address','user.sex','user.avatar', 'user.phone', 'user.email'])
             .where('attached_document.isHidden = false')
             .leftJoin('attached_document.employee','employee')
             .leftJoin('employee.user','user')
