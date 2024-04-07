@@ -2,7 +2,7 @@ import { myDataSource } from "../config/connectDB"
 import { Employee } from "../entity/Employee"
 import { Employer } from "../entity/Employer"
 import { User } from "../entity/Users"
-import { userRole } from "../utils/enum"
+import { applicationType, userRole } from "../utils/enum"
 import { JobPosting } from "../entity/JobPosting"
 import { Application } from "../entity/Application"
 import { AttachedDocument } from "../entity/AttachedDocument"
@@ -13,6 +13,7 @@ import { AnotherDegree } from "../entity/AnotherDegree"
 import { EducationInformation } from "../entity/EducationInformation"
 import { WorkExperience } from "../entity/WorkExperience"
 import moment from "moment"
+import { EntityManager } from "typeorm"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -969,5 +970,113 @@ export default class EmployeeServices {
         })
     }
 
+    static handleGetEmployeesByEmployerSortByKeywords = async (req) => {
+        const { keywords, num, page } = req.query;
+
+        if (!keywords || !num || !page) {
+            return ({
+                message: 'keywords, num, page are not null',
+                status: 400,
+                data: null
+            })
+        }
+        const sortByKeywords = await sortOnlineProfilesAndAttachedDocumentsByKeyWords(keywords, +num, +page);
+
+        let queryforOnlineProfile = online_profileRepository
+            .createQueryBuilder('online_profile')
+            .select(['online_profile','work_experiences','education_informations','another_degrees', 'employee.isMarried', 'user.userId','user.name','user.dob','user.address','user.sex','user.avatar'])
+            .where('online_profile.isHidden = false')
+            .leftJoin('online_profile.work_experiences', 'work_experiences')
+            .leftJoin('online_profile.education_informations','education_informations')
+            .leftJoin('online_profile.another_degrees','another_degrees')
+            .leftJoin('online_profile.employee', 'employee')
+            .leftJoin('employee.user','user')
+
+        let queryforAttachedDocument = attached_documentRepository
+            .createQueryBuilder('attached_document')
+            .select(['attached_document','employee.isMarried', 'user.userId','user.name','user.dob','user.address','user.sex','user.avatar'])
+            .where('attached_document.isHidden = false')
+            .leftJoin('attached_document.employee','employee')
+            .leftJoin('employee.user','user')
+    
+        const results: any = [];
+        const lengthOfSortByKeywords = sortByKeywords.result.length;
+        for (let i = 0; i <lengthOfSortByKeywords; i++) {
+            if (sortByKeywords.result[i].type === '0') {
+                let tmp = await queryforOnlineProfile.andWhere('online_profile.userId = :userId', {userId: sortByKeywords.result[i].userId}).getOne();
+                results.push(tmp);
+            } else if (sortByKeywords.result[i].type === '1') {
+                let tmp = await queryforAttachedDocument.andWhere('attached_document.userId = :userId', {userId: sortByKeywords.result[i].userId}).getOne();
+                results.push(tmp);
+            }
+
+        }
+            
+        return ({
+            message: 'Get Employees By Employer sort by keywords sucesss',
+            status: 200,
+            data:  {
+                totalCount: sortByKeywords.totalCount,
+                result: results
+            }
+        })
+    }
+
+}
+
+async function sortOnlineProfilesAndAttachedDocumentsByKeyWords (keywords: string, num: number, page: number) {
+    const entityManager = myDataSource.manager as EntityManager;
+
+    const keywordArray = keywords.split(',');
+      
+    const onlineProfileQuery = `
+        SELECT 
+            online_profile.userId AS userId, 
+            0 AS type,
+            (${keywordArray.map((keyword) => `CASE WHEN online_profile.keywords LIKE '%${keyword}%' THEN 1 ELSE 0 END`).join(' + ')}) AS count
+        FROM online_profile
+        WHERE online_profile.isHidden = false
+        HAVING count > 0
+    `;
+
+    const attachedDocumentQuery = `
+        SELECT 
+            attached_document.userId AS userId, 
+            1 AS type,
+            (${keywordArray.map((keyword) => `CASE WHEN attached_document.keywords LIKE '%${keyword}%' THEN 1 ELSE 0 END`).join(' + ')}) AS count
+        FROM attached_document
+        WHERE attached_document.isHidden = false
+        HAVING count > 0
+    `;
+
+    // TODO: Total Count
+    const onlineProfileCountQuery = `
+        SELECT COUNT(*) AS totalCount
+        FROM (${onlineProfileQuery}) AS onlineProfiles
+    `;
+
+    const attachedDocumentCountQuery = `
+        SELECT COUNT(*) AS totalCount
+        FROM (${attachedDocumentQuery}) AS attachedDocuments
+    `;
+
+    const onlineProfileCountResult = await entityManager.query(onlineProfileCountQuery);
+    const attachedDocumentCountResult = await entityManager.query(attachedDocumentCountQuery);
+    // TODO: Query
+    const result = await entityManager.query(
+        `
+        (${onlineProfileQuery} UNION ${attachedDocumentQuery}) 
+        ORDER BY count DESC 
+        LIMIT ${num}
+        OFFSET ${(page-1)*num} 
+        `
+    );
+
+    const totalCount = Number(onlineProfileCountResult[0].totalCount) + Number(attachedDocumentCountResult[0].totalCount);
+
+    return {
+        totalCount: totalCount,
+        result: result
+    };
 }
 

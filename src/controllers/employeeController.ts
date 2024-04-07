@@ -328,4 +328,21 @@ export default class EmployeeController {
         }
     }
 
+    static getEmployeesByEmployerSortByKeywords = async (req, res) => {
+        try {
+            const employees = await EmployeeServices.handleGetEmployeesByEmployerSortByKeywords(req);
+            return res.status(employees.status).json({
+                message: employees.message,
+                status: employees.status,
+                data: employees.data
+            })
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
 }
