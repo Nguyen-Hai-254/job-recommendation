@@ -1010,10 +1010,10 @@ export default class EmployeeServices {
         const results: any = [];
         const lengthOfSortByKeywords = sortByKeywords.result.length;
         for (let i = 0; i <lengthOfSortByKeywords; i++) {
-            if (sortByKeywords.result[i].type === '0') {
+            if (sortByKeywords.result[i].type == '0') {
                 let tmp = await queryforOnlineProfile.andWhere('online_profile.userId = :userId', {userId: sortByKeywords.result[i].userId}).getOne();
                 results.push(tmp);
-            } else if (sortByKeywords.result[i].type === '1') {
+            } else if (sortByKeywords.result[i].type == '1') {
                 let tmp = await queryforAttachedDocument.andWhere('attached_document.userId = :userId', {userId: sortByKeywords.result[i].userId}).getOne();
                 results.push(tmp);
             }
