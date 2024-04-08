@@ -750,13 +750,13 @@ export default class EmployeeServices {
 
         let query = employeeRepository
             .createQueryBuilder('employee')
-            .select(['employee', 'online_profile', 'work_experiences', 'education_informations', 'another_degrees', 'attached_document', 'user.name', 'user.email', 'user.dob', 'user.address', 'user.phone', 'user.sex', 'user.avatar', 'user.role', 'user.createAt'])
+            .select(['employee', 'user', 'attached_document', 'online_profile', 'work_experiences', 'education_informations', 'another_degrees'])
+            .leftJoin('employee.user', 'user')
+            .leftJoin('employee.attached_document', 'attached_document')
             .leftJoin('employee.online_profile', 'online_profile')
             .leftJoin('online_profile.work_experiences', 'work_experiences')
             .leftJoin('online_profile.education_informations', 'education_informations')
-            .leftJoin('online_profile.another_degrees', 'another_degrees')
-            .leftJoin('employee.attached_document', 'attached_document')
-            .leftJoin('employee.user', 'user');
+            .leftJoin('online_profile.another_degrees', 'another_degrees');
 
         if (profession) {
             query = query.andWhere(
@@ -792,13 +792,13 @@ export default class EmployeeServices {
 
         let query = employeeRepository
             .createQueryBuilder('employee')
-            .select(['employee', 'online_profile', 'work_experiences', 'education_informations', 'another_degrees', 'attached_document', 'user.name', 'user.email', 'user.dob', 'user.address', 'user.phone', 'user.sex', 'user.avatar', 'user.role', 'user.createAt'])
+            .select(['employee', 'user', 'attached_document', 'online_profile', 'work_experiences', 'education_informations', 'another_degrees'])
+            .leftJoin('employee.user', 'user')
+            .leftJoin('employee.attached_document', 'attached_document')
             .leftJoin('employee.online_profile', 'online_profile')
             .leftJoin('online_profile.work_experiences', 'work_experiences')
             .leftJoin('online_profile.education_informations', 'education_informations')
-            .leftJoin('online_profile.another_degrees', 'another_degrees')
-            .leftJoin('employee.attached_document', 'attached_document')
-            .leftJoin('employee.user', 'user');
+            .leftJoin('online_profile.another_degrees', 'another_degrees');  
 
         if (profession) {
             query = query.andWhere(
