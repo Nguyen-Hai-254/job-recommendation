@@ -77,29 +77,21 @@ export default class AdminServices {
 
     static handleGetAllUser = async (req) => {
         const { page, num, role } = req.query;
-        const skip = (parseInt(page) - 1) * parseInt(num);
-        const take = parseInt(num);
-
+        let query = userRepository.createQueryBuilder('user');
+        
         if (role) {
-            const findAllUser = await userRepository.find({
-                where: { role: userRole[role] },
-                select: ['userId', 'email', 'name', 'dob', 'address', 'phone', 'sex', 'role', 'avatar'],
-                skip: skip,
-                take: take
-            })
-
-            return ({
-                message: 'OK',
-                status: 200,
-                data: findAllUser
-            })
+            query = query.where('user.role = :role', { role: userRole[role]})
         }
 
-        const findAllUser = await userRepository.find({
-            select: ['userId', 'email', 'name', 'dob', 'address', 'phone', 'sex', 'role', 'avatar'],
-            skip: skip,
-            take: take
-        })
+        // Pagination
+        if (num && page) {
+            const skip = (parseInt(page) - 1) * parseInt(num);
+            const take = parseInt(num);
+
+            query = query.skip(skip).take(take);
+        }
+
+        const findAllUser = await query.getMany();
 
         return ({
             message: 'OK',
@@ -110,25 +102,18 @@ export default class AdminServices {
 
     static handleGetTotalUser = async (req) => {
         const { role } = req.query;
-
+        let query = userRepository.createQueryBuilder('user');
+        
         if (role) {
-            const findAllUser = await userRepository.find({
-                where: { role: userRole[role] }
-            })
-
-            return ({
-                message: 'OK',
-                status: 200,
-                data: findAllUser.length
-            })
+            query = query.where('user.role = :role', { role: userRole[role]})
         }
-
-        const findAllUser = await userRepository.find()
+        
+        const findAllUser = await query.getCount();
 
         return ({
             message: 'OK',
             status: 200,
-            data: findAllUser.length
+            data: findAllUser
         })
     }
 }
