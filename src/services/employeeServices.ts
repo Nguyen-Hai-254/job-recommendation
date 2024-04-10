@@ -1008,7 +1008,7 @@ export default class EmployeeServices {
                 data: null
             })
         }
-        const sortByKeywords = await sortOnlineProfilesAndAttachedDocumentsByKeyWords(keywords, +num, +page);
+        const sortByKeywords = await sortOnlineProfilesAndAttachedDocumentsByKeyWords(req.query);
 
         let queryforOnlineProfile = online_profileRepository
             .createQueryBuilder('online_profile')
@@ -1052,11 +1052,61 @@ export default class EmployeeServices {
 
 }
 
-async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(keywords: string, num: number, page: number) {
+async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
     const entityManager = myDataSource.manager as EntityManager;
 
+    const { jobTitle, profession, minSalary, maxSalary, degree, workAddress, experience, employmentType, sex, currentPosition, desiredPosition, keywords, num, page } = reqQuery;
+    // TODO: create optional query for user
+    let queryforOnlineProfile = ``;
+    let queryforAttachedDocument = ``;
+    
+    if (workAddress) {
+        queryforOnlineProfile += ` AND online_profile.workAddress LIKE '%${workAddress}%'`;
+        queryforAttachedDocument += ` AND attached_document.workAddress LIKE '%${workAddress}%'`;
+    }
+    if (jobTitle) {
+        queryforOnlineProfile += ` AND online_profile.jobTitle LIKE '%${jobTitle}%'`;
+        queryforAttachedDocument +=  ` AND attached_document.jobTitle LIKE '%${jobTitle}%`;
+    }
+    if (profession) {
+        queryforOnlineProfile += ` AND online_profile.profession LIKE '%${profession}%'`;
+        queryforAttachedDocument += ` AND attached_document.profession LIKE '%${profession}%'`
+    }
+    if (employmentType) {
+        queryforOnlineProfile += ` AND online_profile.employmentType = '${employmentType}'`;
+        queryforAttachedDocument += ` AND attached_document.employmentType = '${employmentType}'`;
+    }
+    if (degree) {
+        queryforOnlineProfile += ` AND online_profile.degree = '${degree}'`;
+        queryforAttachedDocument += ` AND attached_document.degree = '${degree}'`;
+    }
+    if (experience) {
+        queryforOnlineProfile += ` AND online_profile.experience = '${experience}'`;
+        queryforAttachedDocument += ` AND attached_document.experience = '${experience}'`;
+    }
+    if (sex) {
+        queryforOnlineProfile += ` AND online_profile.sex = '${sex}'`;
+        queryforAttachedDocument += ` AND attached_document.sex = '${sex}'`;
+    }
+    if (minSalary) {
+        queryforOnlineProfile += ` AND online_profile.minSalary >= '${minSalary}'`;
+        queryforAttachedDocument += ` AND attached_document.minSalary >= '${minSalary}'`;
+    }
+    if (maxSalary) {
+        queryforOnlineProfile += ` AND online_profile.maxSalary <= '${maxSalary}'`;
+        queryforAttachedDocument += ` AND attached_document.maxSalary <= '${maxSalary}'`;
+    }
+    if (currentPosition) {
+        queryforOnlineProfile += ` AND online_profile.currentPosition = '${currentPosition}'`;
+        queryforAttachedDocument += ` AND attached_document.currentPosition = '${currentPosition}'`;
+    }
+    if (desiredPosition) {
+        queryforOnlineProfile += ` AND online_profile.desiredPosition = '${desiredPosition}'`;
+        queryforAttachedDocument += ` AND attached_document.desiredPosition = '${desiredPosition}'`;
+    }
+    // TODO : default query
     const keywordArray = keywords.split(',');
-
+    
     const onlineProfileQuery = `
         SELECT 
             online_profile.userId AS userId, 
@@ -1064,6 +1114,7 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(keywords: string
             (${keywordArray.map((keyword) => `CASE WHEN online_profile.keywords LIKE '%${keyword}%' THEN 1 ELSE 0 END`).join(' + ')}) AS count
         FROM online_profile
         WHERE online_profile.isHidden = false
+        ${queryforOnlineProfile}
         HAVING count > 0
     `;
 
@@ -1074,6 +1125,7 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(keywords: string
             (${keywordArray.map((keyword) => `CASE WHEN attached_document.keywords LIKE '%${keyword}%' THEN 1 ELSE 0 END`).join(' + ')}) AS count
         FROM attached_document
         WHERE attached_document.isHidden = false
+        ${queryforAttachedDocument}
         HAVING count > 0
     `;
 
@@ -1095,8 +1147,8 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(keywords: string
         `
         (${onlineProfileQuery} UNION ${attachedDocumentQuery}) 
         ORDER BY count DESC 
-        LIMIT ${num}
-        OFFSET ${(page - 1) * num} 
+        LIMIT ${parseInt(num)}
+        OFFSET ${(parseInt(page) - 1) * parseInt(num)} 
         `
     );
 
