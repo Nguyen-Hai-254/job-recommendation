@@ -1013,7 +1013,6 @@ export default class EmployeeServices {
         let queryforOnlineProfile = online_profileRepository
             .createQueryBuilder('online_profile')
             .select(['online_profile', 'work_experiences', 'education_informations', 'another_degrees', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar'])
-            .where('online_profile.isHidden = false')
             .leftJoin('online_profile.work_experiences', 'work_experiences')
             .leftJoin('online_profile.education_informations', 'education_informations')
             .leftJoin('online_profile.another_degrees', 'another_degrees')
@@ -1023,7 +1022,6 @@ export default class EmployeeServices {
         let queryforAttachedDocument = attached_documentRepository
             .createQueryBuilder('attached_document')
             .select(['attached_document', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar'])
-            .where('attached_document.isHidden = false')
             .leftJoin('attached_document.employee', 'employee')
             .leftJoin('employee.user', 'user')
 
@@ -1037,9 +1035,7 @@ export default class EmployeeServices {
                 let tmp = await queryforAttachedDocument.andWhere('attached_document.userId = :userId', { userId: sortByKeywords.result[i].userId }).getOne();
                 results.push(tmp);
             }
-
         }
-
         return ({
             message: 'Get Employees By Employer sort by keywords sucesss',
             status: 200,
@@ -1085,8 +1081,8 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
         queryforAttachedDocument += ` AND attached_document.experience = '${experience}'`;
     }
     if (sex) {
-        queryforOnlineProfile += ` AND online_profile.sex = '${sex}'`;
-        queryforAttachedDocument += ` AND attached_document.sex = '${sex}'`;
+        queryforOnlineProfile += ` AND user.sex = '${sex}'`;
+        queryforAttachedDocument += ` AND user.sex = '${sex}'`;
     }
     if (minSalary) {
         queryforOnlineProfile += ` AND online_profile.desiredSalary >= '${minSalary}'`;
@@ -1113,6 +1109,10 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
             0 AS type,
             (${keywordArray.map((keyword) => `CASE WHEN online_profile.keywords LIKE '%${keyword}%' THEN 1 ELSE 0 END`).join(' + ')}) AS count
         FROM online_profile
+        LEFT JOIN employee
+        ON employee.userId = online_profile.userId  
+        LEFT JOIN user 
+        ON user.userId= employee.userId 
         WHERE online_profile.isHidden = false
         ${queryforOnlineProfile}
         HAVING count > 0
@@ -1124,6 +1124,10 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
             1 AS type,
             (${keywordArray.map((keyword) => `CASE WHEN attached_document.keywords LIKE '%${keyword}%' THEN 1 ELSE 0 END`).join(' + ')}) AS count
         FROM attached_document
+        LEFT JOIN employee
+        ON employee.userId = attached_document.userId  
+        LEFT JOIN user 
+        ON user.userId= employee.userId 
         WHERE attached_document.isHidden = false
         ${queryforAttachedDocument}
         HAVING count > 0
