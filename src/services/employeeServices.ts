@@ -1089,12 +1089,12 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
         queryforAttachedDocument += ` AND attached_document.sex = '${sex}'`;
     }
     if (minSalary) {
-        queryforOnlineProfile += ` AND online_profile.minSalary >= '${minSalary}'`;
-        queryforAttachedDocument += ` AND attached_document.minSalary >= '${minSalary}'`;
+        queryforOnlineProfile += ` AND online_profile.desiredSalary >= '${minSalary}'`;
+        queryforAttachedDocument += ` AND attached_document.desiredSalary >= '${minSalary}'`;
     }
     if (maxSalary) {
-        queryforOnlineProfile += ` AND online_profile.maxSalary <= '${maxSalary}'`;
-        queryforAttachedDocument += ` AND attached_document.maxSalary <= '${maxSalary}'`;
+        queryforOnlineProfile += ` AND online_profile.desiredSalary <= '${maxSalary}'`;
+        queryforAttachedDocument += ` AND attached_document.desiredSalary <= '${maxSalary}'`;
     }
     if (currentPosition) {
         queryforOnlineProfile += ` AND online_profile.currentPosition = '${currentPosition}'`;
