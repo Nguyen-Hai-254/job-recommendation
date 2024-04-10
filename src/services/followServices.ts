@@ -131,7 +131,9 @@ export default class FollowServices {
                 companyLocation: follow.employer.companyLocation,
                 logo: follow.employer.logo,
                 numberCurrentlyRecruiting: follow.employer.jobPostings.length,
-                followDate: follow.createAt
+                followDate: follow.createAt,
+                careerField: follow.employer.careerField,
+                banner: follow.employer.banner
             })
         })
 
