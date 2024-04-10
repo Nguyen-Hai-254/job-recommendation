@@ -1056,6 +1056,10 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
     let queryforOnlineProfile = ``;
     let queryforAttachedDocument = ``;
     
+    // TODO: left join table user where sex is NOT NULL
+    let leftjoinforOnlineProfile = ``;
+    let leftjoinforAttachedDocument = ``;
+
     if (workAddress) {
         queryforOnlineProfile += ` AND online_profile.workAddress LIKE '%${workAddress}%'`;
         queryforAttachedDocument += ` AND attached_document.workAddress LIKE '%${workAddress}%'`;
@@ -1083,6 +1087,20 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
     if (sex) {
         queryforOnlineProfile += ` AND user.sex = '${sex}'`;
         queryforAttachedDocument += ` AND user.sex = '${sex}'`;
+
+        // TODO: left join table where sex is NOT NULL
+        leftjoinforOnlineProfile =`
+        LEFT JOIN employee
+        ON employee.userId = online_profile.userId  
+        LEFT JOIN user 
+        ON user.userId = employee.userId
+        `;
+        leftjoinforAttachedDocument = ` 
+        LEFT JOIN employee
+        ON employee.userId = attached_document.userId  
+        LEFT JOIN user 
+        ON user.userId = employee.userId
+        `;
     }
     if (minSalary) {
         queryforOnlineProfile += ` AND online_profile.desiredSalary >= '${minSalary}'`;
@@ -1109,10 +1127,7 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
             0 AS type,
             (${keywordArray.map((keyword) => `CASE WHEN online_profile.keywords LIKE '%${keyword}%' THEN 1 ELSE 0 END`).join(' + ')}) AS count
         FROM online_profile
-        LEFT JOIN employee
-        ON employee.userId = online_profile.userId  
-        LEFT JOIN user 
-        ON user.userId= employee.userId 
+        ${leftjoinforOnlineProfile}
         WHERE online_profile.isHidden = false
         ${queryforOnlineProfile}
         HAVING count > 0
@@ -1124,10 +1139,7 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
             1 AS type,
             (${keywordArray.map((keyword) => `CASE WHEN attached_document.keywords LIKE '%${keyword}%' THEN 1 ELSE 0 END`).join(' + ')}) AS count
         FROM attached_document
-        LEFT JOIN employee
-        ON employee.userId = attached_document.userId  
-        LEFT JOIN user 
-        ON user.userId= employee.userId 
+        ${leftjoinforAttachedDocument}
         WHERE attached_document.isHidden = false
         ${queryforAttachedDocument}
         HAVING count > 0
@@ -1146,17 +1158,16 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
 
     const onlineProfileCountResult = await entityManager.query(onlineProfileCountQuery);
     const attachedDocumentCountResult = await entityManager.query(attachedDocumentCountQuery);
+    const totalCount = Number(onlineProfileCountResult[0].totalCount) + Number(attachedDocumentCountResult[0].totalCount);
     // TODO: Query
     const result = await entityManager.query(
         `
         (${onlineProfileQuery} UNION ${attachedDocumentQuery}) 
         ORDER BY count DESC 
-        LIMIT ${parseInt(num)}
-        OFFSET ${(parseInt(page) - 1) * parseInt(num)} 
+        LIMIT ${ parseInt(num) }
+        OFFSET ${ (parseInt(page) - 1) * parseInt(num) } 
         `
     );
-
-    const totalCount = Number(onlineProfileCountResult[0].totalCount) + Number(attachedDocumentCountResult[0].totalCount);
 
     return {
         totalCount: totalCount,
