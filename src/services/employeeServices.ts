@@ -750,13 +750,13 @@ export default class EmployeeServices {
 
         let query = employeeRepository
             .createQueryBuilder('employee')
-            .select(['employee', 'online_profile', 'work_experiences', 'education_informations', 'another_degrees', 'attached_document', 'user.name', 'user.email', 'user.dob', 'user.address', 'user.phone', 'user.sex', 'user.avatar', 'user.role', 'user.createAt'])
+            .select(['employee', 'user', 'attached_document', 'online_profile', 'work_experiences', 'education_informations', 'another_degrees'])
+            .leftJoin('employee.user', 'user')
+            .leftJoin('employee.attached_document', 'attached_document')
             .leftJoin('employee.online_profile', 'online_profile')
             .leftJoin('online_profile.work_experiences', 'work_experiences')
             .leftJoin('online_profile.education_informations', 'education_informations')
-            .leftJoin('online_profile.another_degrees', 'another_degrees')
-            .leftJoin('employee.attached_document', 'attached_document')
-            .leftJoin('employee.user', 'user');
+            .leftJoin('online_profile.another_degrees', 'another_degrees');
 
         if (profession) {
             query = query.andWhere(
@@ -792,13 +792,13 @@ export default class EmployeeServices {
 
         let query = employeeRepository
             .createQueryBuilder('employee')
-            .select(['employee', 'online_profile', 'work_experiences', 'education_informations', 'another_degrees', 'attached_document', 'user.name', 'user.email', 'user.dob', 'user.address', 'user.phone', 'user.sex', 'user.avatar', 'user.role', 'user.createAt'])
+            .select(['employee', 'user', 'attached_document', 'online_profile', 'work_experiences', 'education_informations', 'another_degrees'])
+            .leftJoin('employee.user', 'user')
+            .leftJoin('employee.attached_document', 'attached_document')
             .leftJoin('employee.online_profile', 'online_profile')
             .leftJoin('online_profile.work_experiences', 'work_experiences')
             .leftJoin('online_profile.education_informations', 'education_informations')
-            .leftJoin('online_profile.another_degrees', 'another_degrees')
-            .leftJoin('employee.attached_document', 'attached_document')
-            .leftJoin('employee.user', 'user');
+            .leftJoin('online_profile.another_degrees', 'another_degrees');  
 
         if (profession) {
             query = query.andWhere(
@@ -822,9 +822,9 @@ export default class EmployeeServices {
             data: { totalResults: totalResults }
         })
     }
-
+   
     static handleGetEmployeesByEmployer = async (req) => {
-        const { jobTitle, profession, minSalary, maxSalary, degree, workAddress, experience, employmentType, sex, num, page } = req.query;
+        const { jobTitle, profession, minSalary, maxSalary, degree, workAddress, experience, employmentType, sex, currentPosition, desiredPosition, num, page } = req.query;
 
         let queryforOnlineProfile = online_profileRepository
             .createQueryBuilder('online_profile')
@@ -881,6 +881,16 @@ export default class EmployeeServices {
             queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.desiredSalary <= :maxSalary', { maxSalary });
         }
 
+        if (currentPosition) {
+            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.currentPosition = :currentPosition', { currentPosition });
+            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.currentPosition = :currentPosition', { currentPosition });
+        }
+
+        if (desiredPosition) {
+            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.desiredPosition = :desiredPosition', { desiredPosition });
+            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.desiredPosition = :desiredPosition', { desiredPosition });
+        }
+
         const lengthOfOnline_profiles = await queryforOnlineProfile.getCount();
 
         let numOfAttached_documents = 0;
@@ -911,7 +921,7 @@ export default class EmployeeServices {
     }
 
     static handleGetLengthOfEmployeesByEmployer = async (req) => {
-        const { jobTitle, profession, minSalary, maxSalary, degree, workAddress, experience, employmentType, sex } = req.query;
+        const { jobTitle, profession, minSalary, maxSalary, degree, workAddress, experience, employmentType, sex, currentPosition, desiredPosition } = req.query;
 
         let queryforOnlineProfile = online_profileRepository
             .createQueryBuilder('online_profile')
@@ -966,6 +976,16 @@ export default class EmployeeServices {
         if (maxSalary) {
             queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.desiredSalary <= :maxSalary', { maxSalary });
             queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.desiredSalary <= :maxSalary', { maxSalary });
+        }
+
+        if (currentPosition) {
+            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.currentPosition = :currentPosition', { currentPosition });
+            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.currentPosition = :currentPosition', { currentPosition });
+        }
+
+        if (desiredPosition) {
+            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.desiredPosition = :desiredPosition', { desiredPosition });
+            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.desiredPosition = :desiredPosition', { desiredPosition });
         }
 
         const lengthOfOnline_profiles = await queryforOnlineProfile.getCount();

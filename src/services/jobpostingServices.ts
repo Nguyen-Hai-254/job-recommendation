@@ -346,22 +346,38 @@ export default class JobPostingServices {
 
 
     static handleGetJobPostingsByEmployer = async (req) => {
-        const jobpostings = await jobPostingRepository.find({
-            where: { employer: { userId: req.user.userId } },
-            relations: ['employer']
-        })
+        const { status, num, page} = req.query;
+        let query = jobPostingRepository
+            .createQueryBuilder('jobPosting')
+            .leftJoin('jobPosting.employer','employer')
+            .where('employer.userId = :userId', {userId: req.user.userId})
 
-        if (!jobpostings) {
-            return ({
-                message: `User ${req.user.userId} don't have  any job posting`,
-                status: 400,
-                data: null
-            })
+        if (status) {
+            query = query.andWhere('jobPosting.status = :status', {status});
         }
+
+        const totalResults = await query.getCount();
+
+        // Pagination
+        if (num && page) {
+            const skip = (parseInt(page) - 1) * parseInt(num);
+            const take = parseInt(num);
+
+            query = query.skip(skip).take(take);
+        }
+        else {
+            query = query.skip(0).take(10);
+        }
+
+        const jobPostings = await query.getMany();
+
         return ({
             message: `Find job postings successful!`,
             status: 200,
-            data: jobpostings
+            data: {
+                totalResults: totalResults,
+                result: jobPostings,
+            }
         })
 
     }
