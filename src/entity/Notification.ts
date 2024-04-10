@@ -13,6 +13,9 @@ export class Notification extends BaseEntity {
     dateAndTime: Date
 
     @ManyToOne(() => User,
-        (user) => user.notifications)
+        (user) => user.notifications,{
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE'
+        })
     user: User
 }
