@@ -66,7 +66,7 @@ export class AttachedDocument extends BaseEntity {
     @Column({ nullable: true })
     CV: string
 
-    @Column({ nullable: true })
+    @Column({ default: 0 })
     view: number
 
     @Column({ default: false })

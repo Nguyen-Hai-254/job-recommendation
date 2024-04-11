@@ -1,5 +1,6 @@
 require('dotenv').config()
 import { myDataSource } from "../config/connectDB"
+import { AttachedDocument } from "../entity/AttachedDocument"
 import { Employee } from "../entity/Employee"
 import { Employer } from "../entity/Employer"
 import { Notification } from "../entity/Notification"
@@ -16,6 +17,7 @@ const employerRepository = myDataSource.getRepository(Employer);
 const employeeRepository = myDataSource.getRepository(Employee);
 const notificationRepository = myDataSource.getRepository(Notification);
 const online_profileRepository = myDataSource.getRepository(OnlineProfile);
+const attached_documentRepository = myDataSource.getRepository(AttachedDocument);
 
 export default class UserServices {
     static handleRegister = async (email, password, confirmPassword, role) => {
@@ -85,7 +87,7 @@ export default class UserServices {
             .createQueryBuilder('user')
             .select("user")
             .addSelect("user.password")
-            .where('user.email = :email', {email})
+            .where('user.email = :email', { email })
             .getOne()
 
         if (!findUser) {
@@ -479,7 +481,7 @@ export default class UserServices {
                 data: null
             })
         }
-      
+
         await userRepository.delete(user.userId)
 
         return ({
@@ -489,5 +491,86 @@ export default class UserServices {
         })
 
     }
-    
+
+    static handleGetOnlineProfileByUser = async (userId) => {
+        const online_profile = await online_profileRepository.findOne({
+            where: { employee: { userId: userId }, isHidden: false },
+            relations: ['employee.user', 'another_degrees', 'education_informations', 'work_experiences']
+        })
+        if (!online_profile) {
+            return ({
+                message: 'No online profile found',
+                status: 400,
+                data: null
+            })
+        }
+
+        await online_profileRepository.createQueryBuilder('onl')
+            .update()
+            .set({
+                view: () => "view + 1"
+            })
+            .execute()
+
+        let data = {
+            email: online_profile.employee.user.email,
+            name: online_profile.employee.user.name,
+            dob: online_profile.employee.user.dob,
+            address: online_profile.employee.user.address,
+            phone: online_profile.employee.user.phone,
+            sex: online_profile.employee.user.sex,
+            avatar: online_profile.employee.user.avatar,
+            isMarried: online_profile.employee.isMarried,
+            ...online_profile
+        };
+
+        let { employee, ...newData } = data
+
+        return ({
+            message: 'Find online profile success',
+            status: 200,
+            data: newData
+        })
+    }
+
+    static handleGetAttachedDocumentByUser = async (userId) => {
+        const attached_document = await attached_documentRepository.findOne({
+            where: { employee: { userId: userId }, isHidden: false },
+            relations: ['employee.user']
+        })
+        if (!attached_document) {
+            return ({
+                message: 'No attached document found',
+                status: 400,
+                data: null
+            })
+        }
+
+        await attached_documentRepository.createQueryBuilder('att')
+            .update()
+            .set({
+                view: () => "view + 1"
+            })
+            .execute()
+
+        let data = {
+            email: attached_document.employee.user.email,
+            name: attached_document.employee.user.name,
+            dob: attached_document.employee.user.dob,
+            address: attached_document.employee.user.address,
+            phone: attached_document.employee.user.phone,
+            sex: attached_document.employee.user.sex,
+            avatar: attached_document.employee.user.avatar,
+            isMarried: attached_document.employee.isMarried,
+            ...attached_document
+        };
+
+        let { employee, ...newData } = data
+
+        return ({
+            message: 'Find attached document success',
+            status: 200,
+            data: newData
+        })
+    }
 }

@@ -259,4 +259,52 @@ export default class UserController {
             });
         }
     }
+
+    static getOnlineProfileByUser = async (req, res) => {
+        try {
+            if (!req.query.userId) {
+                return res.status(500).json({
+                    message: "Missing input parameter!",
+                    status: 500,
+                    error: 'Internal Server Error',
+                });
+            }
+            const user = await UserServices.handleGetOnlineProfileByUser(req.query.userId);
+            return res.status(user.status).json({
+                message: user.message,
+                status: user.status,
+                data: user.data
+            });
+        } catch (e) {
+            return res.status(500).json({
+                message: e.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
+    static getAttachedDocumentByUser = async (req, res) => {
+        try {
+            if (!req.query.userId) {
+                return res.status(500).json({
+                    message: "Missing input parameter!",
+                    status: 500,
+                    error: 'Internal Server Error',
+                });
+            }
+            const user = await UserServices.handleGetAttachedDocumentByUser(req.query.userId);
+            return res.status(user.status).json({
+                message: user.message,
+                status: user.status,
+                data: user.data
+            });
+        } catch (e) {
+            return res.status(500).json({
+                message: e.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
 }

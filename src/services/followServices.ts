@@ -178,6 +178,7 @@ export default class FollowServices {
                     email: save.employee.user.email,
                     name: save.employee.user.name,
                     createAt: save.createAt,
+                    isOnlineProfile: save.isOnlineProfile,
                     file: {
                         jobTitle: save.isOnlineProfile ? save.employee.online_profile?.jobTitle : save.employee.attached_document?.jobTitle,
                         desiredSalary: save.isOnlineProfile ? save.employee.online_profile?.desiredSalary : save.employee.attached_document?.desiredSalary,
