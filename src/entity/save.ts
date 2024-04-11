@@ -11,6 +11,9 @@ export class Save extends BaseEntity {
     @PrimaryColumn()
     employerId: number
 
+    @PrimaryColumn({ type: Boolean })
+    isOnlineProfile: Boolean
+
     @Column({ type: 'timestamp', default: () => "CURRENT_TIMESTAMP" })
     createAt: Date
 

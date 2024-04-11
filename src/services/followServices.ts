@@ -62,9 +62,11 @@ export default class FollowServices {
         })
     }
 
-    static handleSaveEmployee = async (user, emloyeeId) => {
+    static handleSaveEmployee = async (user, emloyeeId, isOnlineProfile) => {
         let findEmployer = await employerRepository.findOne({
-            where: { userId: user.userId },
+            where: {
+                userId: user.userId
+            },
             relations: ['saveEmployee']
         })
 
@@ -88,26 +90,31 @@ export default class FollowServices {
             })
         }
 
-        const find = findEmployer.saveEmployee.findIndex((save) => save.employeeId == emloyeeId)
-        if (find !== -1) {
-            await saveRepository.delete({
-                employeeId: findEmployee.userId,
-                employerId: findEmployer.userId
+        const find = findEmployer.saveEmployee.filter(save => save.employerId == user.userId && save.employeeId == emloyeeId && save.isOnlineProfile == isOnlineProfile);
+
+        if (find.length > 0) {
+            await saveRepository.remove(find);
+
+            return ({
+                message: 'Đã bỏ lưu hồ sơ',
+                status: 200,
+                data: true
             })
         }
         else {
             const createSave = saveRepository.create({
                 employeeId: findEmployee.userId,
-                employerId: findEmployer.userId
+                employerId: findEmployer.userId,
+                isOnlineProfile: isOnlineProfile == '1' ? true : false
             })
             await saveRepository.save(createSave);
-        };
 
-        return ({
-            message: find !== -1 ? 'Đã bỏ lưu hồ sơ' : 'Đã lưu hồ sơ',
-            status: 200,
-            data: true
-        })
+            return ({
+                message: 'Đã lưu hồ sơ',
+                status: 200,
+                data: true
+            })
+        };
     }
 
     static handleGetFollowByEmployee = async (user) => {
@@ -150,8 +157,10 @@ export default class FollowServices {
 
     static handleGetSaveEmployeeByEmployer = async (user) => {
         const findEmployer = await saveRepository.find({
-            where: { employerId: user.userId },
-            relations: ['employee.user']
+            where: {
+                employerId: user.userId,
+            },
+            relations: ['employee.user', 'employee.online_profile', 'employee.attached_document']
         })
 
         if (!findEmployer) {
@@ -162,19 +171,32 @@ export default class FollowServices {
             })
         }
 
-        const data = findEmployer.map((save) => {
-            return ({
-                userId: save.employee.user.userId,
-                email: save.employee.user.email,
-                name: save.employee.user.name,
-                createAt: save.createAt
-            })
+        const data = findEmployer.map(save => {
+            if ((save.isOnlineProfile && save.employee.online_profile && !save.employee.online_profile.isHidden) || (!save.isOnlineProfile && save.employee.attached_document && !save.employee.attached_document.isHidden))
+                return ({
+                    userId: save.employee.user.userId,
+                    email: save.employee.user.email,
+                    name: save.employee.user.name,
+                    createAt: save.createAt,
+                    file: {
+                        jobTitle: save.isOnlineProfile ? save.employee.online_profile?.jobTitle : save.employee.attached_document?.jobTitle,
+                        desiredSalary: save.isOnlineProfile ? save.employee.online_profile?.desiredSalary : save.employee.attached_document?.desiredSalary,
+                        profession: save.isOnlineProfile ? save.employee.online_profile?.profession : save.employee.attached_document?.profession,
+                        currentPosition: save.isOnlineProfile ? save.employee.online_profile?.currentPosition : save.employee.attached_document?.currentPosition,
+                        experience: save.isOnlineProfile ? save.employee.online_profile?.experience : save.employee.attached_document?.experience,
+                        degree: save.isOnlineProfile ? save.employee.online_profile?.degree : save.employee.attached_document?.degree,
+                        skills: save.isOnlineProfile ? save.employee.online_profile?.skills : save.employee.attached_document?.skills,
+                    }
+                })
+            else return
         })
+
+        const filterData = data.filter(save => save)
 
         return ({
             message: 'OK',
             status: 200,
-            data: data
+            data: filterData
         })
     }
 

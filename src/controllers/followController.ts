@@ -29,15 +29,15 @@ export default class FollowController {
 
     static saveEmployee = async (req, res) => {
         try {
-            if (!req.body.employeeId) {
+            if (!req.body.employeeId || !req.body.isOnlineProfile) {
                 return res.status(500).json({
-                    message: 'Thiếu id của người xin việc',
+                    message: 'Thiếu thông tin người xin việc',
                     status: 500,
                     error: 'Internal Server Error',
                 });
             }
 
-            const data = await FollowServices.handleSaveEmployee(req.user, req.body.employeeId);
+            const data = await FollowServices.handleSaveEmployee(req.user, req.body.employeeId, req.body.isOnlineProfile);
             return res.status(data.status).json({
                 status: data.status,
                 message: data.message,
