@@ -19,7 +19,7 @@ route.post('/api/v1/user/upload-logo', verifyToken, verifyRole(userRole.Employer
 route.post('/api/v1/user/upload-banner', verifyToken, verifyRole(userRole.Employer), UserController.uploadBanner);
 route.delete('/api/v1/users/:id', verifyToken, verifyRole(userRole.Admin), UserController.deleteUser);
 
-route.get('/api/v1/employee/user/online-profile', verifyToken, UserController.getOnlineProfileByUser);
-route.get('/api/v1/employee/user/attached-document', verifyToken, UserController.getAttachedDocumentByUser);
+route.get('/api/v1/user/online-profile', verifyToken, UserController.getOnlineProfileByUser);
+route.get('/api/v1/user/attached-document', verifyToken, UserController.getAttachedDocumentByUser);
 
 export default route
