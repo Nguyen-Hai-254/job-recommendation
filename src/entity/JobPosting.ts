@@ -68,9 +68,9 @@ export class JobPosting extends BaseEntity {
     @Column({
         type: 'enum',
         enum: sex,
-        default: sex.Other
+        nullable: true
     })
-    sex: sex
+    sex: sex | null
 
     @Column({ nullable: true })
     numberOfVacancies: number

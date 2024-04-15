@@ -49,7 +49,7 @@ export default class JobPostingServices {
             query = query.andWhere(
                 new Brackets(qb =>
                     qb.where('job-postings.sex = :sex', { sex })
-                        .orWhere('job-postings.sex = :sex', { sex: 'Khác' })
+                        .orWhere('job-postings.sex IS NULL')
                 )
             );
         }
@@ -150,7 +150,7 @@ export default class JobPostingServices {
             query = query.andWhere(
                 new Brackets(qb =>
                     qb.where('job-postings.sex = :sex', { sex })
-                        .orWhere('job-postings.sex = :sex', { sex: 'Khác' })
+                        .orWhere('job-postings.sex IS NULL')
                 )
             );
         }
@@ -222,7 +222,7 @@ export default class JobPostingServices {
             query = query.andWhere(
                 new Brackets(qb =>
                     qb.where('job-postings.sex = :sex', { sex })
-                        .orWhere('job-postings.sex = :sex', { sex: 'Khác' })
+                        .orWhere('job-postings.sex IS NULL')
                 )
             );
         }
@@ -308,7 +308,7 @@ export default class JobPostingServices {
             query = query.andWhere(
                 new Brackets(qb =>
                     qb.where('job-postings.sex = :sex', { sex })
-                        .orWhere('job-postings.sex = :sex', { sex: 'Khác' })
+                        .orWhere('job-postings.sex IS NULL')
                 )
             );
         }
@@ -504,6 +504,7 @@ export default class JobPostingServices {
         if (req.body?.minAge) jobPosting.minAge = req.body.minAge
         if (req.body?.maxAge) jobPosting.maxAge = req.body.maxAge
         if (req.body?.sex) jobPosting.sex = EnumSex(req.body.sex)
+        else if (req.body?.sex === null) jobPosting.sex = null;
         if (req.body?.numberOfVacancies) jobPosting.numberOfVacancies = req.body.numberOfVacancies
         if (req.body?.trialPeriod) jobPosting.trialPeriod = req.body.trialPeriod
         if (req.body?.applicationDeadline) jobPosting.applicationDeadline = new Date(moment(req.body.applicationDeadline).format("YYYY-MM-DD"));
