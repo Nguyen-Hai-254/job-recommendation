@@ -657,6 +657,7 @@ export default class JobPostingServices {
 
         // Update with req.body
         if (req.body?.status) post.status = EnumApprovalStatus(req.body.status);
+        if (req.body?.check !== null) post.check = req.body.check
 
         await jobPostingRepository.save(post)
 

@@ -126,6 +126,9 @@ export class JobPosting extends BaseEntity {
     @Column({ type: 'longtext', nullable: true }) // Use to score applications (30 points)
     keywords: string
 
+    @Column({nullable: true })  // Use to check word
+    check: boolean
+
     @ManyToOne(() => Employer, (employer) => employer.jobPostings)
     employer: Employer
 
