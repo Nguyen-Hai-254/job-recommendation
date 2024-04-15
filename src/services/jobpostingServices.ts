@@ -7,7 +7,7 @@ import { JobPosting } from "../entity/JobPosting"
 import moment from "moment"
 import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex, EnumApprovalStatus } from "../utils/enumAction"
 import { Notification } from "../entity/Notification"
-import { LessThan, MoreThanOrEqual } from "typeorm"
+import { Brackets, LessThan, MoreThanOrEqual } from "typeorm"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -46,7 +46,12 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel });
         }
         if (sex) {
-            query = query.andWhere('job-postings.sex = :sex', { sex });
+            query = query.andWhere(
+                new Brackets(qb =>
+                    qb.where('job-postings.sex = :sex', { sex })
+                        .orWhere('job-postings.sex = :sex', { sex: 'Khác' })
+                )
+            );
         }
         if (salary) {
             query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
@@ -142,7 +147,12 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel });
         }
         if (sex) {
-            query = query.andWhere('job-postings.sex = :sex', { sex });
+            query = query.andWhere(
+                new Brackets(qb =>
+                    qb.where('job-postings.sex = :sex', { sex })
+                        .orWhere('job-postings.sex = :sex', { sex: 'Khác' })
+                )
+            );
         }
         if (salary) {
             query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
@@ -209,7 +219,12 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel });
         }
         if (sex) {
-            query = query.andWhere('job-postings.sex = :sex', { sex });
+            query = query.andWhere(
+                new Brackets(qb =>
+                    qb.where('job-postings.sex = :sex', { sex })
+                        .orWhere('job-postings.sex = :sex', { sex: 'Khác' })
+                )
+            );
         }
         if (salary) {
             query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
@@ -290,7 +305,12 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel });
         }
         if (sex) {
-            query = query.andWhere('job-postings.sex = :sex', { sex });
+            query = query.andWhere(
+                new Brackets(qb =>
+                    qb.where('job-postings.sex = :sex', { sex })
+                        .orWhere('job-postings.sex = :sex', { sex: 'Khác' })
+                )
+            );
         }
         if (salary) {
             query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
