@@ -154,6 +154,23 @@ export default class JobPostingController {
         }
     }
 
+    static deleteJobPosting = async (req, res) => {
+        try {
+            const jobPosting = await JobPostingServices.handleDeleteJobPosting(req);
+            return res.status(jobPosting.status).json({
+                message: jobPosting.message,
+                status: jobPosting.status,
+                data: jobPosting.data
+            })
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
     static updateJobPosting = async (req, res) => {
         try {
             const jobPosting = await JobPostingServices.handleUpdateJobPosting(req);

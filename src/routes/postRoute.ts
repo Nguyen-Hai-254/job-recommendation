@@ -17,6 +17,7 @@ route.get('/api/v1/employer/job-postings', verifyToken, verifyRole(userRole.Empl
 route.get('/api/v1/employer/job-postings/:postId', verifyToken, verifyRole(userRole.Employer), JobPostingController.getJobPostingByEmployer);
 route.post('/api/v1/employer/job-postings', verifyToken, verifyRole(userRole.Employer), JobPostingController.createNewJobPosting);
 route.put('/api/v1/employer/job-postings/:postId', verifyToken, verifyRole(userRole.Employer), JobPostingController.updateJobPosting);
+route.delete('/api/v1/employer/job-postings/:postId', verifyToken, verifyRole(userRole.Employer), JobPostingController.deleteJobPosting);
 
 route.put('/api/v1/admin/job-postings/:postId', verifyToken, verifyRole(userRole.Admin), JobPostingController.updateApprovalStatus);
 

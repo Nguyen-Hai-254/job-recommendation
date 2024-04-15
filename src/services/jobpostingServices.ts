@@ -634,6 +634,44 @@ export default class JobPostingServices {
         })
     }
 
+    static handleDeleteJobPosting = async (req) => {
+        if (!req?.params?.postId) {
+            return ({
+                message: 'postId is required',
+                status: 400,
+                data: null
+            })
+        }
+        const jobPosting = await jobPostingRepository.findOne({
+            where: { postId: req.params.postId },
+            relations: ['employer']
+        })
+        if (!jobPosting) {
+            return ({
+                message: `No Job posting matches postId: ${req.params.postId}`,
+                status: 400,
+                data: null
+            })
+        }
+
+         // Check employer is owner of Job posting ?
+         if (jobPosting.employer.userId !== req.user.userId) {
+            return ({
+                message: `You are not the owner of Job posting has id: ${req.params.postId}`,
+                status: 403,
+                data: null
+            })
+        }
+
+        await userRepository.delete(jobPosting.postId)
+
+        return ({
+            message: `Delete Job posting has postId: ${req.params.postId} successes`,
+            status: 200,
+            data: jobPosting
+        })
+    }
+
     static handleUpdateApprovalStatus = async (req) => {
         if (!req?.params?.postId) {
             return ({
