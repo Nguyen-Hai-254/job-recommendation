@@ -1046,6 +1046,69 @@ export default class EmployeeServices {
         })
     }
 
+    static handleDeleteOnlineProfile = async (req) => {
+        // Check parameters
+        if (!req?.params.id) {
+            return ({
+                message: 'id of online profile is required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check online profile exists?
+        const online_profile = await online_profileRepository.findOne({
+            where: { userId: req.params.id },
+        })
+        if (!online_profile) {
+            return ({
+                message: `online_profile has id: ${req.params.id} not found`,
+                status: 400,
+                data: null
+            })
+        }
+
+        await online_profileRepository.delete(online_profile.userId)
+
+        return ({
+            message: `Delete online profile has id: ${online_profile.userId}  successfully`,
+            status: 200,
+            data: online_profile
+        })
+
+    }
+
+    static handleDeleteAttachedDocument = async (req) => {
+        // Check parameters
+        if (!req?.params.id) {
+            return ({
+                message: 'id of attached document is required',
+                status: 400,
+                data: null
+            })
+        }
+        // Check attached document exists?
+        const attached_document = await attached_documentRepository.findOne({
+            where: { userId: req.params.id },
+        })
+        if (!attached_document) {
+            return ({
+                message: `attached_document has id: ${req.params.id} not found`,
+                status: 400,
+                data: null
+            })
+        }
+
+        await attached_documentRepository.delete(attached_document.userId)
+
+        return ({
+            message: `Delete work experience has id: ${attached_document.userId}  successfully`,
+            status: 200,
+            data: attached_document
+        })
+
+    }
+
+
 }
 
 async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
