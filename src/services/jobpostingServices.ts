@@ -664,7 +664,7 @@ export default class JobPostingServices {
             })
         }
 
-        await userRepository.delete(jobPosting.postId)
+        await jobPostingRepository.delete(jobPosting.postId);
 
         return ({
             message: `Delete Job posting has postId: ${req.params.postId} successes`,
