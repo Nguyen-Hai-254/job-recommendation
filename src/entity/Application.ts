@@ -62,9 +62,9 @@ export class Application extends BaseEntity {
         onDelete: 'CASCADE', 
         onUpdate: 'CASCADE' 
     })
-    @JoinColumn({
-        name: 'postId',
-        referencedColumnName: 'postId'
-    })
+    // @JoinColumn({
+    //     name: 'postId',
+    //     referencedColumnName: 'postId'
+    // })
     jobPosting: JobPosting
 }
