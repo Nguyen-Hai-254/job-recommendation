@@ -52,10 +52,10 @@ export class Application extends BaseEntity {
         onDelete: 'CASCADE', 
         onUpdate: 'CASCADE' 
     })
-    @JoinColumn({
-        name: 'userId',
-        referencedColumnName: 'userId'
-    })
+    // @JoinColumn({
+    //     name: 'userId',
+    //     referencedColumnName: 'userId'
+    // })
     employee: Employee
 
     @ManyToOne(() => JobPosting, (jobPosting) => jobPosting.applications, {
