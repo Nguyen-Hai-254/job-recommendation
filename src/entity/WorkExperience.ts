@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm"
 import { OnlineProfile } from "./OnlineProfile"
 
 
@@ -25,7 +25,14 @@ export class WorkExperience extends BaseEntity {
     @Column({ type: 'longtext', nullable: true })
     jobDescription: string
 
-    @ManyToOne(() => OnlineProfile, (online_profile) => online_profile.work_experiences)
+    @ManyToOne(() => OnlineProfile, (online_profile) => online_profile.work_experiences, {
+        onDelete: 'CASCADE', 
+        onUpdate: 'CASCADE' 
+    })
+    @JoinColumn({
+        name: 'userId',
+        referencedColumnName: 'userId'
+    })
     online_profile: OnlineProfile
 
 } 

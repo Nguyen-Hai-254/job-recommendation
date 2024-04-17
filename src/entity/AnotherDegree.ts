@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm"
 import { OnlineProfile } from "./OnlineProfile"
 
 
@@ -13,7 +13,14 @@ export class AnotherDegree extends BaseEntity {
     @Column({ nullable: true })
     level: string
 
-    @ManyToOne(() => OnlineProfile, (online_profile) => online_profile.another_degrees)
+    @ManyToOne(() => OnlineProfile, (online_profile) => online_profile.another_degrees, { 
+        onDelete: 'CASCADE', 
+        onUpdate: 'CASCADE' 
+    })
+    @JoinColumn({
+        name: 'userId',
+        referencedColumnName: 'userId'
+    })
     online_profile: OnlineProfile
 
 } 

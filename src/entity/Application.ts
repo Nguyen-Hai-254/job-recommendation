@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne,  CreateDateColumn } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne,  CreateDateColumn, JoinColumn } from "typeorm"
 import { Employee } from "./Employee"
 import { JobPosting } from "./JobPosting"
 import { applicationType, approvalStatus } from "../utils/enum"
@@ -48,9 +48,23 @@ export class Application extends BaseEntity {
     })
     status: approvalStatus
 
-    @ManyToOne(() => Employee, (employee) => employee.applications)
+    @ManyToOne(() => Employee, (employee) => employee.applications, {
+        onDelete: 'CASCADE', 
+        onUpdate: 'CASCADE' 
+    })
+    @JoinColumn({
+        name: 'userId',
+        referencedColumnName: 'userId'
+    })
     employee: Employee
 
-    @ManyToOne(() => JobPosting, (jobPosting) => jobPosting.applications)
+    @ManyToOne(() => JobPosting, (jobPosting) => jobPosting.applications, {
+        onDelete: 'CASCADE', 
+        onUpdate: 'CASCADE' 
+    })
+    @JoinColumn({
+        name: 'postId',
+        referencedColumnName: 'postId'
+    })
     jobPosting: JobPosting
 }
