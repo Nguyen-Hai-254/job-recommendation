@@ -129,7 +129,10 @@ export class JobPosting extends BaseEntity {
     @Column({nullable: true })  // Use to check word
     check: boolean
 
-    @ManyToOne(() => Employer, (employer) => employer.jobPostings)
+    @ManyToOne(() => Employer, (employer) => employer.jobPostings, {
+        onDelete: 'CASCADE', 
+        onUpdate: 'CASCADE' 
+    })
     employer: Employer
 
     @OneToMany(() => Application, (application) => application.jobPosting)
