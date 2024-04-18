@@ -1067,6 +1067,10 @@ export default class EmployeeServices {
             })
         }
 
+        await applicationRepository.delete({
+            applicationType: applicationType.online_profile,
+            employee: { userId : online_profile.userId}
+        })
         await online_profileRepository.delete(online_profile.userId)
 
         return ({
@@ -1098,6 +1102,10 @@ export default class EmployeeServices {
             })
         }
 
+        await applicationRepository.delete({
+            applicationType: applicationType.attached_document,
+            employee: { userId : attached_document.userId}
+        })
         await attached_documentRepository.delete(attached_document.userId)
 
         return ({
