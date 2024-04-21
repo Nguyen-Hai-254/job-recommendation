@@ -22,7 +22,6 @@ export default class JobPostingServices {
         // jobposting for employee, employer, unknown
         query = query.leftJoinAndSelect("job-postings.employer", "employer")
             .where('job-postings.status = :status', { status: approvalStatus.approved })
-            .andWhere('job-postings.applicationDeadline >= :applicationDeadline', { applicationDeadline: moment(new Date()).subtract(1, 'days').toDate() });
         // Public
         if (workAddress) {
             query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
@@ -103,27 +102,12 @@ export default class JobPostingServices {
     }
 
     static handleGetLengthOfAllJobPostings = async (req) => {
-        // Update status of job postings when job postings were expried.
-        let findExpiredPosts = await jobPostingRepository.find({
-            where: {
-                applicationDeadline: LessThan(moment(new Date()).subtract(1, 'days').toDate()),
-                status: approvalStatus.approved
-            }
-        })
-
-        if (findExpiredPosts.length > 0) {
-            findExpiredPosts.map(async (post) => {
-                post.status = approvalStatus.expired
-                await jobPostingRepository.save(post)
-            })
-        }
-
         const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, employerId, keywords } = req.query;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // jobposting for employee, employer, unknown
         query = query.leftJoinAndSelect("job-postings.employer", "employer")
             .where('job-postings.status = :status', { status: approvalStatus.approved })
-            .andWhere('job-postings.applicationDeadline >= :applicationDeadline', { applicationDeadline: moment(new Date()).subtract(1, 'days').toDate() });
+        
         // Public
         if (workAddress) {
             query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
@@ -263,17 +247,17 @@ export default class JobPostingServices {
 
     static handleGetLengthOfAllJobPostingsByAdmin = async (req) => {
         // Update status of job postings when job postings were expried.
-        let findExpiredPosts = await jobPostingRepository.find({
-            where: {
-                applicationDeadline: LessThan(moment(new Date()).subtract(1, 'days').toDate()),
-                status: approvalStatus.approved
-            }
-        })
+        // let findExpiredPosts = await jobPostingRepository.find({
+        //     where: {
+        //         applicationDeadline: LessThan(moment(new Date()).subtract(1, 'days').toDate()),
+        //         status: approvalStatus.approved
+        //     }
+        // })
 
-        findExpiredPosts.map(async (post) => {
-            post.status = approvalStatus.expired
-            await jobPostingRepository.save(post)
-        })
+        // findExpiredPosts.map(async (post) => {
+        //     post.status = approvalStatus.expired
+        //     await jobPostingRepository.save(post)
+        // })
 
         const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, status } = req.query;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
