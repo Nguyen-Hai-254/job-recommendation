@@ -11,5 +11,6 @@ route.get('/api/v1/admin/get-all-user', verifyToken, verifyRole(userRole.Admin),
 route.get('/api/v1/admin/get-total-user', verifyToken, verifyRole(userRole.Admin), AdminController.getTotalUser);
 
 route.post('/api/v1/admin/send-email', verifyToken, verifyRole(userRole.Admin), AdminController.sendEmail);
+route.post('/api/v1/admin/search-email-or-name', verifyToken, verifyRole(userRole.Admin), AdminController.searchEmailOrName);
 
 export default route

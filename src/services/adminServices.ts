@@ -6,7 +6,7 @@ import { OnlineProfile } from "../entity/OnlineProfile";
 import { AttachedDocument } from "../entity/AttachedDocument";
 import { countCandidatesbyProfession, mergerTwoObject, transporter } from "../utils/utilsFunction";
 import nodemailer from 'nodemailer'
-import { Int32 } from "typeorm";
+import { ILike, Int32, Like } from "typeorm";
 
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
 const userRepository = myDataSource.getRepository(User);
@@ -130,6 +130,27 @@ export default class AdminServices {
             message: 'OK',
             status: 200,
             data: { accepted: info.accepted, rejected: info.rejected }
+        })
+    }
+
+    static handleSearchEmailOrName = async (keyword) => {
+        const findUser = await userRepository.find({
+            where: [
+                {
+                    name: ILike(`%${keyword}%`)
+                },
+                {
+                    email: ILike(`%${keyword}%`)
+                }
+            ],
+            select: ['userId', 'email', 'name', 'role'],
+            take: 6
+        })
+
+        return ({
+            message: 'OK',
+            status: 200,
+            data: findUser
         })
     }
 }
