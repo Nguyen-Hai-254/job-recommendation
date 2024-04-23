@@ -5,6 +5,8 @@ import bodyParser from "body-parser"
 import cookieParser from "cookie-parser"
 import cors from "cors";
 import { connectDB } from "./config/connectDB"
+
+const cronJob =  require('./cron/updateExpiredJobStatusCron')
 const routes = require('./routes/web')
 
 let app = express();
@@ -25,7 +27,7 @@ app.use("*", (req, res) => {
     })
 });
 
-
+cronJob.start();
 
 let port = process.env.PORT || 3002;
 app.listen(port, () => {
