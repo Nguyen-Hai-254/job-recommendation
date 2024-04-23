@@ -4,7 +4,8 @@ import { monthMap, userRole } from "../utils/enum";
 import { User } from "../entity/Users";
 import { OnlineProfile } from "../entity/OnlineProfile";
 import { AttachedDocument } from "../entity/AttachedDocument";
-import { countCandidatesbyProfession, mergerTwoObject } from "../utils/utilsFunction";
+import { countCandidatesbyProfession, mergerTwoObject, transporter } from "../utils/utilsFunction";
+import nodemailer from 'nodemailer'
 import { Int32 } from "typeorm";
 
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
@@ -78,9 +79,9 @@ export default class AdminServices {
     static handleGetAllUser = async (req) => {
         const { page, num, role } = req.query;
         let query = userRepository.createQueryBuilder('user');
-        
+
         if (role) {
-            query = query.where('user.role = :role', { role: userRole[role]})
+            query = query.where('user.role = :role', { role: userRole[role] })
         }
 
         // Pagination
@@ -103,17 +104,32 @@ export default class AdminServices {
     static handleGetTotalUser = async (req) => {
         const { role } = req.query;
         let query = userRepository.createQueryBuilder('user');
-        
+
         if (role) {
-            query = query.where('user.role = :role', { role: userRole[role]})
+            query = query.where('user.role = :role', { role: userRole[role] })
         }
-        
+
         const findAllUser = await query.getCount();
 
         return ({
             message: 'OK',
             status: 200,
             data: findAllUser
+        })
+    }
+
+    static handleSendEmail = async (emails, subject, html) => {
+        const info = await transporter.sendMail({
+            from: 'itbachkhoa.hcmut@gmail.com',
+            to: emails,
+            subject: subject,
+            html: html
+        })
+
+        return ({
+            message: 'OK',
+            status: 200,
+            data: { accepted: info.accepted, rejected: info.rejected }
         })
     }
 }

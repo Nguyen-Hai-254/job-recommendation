@@ -10,4 +10,6 @@ route.get('/api/v1/admin/candidate-statistics', verifyToken, verifyRole(userRole
 route.get('/api/v1/admin/get-all-user', verifyToken, verifyRole(userRole.Admin), AdminController.getAllUser);
 route.get('/api/v1/admin/get-total-user', verifyToken, verifyRole(userRole.Admin), AdminController.getTotalUser);
 
+route.post('/api/v1/admin/send-email', verifyToken, verifyRole(userRole.Admin), AdminController.sendEmail);
+
 export default route
