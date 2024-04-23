@@ -103,6 +103,9 @@ export class JobPosting extends BaseEntity {
     @CreateDateColumn({ type: 'timestamp' })
     createAt: Date
 
+    @CreateDateColumn({ type: 'timestamp' })
+    updateAt: Date
+
     @Column({ nullable: true })
     submissionCount: number
 
@@ -126,12 +129,12 @@ export class JobPosting extends BaseEntity {
     @Column({ type: 'longtext', nullable: true }) // Use to score applications (30 points)
     keywords: string
 
-    @Column({nullable: true })  // Use to check word
-    check: boolean
+    @Column({ nullable: true, type: 'varchar' })  // Use to check word
+    check: boolean | null
 
     @ManyToOne(() => Employer, (employer) => employer.jobPostings, {
-        onDelete: 'CASCADE', 
-        onUpdate: 'CASCADE' 
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
     })
     employer: Employer
 

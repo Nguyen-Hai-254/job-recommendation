@@ -84,6 +84,8 @@ export default class JobPostingServices {
             query = query.skip(skip).take(take);
         }
 
+        query = query.orderBy('job-postings.updateAt', 'DESC')
+
         const jobPostings = await query.getMany();
 
         if (!jobPostings || jobPostings.length === 0) {
@@ -107,7 +109,7 @@ export default class JobPostingServices {
         // jobposting for employee, employer, unknown
         query = query.leftJoinAndSelect("job-postings.employer", "employer")
             .where('job-postings.status = :status', { status: approvalStatus.approved })
-        
+
         // Public
         if (workAddress) {
             query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
@@ -225,6 +227,8 @@ export default class JobPostingServices {
             query = query.skip(0).take(10);
         }
 
+        query = query.orderBy('job-postings.updateAt', 'DESC')
+
         const jobPostings = await query.getMany();
 
         if (!jobPostings || jobPostings.length === 0) {
@@ -308,7 +312,7 @@ export default class JobPostingServices {
         })
     }
 
-    static handleGetTotalResultsOfProfession = async () =>{
+    static handleGetTotalResultsOfProfession = async () => {
         const result = await jobPostingRepository
             .createQueryBuilder('jobPosting')
             .where('jobPosting.status = :status', { status: approvalStatus.approved })
@@ -325,7 +329,7 @@ export default class JobPostingServices {
         })
     }
 
-    static handleGetTotalResultsOfProfessionByAdmin = async (req) =>{
+    static handleGetTotalResultsOfProfessionByAdmin = async (req) => {
         const { status } = req.query;
 
         let query = jobPostingRepository.createQueryBuilder('jobPosting');
@@ -335,9 +339,9 @@ export default class JobPostingServices {
         }
 
         query = query.select(`SUBSTRING_INDEX(SUBSTRING_INDEX(jobPosting.profession, ',', 1), ',', -1)`, 'profession_value')
-                     .addSelect('COUNT(*)', 'count')
-                     .andWhere(`LENGTH(jobPosting.profession) - LENGTH(REPLACE(jobPosting.profession, ',', '')) + 1 >= 1`)
-                     .groupBy('profession_value');
+            .addSelect('COUNT(*)', 'count')
+            .andWhere(`LENGTH(jobPosting.profession) - LENGTH(REPLACE(jobPosting.profession, ',', '')) + 1 >= 1`)
+            .groupBy('profession_value');
 
         const result = await query.getRawMany();
 
@@ -350,14 +354,15 @@ export default class JobPostingServices {
 
 
     static handleGetJobPostingsByEmployer = async (req) => {
-        const { status, num, page} = req.query;
+        const { status, num, page } = req.query;
         let query = jobPostingRepository
             .createQueryBuilder('jobPosting')
-            .leftJoin('jobPosting.employer','employer')
-            .where('employer.userId = :userId', {userId: req.user.userId})
+            .leftJoin('jobPosting.employer', 'employer')
+            .leftJoinAndSelect("jobPosting.applications", "applications")
+            .where('employer.userId = :userId', { userId: req.user.userId })
 
         if (status) {
-            query = query.andWhere('jobPosting.status = :status', {status});
+            query = query.andWhere('jobPosting.status = :status', { status });
         }
 
         const totalResults = await query.getCount();
@@ -373,6 +378,8 @@ export default class JobPostingServices {
             query = query.skip(0).take(10);
         }
 
+        query = query.orderBy('jobPosting.updateAt', 'DESC')
+
         const jobPostings = await query.getMany();
 
         return ({
@@ -380,7 +387,10 @@ export default class JobPostingServices {
             status: 200,
             data: {
                 totalResults: totalResults,
-                result: jobPostings,
+                result: jobPostings.map(job => ({
+                    ...job,
+                    submissionCount: job.applications.length
+                }))
             }
         })
 
@@ -501,10 +511,13 @@ export default class JobPostingServices {
         if (req.body?.isHidden !== null) jobPosting.isHidden = req.body.isHidden
         if (req.body?.requiredSkills) jobPosting.requiredSkills = req.body.requiredSkills
         if (req.body?.keywords) jobPosting.keywords = req.body.keywords
+        jobPosting.status = approvalStatus.pending
+        jobPosting.updateAt = new Date()
+        jobPosting.check = null
 
         await jobPostingRepository.save(jobPosting);
         const createNotification = notificationRepository.create({
-            content: 'Bạn đã cập nhật đăng tuyển ' + jobPosting.jobTitle,
+            content: 'Bạn đã cập nhật tin tuyển dụng ' + jobPosting.jobTitle,
             user: jobPosting.employer.user
         })
         await notificationRepository.save(createNotification);
@@ -639,8 +652,8 @@ export default class JobPostingServices {
             })
         }
 
-         // Check employer is owner of Job posting ?
-         if (jobPosting.employer.userId !== req.user.userId) {
+        // Check employer is owner of Job posting ?
+        if (jobPosting.employer.userId !== req.user.userId) {
             return ({
                 message: `You are not the owner of Job posting has id: ${req.params.postId}`,
                 status: 403,
