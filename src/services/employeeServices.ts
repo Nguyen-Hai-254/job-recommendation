@@ -853,8 +853,10 @@ export default class EmployeeServices {
             queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.profession LIKE :profession', { profession: `%${profession}%` });
-            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.profession LIKE :profession', { profession: `%${profession}%` });
+            const professionArray = profession.split(',');
+
+            queryforOnlineProfile = queryforOnlineProfile.andWhere(`${professionArray.map((keyword) =>  `online_profile.profession LIKE '%${keyword}%'`).join(' OR ')}`);
+            queryforAttachedDocument = queryforAttachedDocument.andWhere(`${professionArray.map((keyword) =>  `attached_document.profession LIKE '%${keyword}%'`).join(' OR ')}`);
         }
         if (employmentType) {
             queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.employmentType = :employmentType', { employmentType });
@@ -950,8 +952,10 @@ export default class EmployeeServices {
             queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.profession LIKE :profession', { profession: `%${profession}%` });
-            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.profession LIKE :profession', { profession: `%${profession}%` });
+            const professionArray = profession.split(',');
+
+            queryforOnlineProfile = queryforOnlineProfile.andWhere(`${professionArray.map((keyword) =>  `online_profile.profession LIKE '%${keyword}%'`).join(' OR ')}`);
+            queryforAttachedDocument = queryforAttachedDocument.andWhere(`${professionArray.map((keyword) =>  `attached_document.profession LIKE '%${keyword}%'`).join(' OR ')}`);
         }
         if (employmentType) {
             queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.employmentType = :employmentType', { employmentType });
