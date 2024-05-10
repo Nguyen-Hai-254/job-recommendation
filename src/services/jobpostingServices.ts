@@ -30,7 +30,8 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            query = query.andWhere('job-postings.profession LIKE :profession', { profession: `%${profession}%` });
+            const professionArray = profession.split(',');
+            query = query.andWhere(`(${professionArray.map((keyword) =>  `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
         }
         if (employmentType) {
             query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
@@ -118,7 +119,8 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            query = query.andWhere('job-postings.profession LIKE :profession', { profession: `%${profession}%` });
+            const professionArray = profession.split(',');
+            query = query.andWhere(`(${professionArray.map((keyword) =>  `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
         }
         if (employmentType) {
             query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
@@ -190,7 +192,8 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            query = query.andWhere('job-postings.profession LIKE :profession', { profession: `%${profession}%` });
+            const professionArray = profession.split(',');
+            query = query.andWhere(`(${professionArray.map((keyword) =>  `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
         }
         if (employmentType) {
             query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
@@ -278,7 +281,8 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            query = query.andWhere('job-postings.profession LIKE :profession', { profession: `%${profession}%` });
+            const professionArray = profession.split(',');
+            query = query.andWhere(`(${professionArray.map((keyword) =>  `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
         }
         if (employmentType) {
             query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
