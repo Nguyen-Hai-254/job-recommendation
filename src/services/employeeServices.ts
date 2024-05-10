@@ -1139,10 +1139,6 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
         queryforOnlineProfile += ` AND online_profile.jobTitle LIKE '%${jobTitle}%'`;
         queryforAttachedDocument +=  ` AND attached_document.jobTitle LIKE '%${jobTitle}%`;
     }
-    if (profession) {
-        queryforOnlineProfile += ` AND online_profile.profession LIKE '%${profession}%'`;
-        queryforAttachedDocument += ` AND attached_document.profession LIKE '%${profession}%'`
-    }
     if (employmentType) {
         queryforOnlineProfile += ` AND online_profile.employmentType = '${employmentType}'`;
         queryforAttachedDocument += ` AND attached_document.employmentType = '${employmentType}'`;
@@ -1188,6 +1184,13 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
     if (desiredPosition) {
         queryforOnlineProfile += ` AND online_profile.desiredPosition = '${desiredPosition}'`;
         queryforAttachedDocument += ` AND attached_document.desiredPosition = '${desiredPosition}'`;
+    }
+    // TODO: profession is a array.    
+    if (profession) {
+        const professionArray = profession.split(',');
+
+        queryforOnlineProfile += ` AND (${professionArray.map((keyword) =>  `online_profile.profession LIKE '%${keyword}%'`).join(' OR ')})`;
+        queryforAttachedDocument += ` AND (${professionArray.map((keyword) =>  `attached_document.profession LIKE '%${keyword}%'`).join(' OR ')})`;
     }
     // TODO : default query
     const keywordArray = keywords.split(',');
