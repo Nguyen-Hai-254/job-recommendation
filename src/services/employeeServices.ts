@@ -1016,7 +1016,7 @@ export default class EmployeeServices {
 
         let queryforOnlineProfile = online_profileRepository
             .createQueryBuilder('online_profile')
-            .select(['online_profile', 'work_experiences', 'education_informations', 'another_degrees', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar'])
+            .select(['online_profile', 'work_experiences', 'education_informations', 'another_degrees', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar','user.email', 'user.phone'])
             .leftJoin('online_profile.work_experiences', 'work_experiences')
             .leftJoin('online_profile.education_informations', 'education_informations')
             .leftJoin('online_profile.another_degrees', 'another_degrees')
@@ -1025,7 +1025,7 @@ export default class EmployeeServices {
 
         let queryforAttachedDocument = attached_documentRepository
             .createQueryBuilder('attached_document')
-            .select(['attached_document', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar'])
+            .select(['attached_document', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar','user.email', 'user.phone'])
             .leftJoin('attached_document.employee', 'employee')
             .leftJoin('employee.user', 'user')
 
