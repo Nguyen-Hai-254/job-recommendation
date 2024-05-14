@@ -1,12 +1,13 @@
 import { JobPosting } from "../entity/JobPosting"
 import { myDataSource } from "../config/connectDB";
-import { monthMap, userRole } from "../utils/enum";
+import { approvalStatus, monthMap, userRole } from "../utils/enum";
 import { User } from "../entity/Users";
 import { OnlineProfile } from "../entity/OnlineProfile";
 import { AttachedDocument } from "../entity/AttachedDocument";
-import { countCandidatesbyProfession, mergerTwoObject, transporter } from "../utils/utilsFunction";
+import { countCandidatesbyProfession, createArrayForDate, mergerTwoObject, transporter } from "../utils/utilsFunction";
 import nodemailer from 'nodemailer'
 import { ILike, Int32, Like } from "typeorm";
+import { EnumApprovalStatus } from "../utils/enumAction";
 
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
 const userRepository = myDataSource.getRepository(User);
@@ -152,5 +153,40 @@ export default class AdminServices {
             status: 200,
             data: findUser
         })
+    }
+
+    static handleGetJobPostingsReportByQuery = async (year, month) => {
+        if (!month) {
+            const getReport = await jobPostingRepository.createQueryBuilder('job-postings')
+                .select('DATE_FORMAT(job-postings.createAt, "%b") AS time, COUNT(*) AS value')
+                .where('YEAR(job-postings.createAt) = :year and (job-postings.status = :approved or job-postings.status = :expired)', { year, approved: approvalStatus.approved, expired: approvalStatus.expired })
+                .groupBy('time')
+                .orderBy('job-postings.createAt')
+                .getRawMany();
+
+            return ({
+                message: 'OK',
+                status: 200,
+                data: getReport
+            })
+        } else {
+            const getReport = await jobPostingRepository.createQueryBuilder('job-postings')
+                .select('DATE_FORMAT(job-postings.createAt, "%e") AS time, COUNT(*) AS value')
+                .where('YEAR(job-postings.createAt) = :year and MONTH(job-postings.createAt) = :month and (job-postings.status = :approved or job-postings.status = :expired)', { year, month, approved: approvalStatus.approved, expired: approvalStatus.expired })
+                .groupBy('time')
+                .orderBy('job-postings.createAt')
+                .getRawMany();
+
+            const daysInMonth = createArrayForDate(month, year) // Tạo một mảng các ngày
+            getReport.map(day => {
+                daysInMonth[day.time - 1].value = day.value
+            })
+
+            return ({
+                message: 'OK',
+                status: 200,
+                data: daysInMonth
+            })
+        }
     }
 }

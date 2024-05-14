@@ -10,7 +10,23 @@ const cronJob =  require('./cron/updateExpiredJobStatusCron')
 const routes = require('./routes/web')
 
 let app = express();
-app.use(cors({ credentials: true, origin: true }));
+// app.use(cors({ credentials: true, origin: true }));
+
+const corsOptions = {
+    origin: 'http://vieclam.infotechacademy.vn',
+    credentials: true,
+    optionSuccessStatus: 200
+}
+
+
+app.use(cors(corsOptions));
+app.use(function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', "http://vieclam.infotechacademy.vn");
+    res.header('Access-Control-Allow-Headers', '*');
+    // res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    next();
+});
 
 
 app.use(cookieParser());

@@ -1,0 +1,35 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const auth_1 = require("../middleware/auth");
+const verifyRole_1 = require("../middleware/verifyRole");
+const employeeController_1 = __importDefault(require("../controllers/employeeController"));
+const enum_1 = require("../utils/enum");
+const route = express_1.default.Router();
+route.get('/api/v1/employee/attached-document', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.getAttachedDocument);
+route.post('/api/v1/employee/attached-document', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.createNewAttachedDocument);
+route.put('/api/v1/employee/attached-document', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.updateAttachedDocument);
+route.delete('/api/v1/admin/attached-document/:id', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Admin), employeeController_1.default.deleteAttachedDocument);
+route.get('/api/v1/employee/online-profile', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.getOnlineProfile);
+route.post('/api/v1/employee/online-profile', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.createNewOnlineProfile);
+route.put('/api/v1/employee/online-profile', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.updateOnlineProfile);
+route.delete('/api/v1/admin/online-profile/:id', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Admin), employeeController_1.default.deleteOnlineProfile);
+route.post('/api/v1/employee/online-profile/another-degree', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.createNewAnotherDegree);
+route.put('/api/v1/employee/online-profile/another-degree/:id', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.updateAnotherDegree);
+route.delete('/api/v1/employee/online-profile/another-degree/:id', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.deleteAnotherDegree);
+route.post('/api/v1/employee/online-profile/education-information', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.createNewEducationInformation);
+route.put('/api/v1/employee/online-profile/education-information/:id', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.updateEducationInformation);
+route.delete('/api/v1/employee/online-profile/education-information/:id', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.deleteEducationInformation);
+route.post('/api/v1/employee/online-profile/work-experience', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.createNewWorkExperience);
+route.put('/api/v1/employee/online-profile/work-experience/:id', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.updateWorkExperience);
+route.delete('/api/v1/employee/online-profile/work-experience/:id', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.deleteWorkExperience);
+route.get('/api/v1/admin/employees', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Admin), employeeController_1.default.getEmployeesByAdmin);
+route.get('/api/v1/admin/employees/totalResults', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Admin), employeeController_1.default.getLengthOfEmployeesByAdmin);
+route.get('/api/v1/employer/employees', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), employeeController_1.default.getEmployeesByEmployer);
+route.get('/api/v1/employer/employees/totalResults', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), employeeController_1.default.getLengthOfEmployeesByEmployer);
+route.get('/api/v1/employer/employees/sortbykeywords', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), employeeController_1.default.getEmployeesByEmployerSortByKeywords);
+exports.default = route;
+//# sourceMappingURL=employeeRoute.js.map

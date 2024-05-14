@@ -13,9 +13,9 @@ export class AnotherDegree extends BaseEntity {
     @Column({ nullable: true })
     level: string
 
-    @ManyToOne(() => OnlineProfile, (online_profile) => online_profile.another_degrees, { 
-        onDelete: 'CASCADE', 
-        onUpdate: 'CASCADE' 
+    @ManyToOne(() => OnlineProfile, (online_profile) => online_profile.another_degrees, {
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
     })
     // @JoinColumn({
     //     name: 'userId',

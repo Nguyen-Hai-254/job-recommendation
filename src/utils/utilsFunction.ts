@@ -40,3 +40,14 @@ export const transporter = nodemailer.createTransport({
         pass: process.env.EMAIL_PASSWORD
     }
 });
+
+export const createArrayForDate = (month, year) => {
+    if (month === "1" || month === "3" || month === "5" || month === "7" || month === "8" || month === "10" || month === "12")
+        return Array.from({ length: 31 }, (_, i) => ({ time: i + 1, value: '0' }));
+    else if (month === "4" || month === "6" || month === "9" || month === "11")
+        return Array.from({ length: 30 }, (_, i) => ({ time: i + 1, value: '0' }));
+    else if (year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0))
+        return Array.from({ length: 29 }, (_, i) => ({ time: i + 1, value: '0' }));
+    else
+        return Array.from({ length: 28 }, (_, i) => ({ time: i + 1, value: '0' }));
+}
