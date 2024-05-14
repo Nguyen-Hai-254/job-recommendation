@@ -853,8 +853,10 @@ export default class EmployeeServices {
             queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.profession LIKE :profession', { profession: `%${profession}%` });
-            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.profession LIKE :profession', { profession: `%${profession}%` });
+            const professionArray = profession.split(',');
+
+            queryforOnlineProfile = queryforOnlineProfile.andWhere(`(${professionArray.map((keyword) =>  `online_profile.profession LIKE '%${keyword}%'`).join(' OR ')})`);
+            queryforAttachedDocument = queryforAttachedDocument.andWhere(`(${professionArray.map((keyword) =>  `attached_document.profession LIKE '%${keyword}%'`).join(' OR ')})`);
         }
         if (employmentType) {
             queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.employmentType = :employmentType', { employmentType });
@@ -950,8 +952,10 @@ export default class EmployeeServices {
             queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.profession LIKE :profession', { profession: `%${profession}%` });
-            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.profession LIKE :profession', { profession: `%${profession}%` });
+            const professionArray = profession.split(',');
+
+            queryforOnlineProfile = queryforOnlineProfile.andWhere(`(${professionArray.map((keyword) =>  `online_profile.profession LIKE '%${keyword}%'`).join(' OR ')})`);
+            queryforAttachedDocument = queryforAttachedDocument.andWhere(`(${professionArray.map((keyword) =>  `attached_document.profession LIKE '%${keyword}%'`).join(' OR ')})`);
         }
         if (employmentType) {
             queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.employmentType = :employmentType', { employmentType });
@@ -1012,7 +1016,7 @@ export default class EmployeeServices {
 
         let queryforOnlineProfile = online_profileRepository
             .createQueryBuilder('online_profile')
-            .select(['online_profile', 'work_experiences', 'education_informations', 'another_degrees', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar'])
+            .select(['online_profile', 'work_experiences', 'education_informations', 'another_degrees', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar','user.email', 'user.phone'])
             .leftJoin('online_profile.work_experiences', 'work_experiences')
             .leftJoin('online_profile.education_informations', 'education_informations')
             .leftJoin('online_profile.another_degrees', 'another_degrees')
@@ -1021,7 +1025,7 @@ export default class EmployeeServices {
 
         let queryforAttachedDocument = attached_documentRepository
             .createQueryBuilder('attached_document')
-            .select(['attached_document', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar'])
+            .select(['attached_document', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar','user.email', 'user.phone'])
             .leftJoin('attached_document.employee', 'employee')
             .leftJoin('employee.user', 'user')
 
@@ -1139,10 +1143,6 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
         queryforOnlineProfile += ` AND online_profile.jobTitle LIKE '%${jobTitle}%'`;
         queryforAttachedDocument +=  ` AND attached_document.jobTitle LIKE '%${jobTitle}%`;
     }
-    if (profession) {
-        queryforOnlineProfile += ` AND online_profile.profession LIKE '%${profession}%'`;
-        queryforAttachedDocument += ` AND attached_document.profession LIKE '%${profession}%'`
-    }
     if (employmentType) {
         queryforOnlineProfile += ` AND online_profile.employmentType = '${employmentType}'`;
         queryforAttachedDocument += ` AND attached_document.employmentType = '${employmentType}'`;
@@ -1188,6 +1188,13 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
     if (desiredPosition) {
         queryforOnlineProfile += ` AND online_profile.desiredPosition = '${desiredPosition}'`;
         queryforAttachedDocument += ` AND attached_document.desiredPosition = '${desiredPosition}'`;
+    }
+    // TODO: profession is a array.    
+    if (profession) {
+        const professionArray = profession.split(',');
+
+        queryforOnlineProfile += ` AND (${professionArray.map((keyword) =>  `online_profile.profession LIKE '%${keyword}%'`).join(' OR ')})`;
+        queryforAttachedDocument += ` AND (${professionArray.map((keyword) =>  `attached_document.profession LIKE '%${keyword}%'`).join(' OR ')})`;
     }
     // TODO : default query
     const keywordArray = keywords.split(',');
