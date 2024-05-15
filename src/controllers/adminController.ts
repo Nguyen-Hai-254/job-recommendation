@@ -144,4 +144,29 @@ export default class AdminController {
             });
         }
     }
+
+    static candidateStatisticsByQuery = async (req, res) => {
+        try {
+            if (!req.query.year) {
+                return res.status(500).json({
+                    message: "Missing input parameter!",
+                    status: 500,
+                    error: 'Internal Server Error',
+                });
+            }
+
+            const result = await AdminServices.handleCandidateStatisticsByQuery(req.query.year, req.query.month);
+            return res.status(result.status).json({
+                message: result.message,
+                status: result.status,
+                data: result.data ? result.data : []
+            });
+        } catch (err) {
+            return res.status(500).json({
+                message: err.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
 }

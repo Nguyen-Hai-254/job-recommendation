@@ -5,9 +5,7 @@ import { User } from "../entity/Users";
 import { OnlineProfile } from "../entity/OnlineProfile";
 import { AttachedDocument } from "../entity/AttachedDocument";
 import { countCandidatesbyProfession, createArrayForDate, mergerTwoObject, transporter } from "../utils/utilsFunction";
-import nodemailer from 'nodemailer'
-import { ILike, Int32, Like } from "typeorm";
-import { EnumApprovalStatus } from "../utils/enumAction";
+import { ILike } from "typeorm";
 
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
 const userRepository = myDataSource.getRepository(User);
@@ -188,5 +186,55 @@ export default class AdminServices {
                 data: daysInMonth
             })
         }
+    }
+
+    static handleCandidateStatisticsByQuery = async (year, month) => {
+        let queryAllOnlineProfile = online_profileRepository.createQueryBuilder('profile')
+            .select('profile.profession AS profession, COUNT(*) AS userCount')
+            .where('YEAR(profile.updateAt) = :year', { year })
+            .groupBy('profile.profession')
+
+        let queryAllAttachedDocument = attachedDocumentRepository.createQueryBuilder('profile')
+            .select('profile.profession AS profession, COUNT(*) AS userCount')
+            .where('YEAR(profile.updateAt) = :year', { year })
+            .groupBy('profile.profession')
+
+        if (month) {
+            queryAllOnlineProfile = queryAllOnlineProfile.andWhere('MONTH(profile.updateAt) = :month', { month })
+            queryAllAttachedDocument = queryAllAttachedDocument.andWhere('MONTH(profile.updateAt) = :month', { month })
+        }
+
+        let getAllOnlineProfile = await queryAllOnlineProfile.getRawMany()
+        let getAllAttachedDocument = await queryAllAttachedDocument.getRawMany()
+
+        if (getAllOnlineProfile.length === 0 && getAllAttachedDocument.length === 0)
+            return ({
+                message: 'OK',
+                status: 200,
+                data: []
+            })
+
+        const resultOnlineProlife = countCandidatesbyProfession(getAllOnlineProfile);
+        const resultAttachedDocument = countCandidatesbyProfession(getAllAttachedDocument);
+
+        const totalResult = mergerTwoObject(resultOnlineProlife, resultAttachedDocument);
+        // Chuyển đổi totalResult thành mảng objects
+        let result = Object.entries(totalResult).map(([profession, count]) => ({
+            name: profession,
+            value: count
+        }));
+
+        const sortedData = result.sort((a: { name, value }, b: { name, value }) => b.value - a.value);
+
+        const top5 = sortedData.slice(0, 5);
+        const otherSum = sortedData.reduce((sum, currenItem: { name, value }) => sum + currenItem.value, 0) - top5.reduce((sum, currenItem: { name, value }) => sum + currenItem.value, 0)
+
+        const top5AndOther = [...top5, { "name": "Khác", value: otherSum }];
+
+        return ({
+            message: 'OK',
+            status: 200,
+            data: top5AndOther
+        })
     }
 }
