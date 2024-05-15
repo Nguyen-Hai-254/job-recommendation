@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, ManyToMany } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, ManyToMany, UpdateDateColumn } from "typeorm"
 import { Employer } from "./Employer"
 import { degree, sex, employmentType, experience, positionLevel, approvalStatus } from "../utils/enum"
 import { Application } from "./Application"
@@ -103,7 +103,7 @@ export class JobPosting extends BaseEntity {
     @CreateDateColumn({ type: 'timestamp' })
     createAt: Date
 
-    @CreateDateColumn({ type: 'timestamp' })
+    @UpdateDateColumn({ type: 'timestamp' })
     updateAt: Date
 
     @Column({ nullable: true })

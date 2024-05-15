@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryColumn, Column, OneToOne, JoinColumn, OneToMany } from "typeorm"
+import { Entity, BaseEntity, PrimaryColumn, Column, OneToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm"
 import { Employee } from "./Employee"
 import { degree, employmentType, experience, positionLevel } from "../utils/enum"
 import { WorkExperience } from "./WorkExperience";
@@ -70,6 +70,12 @@ export class OnlineProfile extends BaseEntity {
 
     @Column({ default: false })
     isHidden: boolean
+
+    @CreateDateColumn({ type: 'timestamp' })
+    createAt: Date
+
+    @UpdateDateColumn({ type: 'timestamp' })
+    updateAt: Date
 
     // Properties of Chat GPT
     @Column({ type: 'longtext', nullable: true })
