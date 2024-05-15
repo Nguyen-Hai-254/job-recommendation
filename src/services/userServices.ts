@@ -404,17 +404,24 @@ export default class UserServices {
     }
 
     static handleGetInformationCompanyByUser = async (id) => {
-        const getEmployer = await userRepository.findOne({
-            where: {
-                userId: id,
-                employer: {
-                    jobPostings: {
-                        status: approvalStatus.approved
-                    }
-                }
-            },
-            relations: ['employer.jobPostings']
-        })
+        // const getEmployer = await userRepository.findOne({
+        //     where: {
+        //         userId: id,
+        //         employer: {
+        //             jobPostings: {
+        //                 status: approvalStatus.approved
+        //             }
+        //         }
+        //     },
+        //     relations: ['employer.jobPostings']
+        // })
+        const getEmployer = await userRepository
+            .createQueryBuilder('user')
+            .select(['user'])
+            .leftJoinAndSelect('user.employer', 'employer')
+            .leftJoinAndSelect('employer.jobPostings', 'jobPosting','jobPosting.status = :status', {status: approvalStatus.approved})
+            .where('user.userId = :id', {id})
+            .getOne();
 
         if (!getEmployer) {
             return ({
