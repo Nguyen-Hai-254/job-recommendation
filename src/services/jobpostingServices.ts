@@ -2,7 +2,7 @@ import { myDataSource } from "../config/connectDB"
 import { Employee } from "../entity/Employee"
 import { Employer } from "../entity/Employer"
 import { User } from "../entity/Users"
-import { approvalStatus, userRole } from "../utils/enum"
+import { approvalStatus, profession, userRole } from "../utils/enum"
 import { JobPosting } from "../entity/JobPosting"
 import moment from "moment"
 import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex, EnumApprovalStatus } from "../utils/enumAction"
@@ -317,15 +317,31 @@ export default class JobPostingServices {
     }
 
     static handleGetTotalResultsOfProfession = async () => {
-        const result = await jobPostingRepository
+        const posts = await jobPostingRepository
             .createQueryBuilder('jobPosting')
+            .select('jobPosting.profession', 'profession')
             .where('jobPosting.status = :status', { status: approvalStatus.approved })
-            .select(`SUBSTRING_INDEX(SUBSTRING_INDEX(jobPosting.profession, ',', 1), ',', -1)`, 'profession_value')
-            .addSelect('COUNT(*)', 'count')
-            .andWhere(`LENGTH(jobPosting.profession) - LENGTH(REPLACE(jobPosting.profession, ',', '')) + 1 >= 1`)
-            .groupBy('profession_value')
             .getRawMany();
 
+        const professionCount = {};
+
+        for (const post of posts) {
+            const professions = post.profession.split(',');
+          
+            for (const profession of professions) {
+              if (professionCount[profession]) {
+                professionCount[profession] += 1;
+              } else {
+                professionCount[profession] = 1;
+              }
+            }
+        }
+
+        const result = Object.keys(professionCount).map(key => ({
+            'profession_value': key,
+            'count': professionCount[key]
+          }));
+        
         return ({
             message: `Find job postings successful!`,
             status: 200,
@@ -336,19 +352,30 @@ export default class JobPostingServices {
     static handleGetTotalResultsOfProfessionByAdmin = async (req) => {
         const { status } = req.query;
 
-        let query = jobPostingRepository.createQueryBuilder('jobPosting');
+        let query = jobPostingRepository.createQueryBuilder('jobPosting')
+            .select('jobPosting.profession', 'profession');
+        if (status)  query = query.where('jobPosting.status = :status', { status });
+        const posts = await query.getRawMany();
 
-        if (status) {
-            query = query.where('jobPosting.status = :status', { status });
+        const professionCount = {};
+
+        for (const post of posts) {
+            const professions = post.profession.split(',');
+          
+            for (const profession of professions) {
+              if (professionCount[profession]) {
+                professionCount[profession] += 1;
+              } else {
+                professionCount[profession] = 1;
+              }
+            }
         }
 
-        query = query.select(`SUBSTRING_INDEX(SUBSTRING_INDEX(jobPosting.profession, ',', 1), ',', -1)`, 'profession_value')
-            .addSelect('COUNT(*)', 'count')
-            .andWhere(`LENGTH(jobPosting.profession) - LENGTH(REPLACE(jobPosting.profession, ',', '')) + 1 >= 1`)
-            .groupBy('profession_value');
-
-        const result = await query.getRawMany();
-
+        const result = Object.keys(professionCount).map(key => ({
+            'profession_value': key,
+            'count': professionCount[key]
+          }));
+        
         return ({
             message: `Find job postings successful!`,
             status: 200,
