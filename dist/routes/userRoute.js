@@ -11,6 +11,7 @@ const enum_1 = require("../utils/enum");
 const route = express_1.default.Router();
 route.post('/api/v1/register', userController_1.default.register);
 route.post('/api/v1/login', userController_1.default.login);
+route.post('/api/v1/password', auth_1.verifyToken, userController_1.default.resetPassword);
 route.get('/api/v1/get-information-company-by-user', userController_1.default.getInformationCompanyByUser);
 route.get('/api/v1/get-all-company-by-user', userController_1.default.getAllCompanyByUser);
 route.get('/api/v1/logout', auth_1.verifyToken, userController_1.default.logOut);

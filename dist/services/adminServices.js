@@ -70,7 +70,7 @@ AdminServices.handleGetAllUser = async (req) => {
     const { page, num, role } = req.query;
     let query = userRepository.createQueryBuilder('user');
     if (role) {
-        query = query.where('user.role = :role', { role: enum_1.userRole[role] });
+        query = query.where('user.role = :role', { role });
     }
     // Pagination
     if (num && page) {
@@ -89,7 +89,7 @@ AdminServices.handleGetTotalUser = async (req) => {
     const { role } = req.query;
     let query = userRepository.createQueryBuilder('user');
     if (role) {
-        query = query.where('user.role = :role', { role: enum_1.userRole[role] });
+        query = query.where('user.role = :role', { role });
     }
     const findAllUser = await query.getCount();
     return ({

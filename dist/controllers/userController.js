@@ -77,6 +77,29 @@ UserController.logOut = async (req, res) => {
         });
     }
 };
+UserController.resetPassword = async (req, res) => {
+    try {
+        if (!req.user.email || !req.body.password || !req.body.newPassword) {
+            return res.status(400).json({
+                message: "Missing input parameter!",
+                status: 400,
+            });
+        }
+        const userData = await userServices_1.default.handleResetPassword(req.user.email, req.body.password, req.body.newPassword);
+        return res.status(userData.status).json({
+            message: userData.message,
+            status: userData.status,
+            data: []
+        });
+    }
+    catch (e) {
+        return res.status(500).json({
+            message: e.message,
+            status: 500,
+            error: 'Internal Server Error',
+        });
+    }
+};
 UserController.getProfile = async (req, res) => {
     try {
         const getUser = await userServices_1.default.handleGetProfile(req.user);

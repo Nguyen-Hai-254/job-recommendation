@@ -151,7 +151,7 @@ export default class UserServices {
         if (!checkUserPassword) {
             return ({
                 message: 'Wrong password!',
-                status: 401,
+                status: 400,
                 data: null
             })
         }
@@ -163,6 +163,7 @@ export default class UserServices {
         return ({
             message: 'reset password success',
             status: 200,
+            data: null
         })
     }
 
