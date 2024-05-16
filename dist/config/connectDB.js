@@ -12,9 +12,11 @@ exports.myDataSource = new typeorm_1.DataSource({
     username: process.env.DB_USERNAME || 'root',
     password: process.env.DB_PASSWORD ? process.env.DB_PASSWORD : "",
     database: (_a = process.env.DB_NAME) !== null && _a !== void 0 ? _a : "job-recommendation",
-    entities: ["src/entity/*.ts"],
+    entities: [__dirname + '/../entity/*.{js,ts}'],
     logging: false,
+    // dropSchema: true,
     synchronize: true,
+    // timezone: 'Z'
 });
 exports.connectDB = exports.myDataSource
     .initialize()

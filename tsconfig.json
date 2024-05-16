@@ -1,43 +1,41 @@
 {
     "compilerOptions": {
-        "target": "es2016",
-        "module": "commonjs",
-        "lib": [
-            "dom",
-            "es6",
-            "es2017",
-            "esnext.asynciterable"
-        ],
-        "skipLibCheck": true,
-        "sourceMap": true,
+        "target": "es2018",
+        "declaration": false,
+        "resolveJsonModule": true,
+        "baseUrl": ".",
         "outDir": "./dist",
-        "moduleResolution": "node",
-        "removeComments": true,
-        "forceConsistentCasingInFileNames": true,
-        "noImplicitAny": false,
         "strict": true,
-        "strictNullChecks": true,
-        "strictFunctionTypes": true,
-        "noImplicitThis": true,
-        "strictPropertyInitialization": false,
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "preserveConstEnums": true,
+        "experimentalDecorators": true,
+        "jsx": "preserve",
+        "lib": [
+            "esnext"
+        ],
+        "module": "commonjs",
+        "moduleResolution": "node",
         "noUnusedLocals": false,
         "noUnusedParameters": false,
-        "noImplicitReturns": true,
-        "noFallthroughCasesInSwitch": true,
-        "allowSyntheticDefaultImports": true,
-        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "importHelpers": false,
+        "preserveSymlinks": true,
+        "strictPropertyInitialization": false,
         "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "resolveJsonModule": true,
+        "noImplicitAny": false,
         "useUnknownInCatchVariables": false
-        // "baseUrl": "."
     },
-    "exclude": [
-        "node_modules"
+    "lib": [
+        "esnext"
     ],
     "include": [
-        "./src/**/*.tsx",
-        "./src/**/*.ts",
-        "swagger.ts"
+        "src"
+    ],
+    "exclude": [
+        "node_modules"
     ]
 }

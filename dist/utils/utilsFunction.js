@@ -3,11 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.transporter = exports.mergerTwoObject = exports.countCandidatesbyProfession = void 0;
+exports.createArrayForDate = exports.transporter = exports.mergerTwoObject = exports.countCandidatesbyProfession = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const countCandidatesbyProfession = (professionCountList) => {
+    // Mảng các nghề nghiệp (có giá trị trùng lặp)
     const professionsList = professionCountList.map(item => item.profession.split(', ')).flat();
+    // Tạo mảng mới bỏ các giá trị trùng lặp
     const uniqueProfessions = [...new Set(professionsList)];
+    // Tạo một đối tượng để đếm số lượng của từng nghề nghiệp. countMap = {nghề: count, ...}
     const countMap = {};
     professionCountList.forEach(item => {
         uniqueProfessions.forEach(profession => {
@@ -20,7 +23,7 @@ const countCandidatesbyProfession = (professionCountList) => {
 };
 exports.countCandidatesbyProfession = countCandidatesbyProfession;
 const mergerTwoObject = (obj1, obj2) => {
-    let result = Object.assign({}, obj1);
+    let result = { ...obj1 };
     for (let key in obj2) {
         if (result[key])
             result[key] += obj2[key];
@@ -39,4 +42,15 @@ exports.transporter = nodemailer_1.default.createTransport({
         pass: process.env.EMAIL_PASSWORD
     }
 });
+const createArrayForDate = (month, year) => {
+    if (month === "1" || month === "3" || month === "5" || month === "7" || month === "8" || month === "10" || month === "12")
+        return Array.from({ length: 31 }, (_, i) => ({ time: i + 1, value: '0' }));
+    else if (month === "4" || month === "6" || month === "9" || month === "11")
+        return Array.from({ length: 30 }, (_, i) => ({ time: i + 1, value: '0' }));
+    else if (year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0))
+        return Array.from({ length: 29 }, (_, i) => ({ time: i + 1, value: '0' }));
+    else
+        return Array.from({ length: 28 }, (_, i) => ({ time: i + 1, value: '0' }));
+};
+exports.createArrayForDate = createArrayForDate;
 //# sourceMappingURL=utilsFunction.js.map

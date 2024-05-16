@@ -23,6 +23,7 @@ var sex;
     sex["Female"] = "N\u1EEF";
     sex["Other"] = "Kh\u00E1c";
 })(sex || (exports.sex = sex = {}));
+///////////////////////////////////////////////////////////////// Jobposting
 var employmentType;
 (function (employmentType) {
     employmentType["FulltimePermanent"] = "To\u00E0n th\u1EDDi gian c\u1ED1 \u0111\u1ECBnh";

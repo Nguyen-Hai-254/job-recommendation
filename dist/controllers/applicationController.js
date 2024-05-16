@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -17,9 +8,9 @@ const applicationServices_1 = __importDefault(require("../services/applicationSe
 class ApplicationController {
 }
 _a = ApplicationController;
-ApplicationController.getApplicationsbyEmployee = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+ApplicationController.getApplicationsbyEmployee = async (req, res) => {
     try {
-        const applications = yield applicationServices_1.default.handleGetApplicationsbyEmployee(req);
+        const applications = await applicationServices_1.default.handleGetApplicationsbyEmployee(req);
         return res.status(applications.status).json({
             message: applications.message,
             status: 200,
@@ -33,10 +24,10 @@ ApplicationController.getApplicationsbyEmployee = (req, res) => __awaiter(void 0
             error: 'Internal Server Error',
         });
     }
-});
-ApplicationController.getApplication = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+ApplicationController.getApplication = async (req, res) => {
     try {
-        const application = yield applicationServices_1.default.handleGetApplication(req);
+        const application = await applicationServices_1.default.handleGetApplication(req);
         return res.status(application.status).json({
             message: application.message,
             status: application.status,
@@ -50,10 +41,10 @@ ApplicationController.getApplication = (req, res) => __awaiter(void 0, void 0, v
             error: 'Internal Server Error',
         });
     }
-});
-ApplicationController.createNewApplication = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+ApplicationController.createNewApplication = async (req, res) => {
     try {
-        const application = yield applicationServices_1.default.handleCreateNewApplication(req);
+        const application = await applicationServices_1.default.handleCreateNewApplication(req);
         return res.status(application.status).json({
             message: application.message,
             status: application.status,
@@ -67,10 +58,10 @@ ApplicationController.createNewApplication = (req, res) => __awaiter(void 0, voi
             error: 'Internal Server Error',
         });
     }
-});
-ApplicationController.getApplicationsbyEmployer = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+ApplicationController.getApplicationsbyEmployer = async (req, res) => {
     try {
-        const applications = yield applicationServices_1.default.handleGetApplicationsbyEmployer(req);
+        const applications = await applicationServices_1.default.handleGetApplicationsbyEmployer(req);
         return res.status(applications.status).json({
             message: applications.message,
             status: 200,
@@ -84,10 +75,10 @@ ApplicationController.getApplicationsbyEmployer = (req, res) => __awaiter(void 0
             error: 'Internal Server Error',
         });
     }
-});
-ApplicationController.getLengthOfApplicationsbyEmployer = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+ApplicationController.getLengthOfApplicationsbyEmployer = async (req, res) => {
     try {
-        const applications = yield applicationServices_1.default.handleGetLengthOfApplicationsbyEmployer(req);
+        const applications = await applicationServices_1.default.handleGetLengthOfApplicationsbyEmployer(req);
         return res.status(applications.status).json({
             message: applications.message,
             status: 200,
@@ -101,10 +92,10 @@ ApplicationController.getLengthOfApplicationsbyEmployer = (req, res) => __awaite
             error: 'Internal Server Error',
         });
     }
-});
-ApplicationController.getApplicationbyEmployer = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+ApplicationController.getApplicationbyEmployer = async (req, res) => {
     try {
-        const applications = yield applicationServices_1.default.handleGetApplicationbyEmployer(req);
+        const applications = await applicationServices_1.default.handleGetApplicationbyEmployer(req);
         return res.status(applications.status).json({
             message: applications.message,
             status: 200,
@@ -118,10 +109,10 @@ ApplicationController.getApplicationbyEmployer = (req, res) => __awaiter(void 0,
             error: 'Internal Server Error',
         });
     }
-});
-ApplicationController.updateApplicationbyEmployer = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+ApplicationController.updateApplicationbyEmployer = async (req, res) => {
     try {
-        const application = yield applicationServices_1.default.handleUpdateApplicationbyEmployer(req);
+        const application = await applicationServices_1.default.handleUpdateApplicationbyEmployer(req);
         return res.status(application.status).json({
             message: application.message,
             status: application.status,
@@ -135,10 +126,10 @@ ApplicationController.updateApplicationbyEmployer = (req, res) => __awaiter(void
             error: 'Internal Server Error',
         });
     }
-});
-ApplicationController.getAllApplications = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+ApplicationController.getAllApplications = async (req, res) => {
     try {
-        const applications = yield applicationServices_1.default.handleGetAllApplications();
+        const applications = await applicationServices_1.default.handleGetAllApplications();
         return res.status(applications.status).json({
             message: applications.message,
             status: applications.status,
@@ -152,6 +143,6 @@ ApplicationController.getAllApplications = (req, res) => __awaiter(void 0, void 
             error: 'Internal Server Error',
         });
     }
-});
+};
 exports.default = ApplicationController;
 //# sourceMappingURL=applicationController.js.map

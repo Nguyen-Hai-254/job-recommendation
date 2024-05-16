@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const connectDB_1 = require("../config/connectDB");
@@ -25,8 +16,8 @@ const jobPostingRepository = connectDB_1.myDataSource.getRepository(JobPosting_1
 class FollowServices {
 }
 _a = FollowServices;
-FollowServices.handleFollowCompany = (user, employerId) => __awaiter(void 0, void 0, void 0, function* () {
-    let findUser = yield employeeRepository.findOne({
+FollowServices.handleFollowCompany = async (user, employerId) => {
+    let findUser = await employeeRepository.findOne({
         where: { userId: user.userId },
         relations: ['follow']
     });
@@ -37,7 +28,7 @@ FollowServices.handleFollowCompany = (user, employerId) => __awaiter(void 0, voi
             data: null
         });
     }
-    let findEmployer = yield employerRepository.findOne({
+    let findEmployer = await employerRepository.findOne({
         where: { userId: employerId }
     });
     if (!findEmployer) {
@@ -49,7 +40,7 @@ FollowServices.handleFollowCompany = (user, employerId) => __awaiter(void 0, voi
     }
     const find = findUser.follow.findIndex((follow) => follow.employerId == employerId);
     if (find !== -1) {
-        yield followRepository.delete({
+        await followRepository.delete({
             employeeId: findUser.userId,
             employerId: findEmployer.userId
         });
@@ -59,7 +50,7 @@ FollowServices.handleFollowCompany = (user, employerId) => __awaiter(void 0, voi
             employeeId: findUser.userId,
             employerId: findEmployer.userId
         });
-        yield followRepository.save(createFollow);
+        await followRepository.save(createFollow);
     }
     ;
     return ({
@@ -67,9 +58,9 @@ FollowServices.handleFollowCompany = (user, employerId) => __awaiter(void 0, voi
         status: 200,
         data: true
     });
-});
-FollowServices.handleSaveEmployee = (user, emloyeeId, isOnlineProfile) => __awaiter(void 0, void 0, void 0, function* () {
-    let findEmployer = yield employerRepository.findOne({
+};
+FollowServices.handleSaveEmployee = async (user, emloyeeId, isOnlineProfile) => {
+    let findEmployer = await employerRepository.findOne({
         where: {
             userId: user.userId
         },
@@ -82,7 +73,7 @@ FollowServices.handleSaveEmployee = (user, emloyeeId, isOnlineProfile) => __awai
             data: null
         });
     }
-    const findEmployee = yield employeeRepository.findOne({
+    const findEmployee = await employeeRepository.findOne({
         where: { userId: emloyeeId }
     });
     if (!findEmployee) {
@@ -94,7 +85,7 @@ FollowServices.handleSaveEmployee = (user, emloyeeId, isOnlineProfile) => __awai
     }
     const find = findEmployer.saveEmployee.filter(save => save.employerId == user.userId && save.employeeId == emloyeeId && save.isOnlineProfile == isOnlineProfile);
     if (find.length > 0) {
-        yield saveRepository.remove(find);
+        await saveRepository.remove(find);
         return ({
             message: 'Đã bỏ lưu hồ sơ',
             status: 200,
@@ -107,7 +98,7 @@ FollowServices.handleSaveEmployee = (user, emloyeeId, isOnlineProfile) => __awai
             employerId: findEmployer.userId,
             isOnlineProfile: isOnlineProfile == '1' ? true : false
         });
-        yield saveRepository.save(createSave);
+        await saveRepository.save(createSave);
         return ({
             message: 'Đã lưu hồ sơ',
             status: 200,
@@ -115,9 +106,9 @@ FollowServices.handleSaveEmployee = (user, emloyeeId, isOnlineProfile) => __awai
         });
     }
     ;
-});
-FollowServices.handleGetFollowByEmployee = (user) => __awaiter(void 0, void 0, void 0, function* () {
-    const findEmployee = yield followRepository.find({
+};
+FollowServices.handleGetFollowByEmployee = async (user) => {
+    const findEmployee = await followRepository.find({
         where: { employeeId: user.userId },
         relations: ['employer.jobPostings']
     });
@@ -149,9 +140,9 @@ FollowServices.handleGetFollowByEmployee = (user) => __awaiter(void 0, void 0, v
             followCompany: company
         }
     });
-});
-FollowServices.handleGetSaveEmployeeByEmployer = (user) => __awaiter(void 0, void 0, void 0, function* () {
-    const findEmployer = yield saveRepository.find({
+};
+FollowServices.handleGetSaveEmployeeByEmployer = async (user) => {
+    const findEmployer = await saveRepository.find({
         where: {
             employerId: user.userId,
         },
@@ -193,9 +184,9 @@ FollowServices.handleGetSaveEmployeeByEmployer = (user) => __awaiter(void 0, voi
         status: 200,
         data: filterData
     });
-});
-FollowServices.handleFollowJobPosting = (user, jobId) => __awaiter(void 0, void 0, void 0, function* () {
-    const findEmployee = yield employeeRepository.findOne({
+};
+FollowServices.handleFollowJobPosting = async (user, jobId) => {
+    const findEmployee = await employeeRepository.findOne({
         where: { userId: user.userId },
         relations: ['jobs']
     });
@@ -206,7 +197,7 @@ FollowServices.handleFollowJobPosting = (user, jobId) => __awaiter(void 0, void 
             data: null
         });
     }
-    const findJobPosing = yield jobPostingRepository.findOneBy({
+    const findJobPosing = await jobPostingRepository.findOneBy({
         postId: jobId
     });
     if (!findJobPosing) {
@@ -233,15 +224,15 @@ FollowServices.handleFollowJobPosting = (user, jobId) => __awaiter(void 0, void 
     else {
         delete findEmployee.jobs[findFollow];
     }
-    yield employeeRepository.save(findEmployee);
+    await employeeRepository.save(findEmployee);
     return ({
         message: findFollow === -1 ? 'Theo dõi đăng tuyển thành công' : 'Đã bỏ theo dõi đăng tuyển',
         status: 200,
         data: []
     });
-});
-FollowServices.handleGetFollowJobPosting = (user) => __awaiter(void 0, void 0, void 0, function* () {
-    const findEmployee = yield employeeRepository.findOne({
+};
+FollowServices.handleGetFollowJobPosting = async (user) => {
+    const findEmployee = await employeeRepository.findOne({
         where: { userId: user.userId },
         relations: ['jobs.employer']
     });
@@ -273,6 +264,6 @@ FollowServices.handleGetFollowJobPosting = (user) => __awaiter(void 0, void 0, v
             })
         }
     });
-});
+};
 exports.default = FollowServices;
 //# sourceMappingURL=followServices.js.map

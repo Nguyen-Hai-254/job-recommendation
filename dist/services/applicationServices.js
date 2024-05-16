@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const connectDB_1 = require("../config/connectDB");
@@ -30,8 +21,8 @@ const online_profileRepository = connectDB_1.myDataSource.getRepository(OnlinePr
 class ApplicationServices {
 }
 _a = ApplicationServices;
-ApplicationServices.handleGetApplicationsbyEmployee = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    const applications = yield employeeRepository.findOne({
+ApplicationServices.handleGetApplicationsbyEmployee = async (req) => {
+    const applications = await employeeRepository.findOne({
         where: { userId: req.user.userId },
         relations: ['applications', 'applications.jobPosting.employer']
     });
@@ -63,8 +54,8 @@ ApplicationServices.handleGetApplicationsbyEmployee = (req) => __awaiter(void 0,
         status: 200,
         data: data
     });
-});
-ApplicationServices.handleGetApplication = (req) => __awaiter(void 0, void 0, void 0, function* () {
+};
+ApplicationServices.handleGetApplication = async (req) => {
     var _b;
     if (!((_b = req === null || req === void 0 ? void 0 : req.params) === null || _b === void 0 ? void 0 : _b.id)) {
         return ({
@@ -73,7 +64,7 @@ ApplicationServices.handleGetApplication = (req) => __awaiter(void 0, void 0, vo
             data: null
         });
     }
-    const application = yield applicationRepository.findOne({
+    const application = await applicationRepository.findOne({
         where: { application_id: req.params.id },
         relations: ['employee']
     });
@@ -89,25 +80,28 @@ ApplicationServices.handleGetApplication = (req) => __awaiter(void 0, void 0, vo
         status: 200,
         data: application
     });
-});
-ApplicationServices.handleCreateNewApplication = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c, _d, _e, _f, _g, _h, _j, _k;
-    if (!((_c = req === null || req === void 0 ? void 0 : req.body) === null || _c === void 0 ? void 0 : _c.applicationType) || !((_d = req === null || req === void 0 ? void 0 : req.body) === null || _d === void 0 ? void 0 : _d.postId)) {
+};
+ApplicationServices.handleCreateNewApplication = async (req) => {
+    var _b, _c, _d, _e, _f, _g, _h, _j;
+    // Check applicationType and postId
+    if (!((_b = req === null || req === void 0 ? void 0 : req.body) === null || _b === void 0 ? void 0 : _b.applicationType) || !((_c = req === null || req === void 0 ? void 0 : req.body) === null || _c === void 0 ? void 0 : _c.postId)) {
         return ({
             message: 'applicationType and postId are required',
             status: 400,
             data: null
         });
     }
-    if (!((_e = req === null || req === void 0 ? void 0 : req.body) === null || _e === void 0 ? void 0 : _e.CV) || !((_f = req === null || req === void 0 ? void 0 : req.body) === null || _f === void 0 ? void 0 : _f.name) || !((_g = req === null || req === void 0 ? void 0 : req.body) === null || _g === void 0 ? void 0 : _g.email) || !((_h = req === null || req === void 0 ? void 0 : req.body) === null || _h === void 0 ? void 0 : _h.phone)) {
+    // Check CV, name, email and phone
+    if (!((_d = req === null || req === void 0 ? void 0 : req.body) === null || _d === void 0 ? void 0 : _d.CV) || !((_e = req === null || req === void 0 ? void 0 : req.body) === null || _e === void 0 ? void 0 : _e.name) || !((_f = req === null || req === void 0 ? void 0 : req.body) === null || _f === void 0 ? void 0 : _f.email) || !((_g = req === null || req === void 0 ? void 0 : req.body) === null || _g === void 0 ? void 0 : _g.phone)) {
         return ({
             message: 'CV,name,email, phone are required',
             status: 400,
             data: null
         });
     }
+    // Check applicationType is correct
     if ((0, enumAction_1.EnumApplicationType)(req.body.applicationType) === enum_1.applicationType.attached_document) {
-        const attached_document = yield attached_documentRepository.findOne({
+        const attached_document = await attached_documentRepository.findOne({
             where: { userId: req.user.userId }
         });
         if (!attached_document) {
@@ -119,7 +113,7 @@ ApplicationServices.handleCreateNewApplication = (req) => __awaiter(void 0, void
         }
     }
     else if ((0, enumAction_1.EnumApplicationType)(req.body.applicationType) === enum_1.applicationType.online_profile) {
-        const online_profile = yield online_profileRepository.findOne({
+        const online_profile = await online_profileRepository.findOne({
             where: { userId: req.user.userId }
         });
         if (!online_profile) {
@@ -130,7 +124,8 @@ ApplicationServices.handleCreateNewApplication = (req) => __awaiter(void 0, void
             });
         }
     }
-    const employee = yield employeeRepository.findOne({
+    // Check employee exists
+    const employee = await employeeRepository.findOne({
         where: { userId: req.user.userId },
         relations: ['applications']
     });
@@ -141,7 +136,8 @@ ApplicationServices.handleCreateNewApplication = (req) => __awaiter(void 0, void
             data: null
         });
     }
-    const job_posting = yield jobpostingRepository.findOne({
+    // Check job posting exists
+    const job_posting = await jobpostingRepository.findOne({
         where: { postId: req.body.postId },
         relations: ['applications']
     });
@@ -152,27 +148,29 @@ ApplicationServices.handleCreateNewApplication = (req) => __awaiter(void 0, void
             data: null
         });
     }
-    const application = yield applicationRepository.create({
+    // Create new application
+    const application = await applicationRepository.create({
         applicationType: (0, enumAction_1.EnumApplicationType)(req.body.applicationType),
         CV: req.body.CV,
         name: req.body.name,
         email: req.body.email,
         phone: req.body.phone,
-        keywords: ((_j = req.body) === null || _j === void 0 ? void 0 : _j.keywords) ? (_k = req.body) === null || _k === void 0 ? void 0 : _k.keywords : null,
+        keywords: ((_h = req.body) === null || _h === void 0 ? void 0 : _h.keywords) ? (_j = req.body) === null || _j === void 0 ? void 0 : _j.keywords : null,
     });
-    const application1 = yield applicationRepository.save(application);
+    const application1 = await applicationRepository.save(application);
     employee.applications.push(application1);
-    yield employeeRepository.save(employee);
+    await employeeRepository.save(employee);
     job_posting.applications.push(application1);
-    yield jobpostingRepository.save(job_posting);
+    await jobpostingRepository.save(job_posting);
     return ({
         message: 'Create New Application successfully',
         status: 200,
         data: application
     });
-});
-ApplicationServices.handleGetApplicationsbyEmployer = (req) => __awaiter(void 0, void 0, void 0, function* () {
+};
+ApplicationServices.handleGetApplicationsbyEmployer = async (req) => {
     const { applicationType, name, status, postId, num, page } = req.query;
+    // get list of applications by employer
     let query = applicationRepository
         .createQueryBuilder('application')
         .select(['application', 'employee.userId', 'jobPosting.postId'])
@@ -180,6 +178,7 @@ ApplicationServices.handleGetApplicationsbyEmployer = (req) => __awaiter(void 0,
         .leftJoin('application.jobPosting', 'jobPosting')
         .leftJoin('jobPosting.employer', 'employer')
         .where('employer.userId = :userId', { userId: req.user.userId });
+    // query by applicationType, name, status, postId
     if (applicationType) {
         query = query.andWhere('application.applicationType = :applicationType', { applicationType });
     }
@@ -192,20 +191,22 @@ ApplicationServices.handleGetApplicationsbyEmployer = (req) => __awaiter(void 0,
     if (postId) {
         query = query.andWhere('application.jobPosting.postId = :postId', { postId });
     }
+    // Pagination
     if (num && page) {
         const skip = (parseInt(page) - 1) * parseInt(num);
         const take = parseInt(num);
         query = query.skip(skip).take(take);
     }
-    const applications = yield query.getMany();
+    const applications = await query.getMany();
     return ({
         message: `Find applications successful!`,
         status: 200,
         data: applications
     });
-});
-ApplicationServices.handleGetLengthOfApplicationsbyEmployer = (req) => __awaiter(void 0, void 0, void 0, function* () {
+};
+ApplicationServices.handleGetLengthOfApplicationsbyEmployer = async (req) => {
     const { applicationType, name, status, postId } = req.query;
+    // get list of applications by employer
     let query = applicationRepository
         .createQueryBuilder('application')
         .select(['application', 'employee.userId', 'jobPosting.postId'])
@@ -213,6 +214,7 @@ ApplicationServices.handleGetLengthOfApplicationsbyEmployer = (req) => __awaiter
         .leftJoin('application.jobPosting', 'jobPosting')
         .leftJoin('jobPosting.employer', 'employer')
         .where('employer.userId = :userId', { userId: req.user.userId });
+    // query by applicationType, name, status, postId
     if (applicationType) {
         query = query.andWhere('application.applicationType = :applicationType', { applicationType });
     }
@@ -225,23 +227,23 @@ ApplicationServices.handleGetLengthOfApplicationsbyEmployer = (req) => __awaiter
     if (postId) {
         query = query.andWhere('application.jobPosting.postId = :postId', { postId });
     }
-    const totalResults = yield query.getCount();
+    const totalResults = await query.getCount();
     return ({
         message: `Find applications successful!`,
         status: 200,
         data: { totalResults: totalResults }
     });
-});
-ApplicationServices.handleGetApplicationbyEmployer = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    var _l;
-    if (!((_l = req === null || req === void 0 ? void 0 : req.params) === null || _l === void 0 ? void 0 : _l.id)) {
+};
+ApplicationServices.handleGetApplicationbyEmployer = async (req) => {
+    var _b;
+    if (!((_b = req === null || req === void 0 ? void 0 : req.params) === null || _b === void 0 ? void 0 : _b.id)) {
         return ({
             message: 'id is required',
             status: 400,
             data: null
         });
     }
-    const application = yield applicationRepository.findOne({
+    const application = await applicationRepository.findOne({
         where: { application_id: req.params.id },
         relations: ['employee']
     });
@@ -252,7 +254,8 @@ ApplicationServices.handleGetApplicationbyEmployer = (req) => __awaiter(void 0, 
             data: null
         });
     }
-    const post = yield jobpostingRepository.findOne({
+    // Check employer is owner of application
+    const post = await jobpostingRepository.findOne({
         where: { applications: { application_id: req.params.id } },
         relations: ['applications', 'employer']
     });
@@ -270,6 +273,8 @@ ApplicationServices.handleGetApplicationbyEmployer = (req) => __awaiter(void 0, 
             data: null
         });
     }
+    // Find information about details of CV with applicationType: cv_enclosed, online-profile, attached-document
+    // TH1: cv_enclosed
     if (application.applicationType === enum_1.applicationType.cv_enclosed) {
         return ({
             message: `Find details of Application has id: ${req.params.id} successes`,
@@ -277,7 +282,8 @@ ApplicationServices.handleGetApplicationbyEmployer = (req) => __awaiter(void 0, 
             data: { application }
         });
     }
-    const user = yield userRepository.findOne({
+    // Find personal information about employee of application if applicationType != cv_enclosed
+    const user = await userRepository.findOne({
         where: { userId: application.employee.userId },
         relations: ['employee']
     });
@@ -298,8 +304,9 @@ ApplicationServices.handleGetApplicationbyEmployer = (req) => __awaiter(void 0, 
         sex: user.sex,
         isMarried: user.employee.isMarried
     };
+    // TH2 : attached_document
     if (application.applicationType === enum_1.applicationType.attached_document) {
-        const attached_document = yield attached_documentRepository.findOne({
+        const attached_document = await attached_documentRepository.findOne({
             where: { userId: application.employee.userId }
         });
         if (!attached_document) {
@@ -315,7 +322,8 @@ ApplicationServices.handleGetApplicationbyEmployer = (req) => __awaiter(void 0, 
             data: { application, personal_information, attached_document }
         });
     }
-    const online_profile = yield online_profileRepository.findOne({
+    // TH3 : online_profile 
+    const online_profile = await online_profileRepository.findOne({
         where: { userId: application.employee.userId },
         relations: ['another_degrees', 'education_informations', 'work_experiences']
     });
@@ -331,17 +339,17 @@ ApplicationServices.handleGetApplicationbyEmployer = (req) => __awaiter(void 0, 
         status: 200,
         data: { application, personal_information, online_profile }
     });
-});
-ApplicationServices.handleUpdateApplicationbyEmployer = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    var _m, _o, _p;
-    if (!((_m = req === null || req === void 0 ? void 0 : req.params) === null || _m === void 0 ? void 0 : _m.id)) {
+};
+ApplicationServices.handleUpdateApplicationbyEmployer = async (req) => {
+    var _b, _c, _d;
+    if (!((_b = req === null || req === void 0 ? void 0 : req.params) === null || _b === void 0 ? void 0 : _b.id)) {
         return ({
             message: 'id is required',
             status: 400,
             data: null
         });
     }
-    const application = yield applicationRepository.findOne({
+    const application = await applicationRepository.findOne({
         where: { application_id: req.params.id },
         relations: ['employee']
     });
@@ -352,7 +360,8 @@ ApplicationServices.handleUpdateApplicationbyEmployer = (req) => __awaiter(void 
             data: null
         });
     }
-    const post = yield jobpostingRepository.findOne({
+    // Check employer is owner of application
+    const post = await jobpostingRepository.findOne({
         where: { applications: { application_id: req.params.id } },
         relations: ['applications', 'employer']
     });
@@ -370,19 +379,20 @@ ApplicationServices.handleUpdateApplicationbyEmployer = (req) => __awaiter(void 
             data: null
         });
     }
-    if ((_o = req.body) === null || _o === void 0 ? void 0 : _o.status)
+    // Update with req.body
+    if ((_c = req.body) === null || _c === void 0 ? void 0 : _c.status)
         application.status = (0, enumAction_1.EnumApprovalStatus)(req.body.status);
-    if ((_p = req.body) === null || _p === void 0 ? void 0 : _p.matchingScore)
+    if ((_d = req.body) === null || _d === void 0 ? void 0 : _d.matchingScore)
         application.matchingScore = req.body.matchingScore;
-    yield applicationRepository.save(application);
+    await applicationRepository.save(application);
     return ({
         message: `Status of Application has id: ${req.params.id} are changed successfully`,
         status: 200,
         data: application
     });
-});
-ApplicationServices.handleGetAllApplications = () => __awaiter(void 0, void 0, void 0, function* () {
-    const applications = yield applicationRepository.find({
+};
+ApplicationServices.handleGetAllApplications = async () => {
+    const applications = await applicationRepository.find({
         relations: ['employee']
     });
     if (!applications || applications.length === 0) {
@@ -397,6 +407,6 @@ ApplicationServices.handleGetAllApplications = () => __awaiter(void 0, void 0, v
         status: 200,
         data: applications
     });
-});
+};
 exports.default = ApplicationServices;
 //# sourceMappingURL=applicationServices.js.map

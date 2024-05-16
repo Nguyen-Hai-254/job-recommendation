@@ -96,6 +96,16 @@ __decorate([
     __metadata("design:type", Boolean)
 ], OnlineProfile.prototype, "isHidden", void 0);
 __decorate([
+    (0, typeorm_1.CreateDateColumn)({ type: 'timestamp' }),
+    __metadata("design:type", Date)
+], OnlineProfile.prototype, "createAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)({ type: 'timestamp' }),
+    __metadata("design:type", Date
+    // Properties of Chat GPT
+    )
+], OnlineProfile.prototype, "updateAt", void 0);
+__decorate([
     (0, typeorm_1.Column)({ type: 'longtext', nullable: true }),
     __metadata("design:type", String)
 ], OnlineProfile.prototype, "keywords", void 0);
