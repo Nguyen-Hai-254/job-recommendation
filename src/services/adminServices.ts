@@ -80,7 +80,7 @@ export default class AdminServices {
         let query = userRepository.createQueryBuilder('user');
 
         if (role) {
-            query = query.where('user.role = :role', { role: userRole[role] })
+            query = query.where('user.role = :role', { role })
         }
 
         // Pagination
@@ -105,7 +105,7 @@ export default class AdminServices {
         let query = userRepository.createQueryBuilder('user');
 
         if (role) {
-            query = query.where('user.role = :role', { role: userRole[role] })
+            query = query.where('user.role = :role', { role })
         }
 
         const findAllUser = await query.getCount();
