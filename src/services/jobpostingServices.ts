@@ -330,9 +330,9 @@ export default class JobPostingServices {
           
             for (const profession of professions) {
               if (professionCount[profession]) {
-                professionCount[profession] += 1;
+                professionCount[profession.trim()] += 1;
               } else {
-                professionCount[profession] = 1;
+                professionCount[profession.trim()] = 1;
               }
             }
         }
@@ -364,9 +364,9 @@ export default class JobPostingServices {
           
             for (const profession of professions) {
               if (professionCount[profession]) {
-                professionCount[profession] += 1;
+                professionCount[profession.trim()] += 1;
               } else {
-                professionCount[profession] = 1;
+                professionCount[profession.trim()] = 1;
               }
             }
         }
