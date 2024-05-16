@@ -121,7 +121,14 @@ UserServices.handleLogin = async (email, password) => {
         }
     });
 };
-UserServices.handleResetPassword = async (email, password, newPassword) => {
+UserServices.handleResetPassword = async (email, password, newPassword, confirmNewPassword) => {
+    if (newPassword != confirmNewPassword) {
+        return ({
+            message: 'new Password does not match new confirm password',
+            status: 400,
+            data: null
+        });
+    }
     const findUser = await userRepository
         .createQueryBuilder('user')
         .select("user")
@@ -139,7 +146,7 @@ UserServices.handleResetPassword = async (email, password, newPassword) => {
     if (!checkUserPassword) {
         return ({
             message: 'Wrong password!',
-            status: 401,
+            status: 400,
             data: null
         });
     }
@@ -150,6 +157,7 @@ UserServices.handleResetPassword = async (email, password, newPassword) => {
     return ({
         message: 'reset password success',
         status: 200,
+        data: null
     });
 };
 UserServices.handleGetProfile = async (user) => {

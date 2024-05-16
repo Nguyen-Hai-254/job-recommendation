@@ -76,14 +76,14 @@ export default class UserController {
 
     static resetPassword = async (req, res) => {
         try {
-            if (!req.user.email || !req.body.password || !req.body.newPassword) {
+            if (!req.user.email || !req.body.password || !req.body.newPassword || !req.body.confirmNewPassword) {
                 return res.status(400).json({
                     message: "Missing input parameter!",
                     status: 400,
                 });
             }
             
-            const userData = await UserServices.handleResetPassword(req.user.email, req.body.password, req.body.newPassword);
+            const userData = await UserServices.handleResetPassword(req.user.email, req.body.password, req.body.newPassword, req.body.confirmNewPassword);
             return res.status(userData.status).json({
                 message: userData.message,
                 status: userData.status,

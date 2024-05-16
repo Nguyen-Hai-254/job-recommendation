@@ -130,7 +130,15 @@ export default class UserServices {
         })
     }
 
-    static handleResetPassword = async (email, password, newPassword) => {
+    static handleResetPassword = async (email, password, newPassword, confirmNewPassword) => {
+        if (newPassword != confirmNewPassword) {
+            return ({
+                message: 'new Password does not match new confirm password',
+                status: 400,
+                data: null
+            })
+        }
+
         const findUser = await userRepository
             .createQueryBuilder('user')
             .select("user")
