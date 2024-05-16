@@ -329,7 +329,7 @@ export default class JobPostingServices {
             const professions = post.profession.split(',');
           
             for (const profession of professions) {
-              if (professionCount[profession]) {
+              if (professionCount[profession.trim()]) {
                 professionCount[profession.trim()] += 1;
               } else {
                 professionCount[profession.trim()] = 1;
@@ -363,7 +363,7 @@ export default class JobPostingServices {
             const professions = post.profession.split(',');
           
             for (const profession of professions) {
-              if (professionCount[profession]) {
+              if (professionCount[profession.trim()]) {
                 professionCount[profession.trim()] += 1;
               } else {
                 professionCount[profession.trim()] = 1;
