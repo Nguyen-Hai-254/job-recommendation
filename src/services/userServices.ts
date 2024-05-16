@@ -130,6 +130,42 @@ export default class UserServices {
         })
     }
 
+    static handleResetPassword = async (email, password, newPassword) => {
+        const findUser = await userRepository
+            .createQueryBuilder('user')
+            .select("user")
+            .addSelect("user.password")
+            .where('user.email = :email', { email })
+            .getOne()
+
+        if (!findUser) {
+            return ({
+                message: `Your's email is't exist`,
+                status: 404,
+                data: null
+            })
+        }
+
+        const checkUserPassword = await bcrypt.compare(password, findUser.password);
+
+        if (!checkUserPassword) {
+            return ({
+                message: 'Wrong password!',
+                status: 401,
+                data: null
+            })
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashPassWord = await bcrypt.hash(newPassword, salt);
+        findUser.password = hashPassWord;
+        await findUser.save();
+        return ({
+            message: 'reset password success',
+            status: 200,
+        })
+    }
+
     static handleGetProfile = async (user) => {
         const getUserProfile = await userRepository.findOne({
             where: { userId: user.userId },

@@ -74,6 +74,31 @@ export default class UserController {
         }
     }
 
+    static resetPassword = async (req, res) => {
+        try {
+            if (!req.user.email || !req.body.password || !req.body.newPassword) {
+                return res.status(400).json({
+                    message: "Missing input parameter!",
+                    status: 400,
+                });
+            }
+            
+            const userData = await UserServices.handleResetPassword(req.user.email, req.body.password, req.body.newPassword);
+            return res.status(userData.status).json({
+                message: userData.message,
+                status: userData.status,
+                data: []
+            });
+
+        } catch (e) {
+            return res.status(500).json({
+                message: e.message,
+                status: 500,
+                error: 'Internal Server Error',
+            });
+        }
+    }
+
     static getProfile = async (req, res) => {
         try {
             const getUser = await UserServices.handleGetProfile(req.user);
