@@ -97,6 +97,16 @@ __decorate([
     __metadata("design:type", Boolean)
 ], AttachedDocument.prototype, "isHidden", void 0);
 __decorate([
+    (0, typeorm_1.CreateDateColumn)({ type: 'timestamp' }),
+    __metadata("design:type", Date)
+], AttachedDocument.prototype, "createAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)({ type: 'timestamp' }),
+    __metadata("design:type", Date
+    // Properties of Chat GPT
+    )
+], AttachedDocument.prototype, "updateAt", void 0);
+__decorate([
     (0, typeorm_1.Column)({ type: 'longtext', nullable: true }),
     __metadata("design:type", String)
 ], AttachedDocument.prototype, "keywords", void 0);

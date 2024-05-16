@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -17,9 +8,9 @@ const jobpostingServices_1 = __importDefault(require("../services/jobpostingServ
 class JobPostingController {
 }
 _a = JobPostingController;
-JobPostingController.getAllJobPostings = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+JobPostingController.getAllJobPostings = async (req, res) => {
     try {
-        const jobPostings = yield jobpostingServices_1.default.handleGetAllJobPostings(req);
+        const jobPostings = await jobpostingServices_1.default.handleGetAllJobPostings(req);
         return res.status(jobPostings.status).json({
             message: jobPostings.message,
             status: jobPostings.status,
@@ -33,10 +24,10 @@ JobPostingController.getAllJobPostings = (req, res) => __awaiter(void 0, void 0,
             error: 'Internal Server Error',
         });
     }
-});
-JobPostingController.getLengthOfAllJobPostings = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingController.getLengthOfAllJobPostings = async (req, res) => {
     try {
-        const jobPostings = yield jobpostingServices_1.default.handleGetLengthOfAllJobPostings(req);
+        const jobPostings = await jobpostingServices_1.default.handleGetLengthOfAllJobPostings(req);
         return res.status(jobPostings.status).json({
             message: jobPostings.message,
             status: jobPostings.status,
@@ -50,10 +41,10 @@ JobPostingController.getLengthOfAllJobPostings = (req, res) => __awaiter(void 0,
             error: 'Internal Server Error',
         });
     }
-});
-JobPostingController.getAllJobPostingsByAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingController.getAllJobPostingsByAdmin = async (req, res) => {
     try {
-        const jobPostings = yield jobpostingServices_1.default.handleGetAllJobPostingsByAdmin(req);
+        const jobPostings = await jobpostingServices_1.default.handleGetAllJobPostingsByAdmin(req);
         return res.status(jobPostings.status).json({
             message: jobPostings.message,
             status: jobPostings.status,
@@ -67,10 +58,10 @@ JobPostingController.getAllJobPostingsByAdmin = (req, res) => __awaiter(void 0, 
             error: 'Internal Server Error',
         });
     }
-});
-JobPostingController.getLengthOfAllJobPostingsByAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingController.getLengthOfAllJobPostingsByAdmin = async (req, res) => {
     try {
-        const jobPostings = yield jobpostingServices_1.default.handleGetLengthOfAllJobPostingsByAdmin(req);
+        const jobPostings = await jobpostingServices_1.default.handleGetLengthOfAllJobPostingsByAdmin(req);
         return res.status(jobPostings.status).json({
             message: jobPostings.message,
             status: jobPostings.status,
@@ -84,10 +75,10 @@ JobPostingController.getLengthOfAllJobPostingsByAdmin = (req, res) => __awaiter(
             error: 'Internal Server Error',
         });
     }
-});
-JobPostingController.getTotalResultsOfProfession = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingController.getTotalResultsOfProfession = async (req, res) => {
     try {
-        const jobPostings = yield jobpostingServices_1.default.handleGetTotalResultsOfProfession();
+        const jobPostings = await jobpostingServices_1.default.handleGetTotalResultsOfProfession();
         return res.status(jobPostings.status).json({
             message: jobPostings.message,
             status: jobPostings.status,
@@ -101,10 +92,10 @@ JobPostingController.getTotalResultsOfProfession = (req, res) => __awaiter(void 
             error: 'Internal Server Error',
         });
     }
-});
-JobPostingController.getTotalResultsOfProfessionByAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingController.getTotalResultsOfProfessionByAdmin = async (req, res) => {
     try {
-        const jobPostings = yield jobpostingServices_1.default.handleGetTotalResultsOfProfessionByAdmin(req);
+        const jobPostings = await jobpostingServices_1.default.handleGetTotalResultsOfProfessionByAdmin(req);
         return res.status(jobPostings.status).json({
             message: jobPostings.message,
             status: jobPostings.status,
@@ -118,10 +109,10 @@ JobPostingController.getTotalResultsOfProfessionByAdmin = (req, res) => __awaite
             error: 'Internal Server Error',
         });
     }
-});
-JobPostingController.getJobPostingsByEmployer = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingController.getJobPostingsByEmployer = async (req, res) => {
     try {
-        const jobPostings = yield jobpostingServices_1.default.handleGetJobPostingsByEmployer(req);
+        const jobPostings = await jobpostingServices_1.default.handleGetJobPostingsByEmployer(req);
         return res.status(jobPostings.status).json({
             message: jobPostings.message,
             status: 200,
@@ -135,10 +126,10 @@ JobPostingController.getJobPostingsByEmployer = (req, res) => __awaiter(void 0, 
             error: 'Internal Server Error',
         });
     }
-});
-JobPostingController.getJobPosting = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingController.getJobPosting = async (req, res) => {
     try {
-        const jobPosting = yield jobpostingServices_1.default.handleGetJobPosting(req);
+        const jobPosting = await jobpostingServices_1.default.handleGetJobPosting(req);
         return res.status(jobPosting.status).json({
             message: jobPosting.message,
             status: jobPosting.status,
@@ -152,10 +143,10 @@ JobPostingController.getJobPosting = (req, res) => __awaiter(void 0, void 0, voi
             error: 'Internal Server Error',
         });
     }
-});
-JobPostingController.getJobPostingByEmployer = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingController.getJobPostingByEmployer = async (req, res) => {
     try {
-        const jobPosting = yield jobpostingServices_1.default.handleGetJobPostingByEmployer(req);
+        const jobPosting = await jobpostingServices_1.default.handleGetJobPostingByEmployer(req);
         return res.status(jobPosting.status).json({
             message: jobPosting.message,
             status: jobPosting.status,
@@ -169,10 +160,10 @@ JobPostingController.getJobPostingByEmployer = (req, res) => __awaiter(void 0, v
             error: 'Internal Server Error',
         });
     }
-});
-JobPostingController.deleteJobPosting = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingController.deleteJobPosting = async (req, res) => {
     try {
-        const jobPosting = yield jobpostingServices_1.default.handleDeleteJobPosting(req);
+        const jobPosting = await jobpostingServices_1.default.handleDeleteJobPosting(req);
         return res.status(jobPosting.status).json({
             message: jobPosting.message,
             status: jobPosting.status,
@@ -186,10 +177,10 @@ JobPostingController.deleteJobPosting = (req, res) => __awaiter(void 0, void 0, 
             error: 'Internal Server Error',
         });
     }
-});
-JobPostingController.updateJobPosting = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingController.updateJobPosting = async (req, res) => {
     try {
-        const jobPosting = yield jobpostingServices_1.default.handleUpdateJobPosting(req);
+        const jobPosting = await jobpostingServices_1.default.handleUpdateJobPosting(req);
         return res.status(jobPosting.status).json({
             message: jobPosting.message,
             status: jobPosting.status,
@@ -203,10 +194,10 @@ JobPostingController.updateJobPosting = (req, res) => __awaiter(void 0, void 0, 
             error: 'Internal Server Error',
         });
     }
-});
-JobPostingController.createNewJobPosting = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingController.createNewJobPosting = async (req, res) => {
     try {
-        const jobPosting = yield jobpostingServices_1.default.handleCreateNewJobPosting(req);
+        const jobPosting = await jobpostingServices_1.default.handleCreateNewJobPosting(req);
         return res.status(jobPosting.status).json({
             message: jobPosting.message,
             status: jobPosting.status,
@@ -220,10 +211,10 @@ JobPostingController.createNewJobPosting = (req, res) => __awaiter(void 0, void 
             error: 'Internal Server Error',
         });
     }
-});
-JobPostingController.updateApprovalStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingController.updateApprovalStatus = async (req, res) => {
     try {
-        const post = yield jobpostingServices_1.default.handleUpdateApprovalStatus(req);
+        const post = await jobpostingServices_1.default.handleUpdateApprovalStatus(req);
         return res.status(post.status).json({
             message: post.message,
             status: post.status,
@@ -237,6 +228,6 @@ JobPostingController.updateApprovalStatus = (req, res) => __awaiter(void 0, void
             error: 'Internal Server Error',
         });
     }
-});
+};
 exports.default = JobPostingController;
 //# sourceMappingURL=jobPostingController.js.map

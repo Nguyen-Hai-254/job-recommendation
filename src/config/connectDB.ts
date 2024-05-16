@@ -10,7 +10,7 @@ export const myDataSource = new DataSource({
     username: process.env.DB_USERNAME || 'root',
     password: process.env.DB_PASSWORD ? process.env.DB_PASSWORD : "",
     database: process.env.DB_NAME ?? "job-recommendation",
-    entities: ["src/entity/*.ts"],
+    entities: [__dirname + '/../entity/*.{js,ts}'],
     logging: false,
     // dropSchema: true,
     synchronize: true,

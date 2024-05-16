@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const JobPosting_1 = require("../entity/JobPosting");
@@ -25,10 +16,10 @@ const attachedDocumentRepository = connectDB_1.myDataSource.getRepository(Attach
 class AdminServices {
 }
 _a = AdminServices;
-AdminServices.handleGetJobPostingsReport = () => __awaiter(void 0, void 0, void 0, function* () {
+AdminServices.handleGetJobPostingsReport = async () => {
     const currentDate = new Date();
     const sixMonthsAgo = new Date(currentDate.getFullYear(), currentDate.getMonth() - 6, 1);
-    const getReport = yield jobPostingRepository.createQueryBuilder('job-postings')
+    const getReport = await jobPostingRepository.createQueryBuilder('job-postings')
         .select('DATE_FORMAT(job-postings.createAt, "%Y-%m") AS monthYear, COUNT(*) AS count')
         .where('job-postings.createAt <= :currentDate AND job-postings.createAt > :sixMonthsAgo', {
         currentDate: currentDate.toISOString(),
@@ -47,19 +38,20 @@ AdminServices.handleGetJobPostingsReport = () => __awaiter(void 0, void 0, void 
         status: 200,
         data: formattedResults
     });
-});
-AdminServices.handleCandidateStatistics = () => __awaiter(void 0, void 0, void 0, function* () {
-    const getAllOnlineProfile = yield online_profileRepository.createQueryBuilder('profile')
+};
+AdminServices.handleCandidateStatistics = async () => {
+    const getAllOnlineProfile = await online_profileRepository.createQueryBuilder('profile')
         .select('profile.profession AS profession, COUNT(*) AS userCount')
         .groupBy('profile.profession')
         .getRawMany();
-    const getAllAttachedDocument = yield attachedDocumentRepository.createQueryBuilder('profile')
+    const getAllAttachedDocument = await attachedDocumentRepository.createQueryBuilder('profile')
         .select('profile.profession AS profession, COUNT(*) AS userCount')
         .groupBy('profile.profession')
         .getRawMany();
     const resultOnlineProlife = (0, utilsFunction_1.countCandidatesbyProfession)(getAllOnlineProfile);
     const resultAttachedDocument = (0, utilsFunction_1.countCandidatesbyProfession)(getAllAttachedDocument);
     const totalResult = (0, utilsFunction_1.mergerTwoObject)(resultOnlineProlife, resultAttachedDocument);
+    // Chuyển đổi totalResult thành mảng objects
     let result = Object.entries(totalResult).map(([profession, count]) => ({
         name: profession,
         value: count
@@ -73,40 +65,41 @@ AdminServices.handleCandidateStatistics = () => __awaiter(void 0, void 0, void 0
         status: 200,
         data: top5AndOther
     });
-});
-AdminServices.handleGetAllUser = (req) => __awaiter(void 0, void 0, void 0, function* () {
+};
+AdminServices.handleGetAllUser = async (req) => {
     const { page, num, role } = req.query;
     let query = userRepository.createQueryBuilder('user');
     if (role) {
         query = query.where('user.role = :role', { role: enum_1.userRole[role] });
     }
+    // Pagination
     if (num && page) {
         const skip = (parseInt(page) - 1) * parseInt(num);
         const take = parseInt(num);
         query = query.skip(skip).take(take);
     }
-    const findAllUser = yield query.getMany();
+    const findAllUser = await query.getMany();
     return ({
         message: 'OK',
         status: 200,
         data: findAllUser
     });
-});
-AdminServices.handleGetTotalUser = (req) => __awaiter(void 0, void 0, void 0, function* () {
+};
+AdminServices.handleGetTotalUser = async (req) => {
     const { role } = req.query;
     let query = userRepository.createQueryBuilder('user');
     if (role) {
         query = query.where('user.role = :role', { role: enum_1.userRole[role] });
     }
-    const findAllUser = yield query.getCount();
+    const findAllUser = await query.getCount();
     return ({
         message: 'OK',
         status: 200,
         data: findAllUser
     });
-});
-AdminServices.handleSendEmail = (emails, subject, html) => __awaiter(void 0, void 0, void 0, function* () {
-    const info = yield utilsFunction_1.transporter.sendMail({
+};
+AdminServices.handleSendEmail = async (emails, subject, html) => {
+    const info = await utilsFunction_1.transporter.sendMail({
         from: 'itbachkhoa.hcmut@gmail.com',
         to: emails,
         subject: subject,
@@ -117,9 +110,9 @@ AdminServices.handleSendEmail = (emails, subject, html) => __awaiter(void 0, voi
         status: 200,
         data: { accepted: info.accepted, rejected: info.rejected }
     });
-});
-AdminServices.handleSearchEmailOrName = (keyword) => __awaiter(void 0, void 0, void 0, function* () {
-    const findUser = yield userRepository.find({
+};
+AdminServices.handleSearchEmailOrName = async (keyword) => {
+    const findUser = await userRepository.find({
         where: [
             {
                 name: (0, typeorm_1.ILike)(`%${keyword}%`)
@@ -136,6 +129,77 @@ AdminServices.handleSearchEmailOrName = (keyword) => __awaiter(void 0, void 0, v
         status: 200,
         data: findUser
     });
-});
+};
+AdminServices.handleGetJobPostingsReportByQuery = async (year, month) => {
+    if (!month) {
+        const getReport = await jobPostingRepository.createQueryBuilder('job-postings')
+            .select('DATE_FORMAT(job-postings.createAt, "%b") AS time, COUNT(*) AS value')
+            .where('YEAR(job-postings.createAt) = :year and (job-postings.status = :approved or job-postings.status = :expired)', { year, approved: enum_1.approvalStatus.approved, expired: enum_1.approvalStatus.expired })
+            .groupBy('time')
+            .orderBy('job-postings.createAt')
+            .getRawMany();
+        return ({
+            message: 'OK',
+            status: 200,
+            data: getReport
+        });
+    }
+    else {
+        const getReport = await jobPostingRepository.createQueryBuilder('job-postings')
+            .select('DATE_FORMAT(job-postings.createAt, "%e") AS time, COUNT(*) AS value')
+            .where('YEAR(job-postings.createAt) = :year and MONTH(job-postings.createAt) = :month and (job-postings.status = :approved or job-postings.status = :expired)', { year, month, approved: enum_1.approvalStatus.approved, expired: enum_1.approvalStatus.expired })
+            .groupBy('time')
+            .orderBy('job-postings.createAt')
+            .getRawMany();
+        const daysInMonth = (0, utilsFunction_1.createArrayForDate)(month, year); // Tạo một mảng các ngày
+        getReport.map(day => {
+            daysInMonth[day.time - 1].value = day.value;
+        });
+        return ({
+            message: 'OK',
+            status: 200,
+            data: daysInMonth
+        });
+    }
+};
+AdminServices.handleCandidateStatisticsByQuery = async (year, month) => {
+    let queryAllOnlineProfile = online_profileRepository.createQueryBuilder('profile')
+        .select('profile.profession AS profession, COUNT(*) AS userCount')
+        .where('YEAR(profile.updateAt) = :year', { year })
+        .groupBy('profile.profession');
+    let queryAllAttachedDocument = attachedDocumentRepository.createQueryBuilder('profile')
+        .select('profile.profession AS profession, COUNT(*) AS userCount')
+        .where('YEAR(profile.updateAt) = :year', { year })
+        .groupBy('profile.profession');
+    if (month) {
+        queryAllOnlineProfile = queryAllOnlineProfile.andWhere('MONTH(profile.updateAt) = :month', { month });
+        queryAllAttachedDocument = queryAllAttachedDocument.andWhere('MONTH(profile.updateAt) = :month', { month });
+    }
+    let getAllOnlineProfile = await queryAllOnlineProfile.getRawMany();
+    let getAllAttachedDocument = await queryAllAttachedDocument.getRawMany();
+    if (getAllOnlineProfile.length === 0 && getAllAttachedDocument.length === 0)
+        return ({
+            message: 'OK',
+            status: 200,
+            data: []
+        });
+    const resultOnlineProlife = (0, utilsFunction_1.countCandidatesbyProfession)(getAllOnlineProfile);
+    const resultAttachedDocument = (0, utilsFunction_1.countCandidatesbyProfession)(getAllAttachedDocument);
+    const totalResult = (0, utilsFunction_1.mergerTwoObject)(resultOnlineProlife, resultAttachedDocument);
+    // Chuyển đổi totalResult thành mảng objects
+    let result = Object.entries(totalResult).map(([profession, count]) => ({
+        name: profession,
+        value: count
+    }));
+    const sortedData = result.sort((a, b) => b.value - a.value);
+    const top5 = sortedData.slice(0, 5);
+    const otherSum = sortedData.reduce((sum, currenItem) => sum + currenItem.value, 0) - top5.reduce((sum, currenItem) => sum + currenItem.value, 0);
+    const top5AndOther = [...top5, { "name": "Khác", value: otherSum }];
+    return ({
+        message: 'OK',
+        status: 200,
+        data: top5AndOther
+    });
+};
 exports.default = AdminServices;
 //# sourceMappingURL=adminServices.js.map

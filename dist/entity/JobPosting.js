@@ -139,7 +139,7 @@ __decorate([
     __metadata("design:type", Date)
 ], JobPosting.prototype, "createAt", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ type: 'timestamp' }),
+    (0, typeorm_1.UpdateDateColumn)({ type: 'timestamp' }),
     __metadata("design:type", Date)
 ], JobPosting.prototype, "updateAt", void 0);
 __decorate([
@@ -163,15 +163,18 @@ __decorate([
     __metadata("design:type", String)
 ], JobPosting.prototype, "status", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'longtext', nullable: true }),
+    (0, typeorm_1.Column)({ type: 'longtext', nullable: true }) // Use to score applications (100 points)
+    ,
     __metadata("design:type", String)
 ], JobPosting.prototype, "requiredSkills", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'longtext', nullable: true }),
+    (0, typeorm_1.Column)({ type: 'longtext', nullable: true }) // Use to score applications (30 points)
+    ,
     __metadata("design:type", String)
 ], JobPosting.prototype, "keywords", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true, type: 'varchar' }),
+    (0, typeorm_1.Column)({ nullable: true, type: 'varchar' }) // Use to check word
+    ,
     __metadata("design:type", Object)
 ], JobPosting.prototype, "check", void 0);
 __decorate([

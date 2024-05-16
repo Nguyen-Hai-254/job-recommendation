@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const readProvinces_1 = require("../utils/readProvinces");
 const route = express_1.default.Router();
+// Get All option of Provinces
 route.get('/api/v1/get-provinces', (req, res) => {
     try {
         let data = (0, readProvinces_1.readProvinces)();
@@ -15,6 +16,7 @@ route.get('/api/v1/get-provinces', (req, res) => {
         return res.status(500).json(e.message);
     }
 });
+// Get all option of profession
 route.get('/api/v1/get-profession', (req, res) => {
     try {
         let data = (0, readProvinces_1.readProfession)();

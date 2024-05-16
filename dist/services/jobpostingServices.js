@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -31,11 +22,13 @@ const notificationRepository = connectDB_1.myDataSource.getRepository(Notificati
 class JobPostingServices {
 }
 _a = JobPostingServices;
-JobPostingServices.handleGetAllJobPostings = (req) => __awaiter(void 0, void 0, void 0, function* () {
+JobPostingServices.handleGetAllJobPostings = async (req) => {
     const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, employerId, keywords, num, page } = req.query;
     let query = jobPostingRepository.createQueryBuilder('job-postings');
+    // jobposting for employee, employer, unknown
     query = query.leftJoinAndSelect("job-postings.employer", "employer")
         .where('job-postings.status = :status', { status: enum_1.approvalStatus.approved });
+    // Public
     if (workAddress) {
         query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
     }
@@ -43,7 +36,8 @@ JobPostingServices.handleGetAllJobPostings = (req) => __awaiter(void 0, void 0, 
         query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
     }
     if (profession) {
-        query = query.andWhere('job-postings.profession LIKE :profession', { profession: `%${profession}%` });
+        const professionArray = profession.split(',');
+        query = query.andWhere(`(${professionArray.map((keyword) => `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
     }
     if (employmentType) {
         query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
@@ -64,9 +58,11 @@ JobPostingServices.handleGetAllJobPostings = (req) => __awaiter(void 0, void 0, 
     if (salary) {
         query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
     }
+    // query by employerId
     if (employerId) {
         query = query.andWhere('job-postings.employer.userId = :employerId', { employerId });
     }
+    // query by keywords
     if (keywords) {
         const keywordArray = keywords.split(',');
         const conditions = keywordArray.map((keyword, index) => {
@@ -80,13 +76,14 @@ JobPostingServices.handleGetAllJobPostings = (req) => __awaiter(void 0, void 0, 
         });
         query.orderBy(`(${orderByConditions.join(' + ')})`, 'DESC');
     }
+    // Pagination
     if (num && page) {
         const skip = (parseInt(page) - 1) * parseInt(num);
         const take = parseInt(num);
         query = query.skip(skip).take(take);
     }
     query = query.orderBy('job-postings.updateAt', 'DESC');
-    const jobPostings = yield query.getMany();
+    const jobPostings = await query.getMany();
     if (!jobPostings || jobPostings.length === 0) {
         return ({
             message: 'No jobPostings found',
@@ -99,12 +96,14 @@ JobPostingServices.handleGetAllJobPostings = (req) => __awaiter(void 0, void 0, 
         status: 200,
         data: jobPostings
     });
-});
-JobPostingServices.handleGetLengthOfAllJobPostings = (req) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingServices.handleGetLengthOfAllJobPostings = async (req) => {
     const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, employerId, keywords } = req.query;
     let query = jobPostingRepository.createQueryBuilder('job-postings');
+    // jobposting for employee, employer, unknown
     query = query.leftJoinAndSelect("job-postings.employer", "employer")
         .where('job-postings.status = :status', { status: enum_1.approvalStatus.approved });
+    // Public
     if (workAddress) {
         query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
     }
@@ -112,7 +111,8 @@ JobPostingServices.handleGetLengthOfAllJobPostings = (req) => __awaiter(void 0, 
         query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
     }
     if (profession) {
-        query = query.andWhere('job-postings.profession LIKE :profession', { profession: `%${profession}%` });
+        const professionArray = profession.split(',');
+        query = query.andWhere(`(${professionArray.map((keyword) => `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
     }
     if (employmentType) {
         query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
@@ -133,9 +133,11 @@ JobPostingServices.handleGetLengthOfAllJobPostings = (req) => __awaiter(void 0, 
     if (salary) {
         query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
     }
+    // query by employerId
     if (employerId) {
         query = query.andWhere('job-postings.employer.userId = :employerId', { employerId });
     }
+    // query by keywords
     if (keywords) {
         const keywordArray = keywords.split(',');
         const conditions = keywordArray.map((keyword, index) => {
@@ -149,21 +151,23 @@ JobPostingServices.handleGetLengthOfAllJobPostings = (req) => __awaiter(void 0, 
         });
         query.orderBy(`(${orderByConditions.join(' + ')})`, 'DESC');
     }
-    const totalResults = yield query.getCount();
+    const totalResults = await query.getCount();
     return ({
         message: 'Find length of jobPostings success',
         status: 200,
         data: { totalResults: totalResults }
     });
-});
-JobPostingServices.handleGetAllJobPostingsByAdmin = (req) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingServices.handleGetAllJobPostingsByAdmin = async (req) => {
     const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, status, num, page } = req.query;
     let query = jobPostingRepository.createQueryBuilder('job-postings');
+    // all jobposting for admin
     query = query.leftJoinAndSelect("job-postings.employer", "employer");
     query = query.leftJoinAndSelect("job-postings.applications", "applications");
     if (status) {
         query = query.where('job-postings.status = :status', { status });
     }
+    // Public
     if (workAddress) {
         query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
     }
@@ -171,7 +175,8 @@ JobPostingServices.handleGetAllJobPostingsByAdmin = (req) => __awaiter(void 0, v
         query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
     }
     if (profession) {
-        query = query.andWhere('job-postings.profession LIKE :profession', { profession: `%${profession}%` });
+        const professionArray = profession.split(',');
+        query = query.andWhere(`(${professionArray.map((keyword) => `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
     }
     if (employmentType) {
         query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
@@ -192,6 +197,7 @@ JobPostingServices.handleGetAllJobPostingsByAdmin = (req) => __awaiter(void 0, v
     if (salary) {
         query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
     }
+    // Pagination
     if (num && page) {
         const skip = (parseInt(page) - 1) * parseInt(num);
         const take = parseInt(num);
@@ -201,7 +207,7 @@ JobPostingServices.handleGetAllJobPostingsByAdmin = (req) => __awaiter(void 0, v
         query = query.skip(0).take(10);
     }
     query = query.orderBy('job-postings.updateAt', 'DESC');
-    const jobPostings = yield query.getMany();
+    const jobPostings = await query.getMany();
     if (!jobPostings || jobPostings.length === 0) {
         return ({
             message: 'No jobPostings found',
@@ -212,16 +218,32 @@ JobPostingServices.handleGetAllJobPostingsByAdmin = (req) => __awaiter(void 0, v
     return ({
         message: 'Find all jobPostings success',
         status: 200,
-        data: jobPostings.map(job => (Object.assign(Object.assign({}, job), { submissionCount: job.applications.length })))
+        data: jobPostings.map(job => ({
+            ...job,
+            submissionCount: job.applications.length
+        }))
     });
-});
-JobPostingServices.handleGetLengthOfAllJobPostingsByAdmin = (req) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingServices.handleGetLengthOfAllJobPostingsByAdmin = async (req) => {
+    // Update status of job postings when job postings were expried.
+    // let findExpiredPosts = await jobPostingRepository.find({
+    //     where: {
+    //         applicationDeadline: LessThan(moment(new Date()).subtract(1, 'days').toDate()),
+    //         status: approvalStatus.approved
+    //     }
+    // })
+    // findExpiredPosts.map(async (post) => {
+    //     post.status = approvalStatus.expired
+    //     await jobPostingRepository.save(post)
+    // })
     const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, status } = req.query;
     let query = jobPostingRepository.createQueryBuilder('job-postings');
+    // all jobposting for admin
     query = query.leftJoinAndSelect("job-postings.employer", "employer");
     if (status) {
         query = query.where('job-postings.status = :status', { status });
     }
+    // Public
     if (workAddress) {
         query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
     }
@@ -229,7 +251,8 @@ JobPostingServices.handleGetLengthOfAllJobPostingsByAdmin = (req) => __awaiter(v
         query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
     }
     if (profession) {
-        query = query.andWhere('job-postings.profession LIKE :profession', { profession: `%${profession}%` });
+        const professionArray = profession.split(',');
+        query = query.andWhere(`(${professionArray.map((keyword) => `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
     }
     if (employmentType) {
         query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
@@ -250,46 +273,71 @@ JobPostingServices.handleGetLengthOfAllJobPostingsByAdmin = (req) => __awaiter(v
     if (salary) {
         query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
     }
-    const totalResults = yield query.getCount();
+    const totalResults = await query.getCount();
     return ({
         message: 'Find length of jobPostings success',
         status: 200,
         data: { totalResults: totalResults }
     });
-});
-JobPostingServices.handleGetTotalResultsOfProfession = () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield jobPostingRepository
+};
+JobPostingServices.handleGetTotalResultsOfProfession = async () => {
+    const posts = await jobPostingRepository
         .createQueryBuilder('jobPosting')
+        .select('jobPosting.profession', 'profession')
         .where('jobPosting.status = :status', { status: enum_1.approvalStatus.approved })
-        .select(`SUBSTRING_INDEX(SUBSTRING_INDEX(jobPosting.profession, ',', 1), ',', -1)`, 'profession_value')
-        .addSelect('COUNT(*)', 'count')
-        .andWhere(`LENGTH(jobPosting.profession) - LENGTH(REPLACE(jobPosting.profession, ',', '')) + 1 >= 1`)
-        .groupBy('profession_value')
         .getRawMany();
-    return ({
-        message: `Find job postings successful!`,
-        status: 200,
-        data: result
-    });
-});
-JobPostingServices.handleGetTotalResultsOfProfessionByAdmin = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    const { status } = req.query;
-    let query = jobPostingRepository.createQueryBuilder('jobPosting');
-    if (status) {
-        query = query.where('jobPosting.status = :status', { status });
+    const professionCount = {};
+    for (const post of posts) {
+        const professions = post.profession.split(',');
+        for (const profession of professions) {
+            if (professionCount[profession]) {
+                professionCount[profession] += 1;
+            }
+            else {
+                professionCount[profession] = 1;
+            }
+        }
     }
-    query = query.select(`SUBSTRING_INDEX(SUBSTRING_INDEX(jobPosting.profession, ',', 1), ',', -1)`, 'profession_value')
-        .addSelect('COUNT(*)', 'count')
-        .andWhere(`LENGTH(jobPosting.profession) - LENGTH(REPLACE(jobPosting.profession, ',', '')) + 1 >= 1`)
-        .groupBy('profession_value');
-    const result = yield query.getRawMany();
+    const result = Object.keys(professionCount).map(key => ({
+        'profession_value': key,
+        'count': professionCount[key]
+    }));
     return ({
         message: `Find job postings successful!`,
         status: 200,
         data: result
     });
-});
-JobPostingServices.handleGetJobPostingsByEmployer = (req) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingServices.handleGetTotalResultsOfProfessionByAdmin = async (req) => {
+    const { status } = req.query;
+    let query = jobPostingRepository.createQueryBuilder('jobPosting')
+        .select('jobPosting.profession', 'profession');
+    if (status)
+        query = query.where('jobPosting.status = :status', { status });
+    const posts = await query.getRawMany();
+    const professionCount = {};
+    for (const post of posts) {
+        const professions = post.profession.split(',');
+        for (const profession of professions) {
+            if (professionCount[profession]) {
+                professionCount[profession] += 1;
+            }
+            else {
+                professionCount[profession] = 1;
+            }
+        }
+    }
+    const result = Object.keys(professionCount).map(key => ({
+        'profession_value': key,
+        'count': professionCount[key]
+    }));
+    return ({
+        message: `Find job postings successful!`,
+        status: 200,
+        data: result
+    });
+};
+JobPostingServices.handleGetJobPostingsByEmployer = async (req) => {
     const { status, num, page } = req.query;
     let query = jobPostingRepository
         .createQueryBuilder('jobPosting')
@@ -299,7 +347,8 @@ JobPostingServices.handleGetJobPostingsByEmployer = (req) => __awaiter(void 0, v
     if (status) {
         query = query.andWhere('jobPosting.status = :status', { status });
     }
-    const totalResults = yield query.getCount();
+    const totalResults = await query.getCount();
+    // Pagination
     if (num && page) {
         const skip = (parseInt(page) - 1) * parseInt(num);
         const take = parseInt(num);
@@ -309,17 +358,20 @@ JobPostingServices.handleGetJobPostingsByEmployer = (req) => __awaiter(void 0, v
         query = query.skip(0).take(10);
     }
     query = query.orderBy('jobPosting.updateAt', 'DESC');
-    const jobPostings = yield query.getMany();
+    const jobPostings = await query.getMany();
     return ({
         message: `Find job postings successful!`,
         status: 200,
         data: {
             totalResults: totalResults,
-            result: jobPostings.map(job => (Object.assign(Object.assign({}, job), { submissionCount: job.applications.length })))
+            result: jobPostings.map(job => ({
+                ...job,
+                submissionCount: job.applications.length
+            }))
         }
     });
-});
-JobPostingServices.handleGetJobPosting = (req) => __awaiter(void 0, void 0, void 0, function* () {
+};
+JobPostingServices.handleGetJobPosting = async (req) => {
     var _b;
     if (!((_b = req === null || req === void 0 ? void 0 : req.params) === null || _b === void 0 ? void 0 : _b.postId)) {
         return ({
@@ -328,7 +380,7 @@ JobPostingServices.handleGetJobPosting = (req) => __awaiter(void 0, void 0, void
             data: null
         });
     }
-    const jobPosting = yield jobPostingRepository.findOne({
+    const jobPosting = await jobPostingRepository.findOne({
         where: { postId: req.params.postId },
         relations: ['employer']
     });
@@ -340,23 +392,23 @@ JobPostingServices.handleGetJobPosting = (req) => __awaiter(void 0, void 0, void
         });
     }
     jobPosting.view += 1;
-    yield jobPosting.save();
+    await jobPosting.save();
     return ({
         message: `Find Job posting has postId: ${req.params.postId} successes`,
         status: 200,
         data: jobPosting
     });
-});
-JobPostingServices.handleGetJobPostingByEmployer = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c;
-    if (!((_c = req === null || req === void 0 ? void 0 : req.params) === null || _c === void 0 ? void 0 : _c.postId)) {
+};
+JobPostingServices.handleGetJobPostingByEmployer = async (req) => {
+    var _b;
+    if (!((_b = req === null || req === void 0 ? void 0 : req.params) === null || _b === void 0 ? void 0 : _b.postId)) {
         return ({
             message: 'postId is required',
             status: 400,
             data: null
         });
     }
-    const jobPosting = yield jobPostingRepository.findOne({
+    const jobPosting = await jobPostingRepository.findOne({
         where: { postId: req.params.postId },
         relations: ['employer', 'applications'],
     });
@@ -372,17 +424,17 @@ JobPostingServices.handleGetJobPostingByEmployer = (req) => __awaiter(void 0, vo
         status: 200,
         data: jobPosting
     });
-});
-JobPostingServices.handleUpdateJobPosting = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    var _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6;
-    if (!((_d = req === null || req === void 0 ? void 0 : req.params) === null || _d === void 0 ? void 0 : _d.postId)) {
+};
+JobPostingServices.handleUpdateJobPosting = async (req) => {
+    var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4;
+    if (!((_b = req === null || req === void 0 ? void 0 : req.params) === null || _b === void 0 ? void 0 : _b.postId)) {
         return ({
             message: 'postId is required',
             status: 400,
             data: null
         });
     }
-    const jobPosting = yield jobPostingRepository.findOne({
+    const jobPosting = await jobPostingRepository.findOne({
         where: { postId: req.params.postId },
         relations: ['employer.user']
     });
@@ -400,107 +452,110 @@ JobPostingServices.handleUpdateJobPosting = (req) => __awaiter(void 0, void 0, v
             data: null
         });
     }
-    if ((_e = req.body) === null || _e === void 0 ? void 0 : _e.name)
+    // Update with req.body
+    if ((_c = req.body) === null || _c === void 0 ? void 0 : _c.name)
         jobPosting.name = req.body.name;
-    if ((_f = req.body) === null || _f === void 0 ? void 0 : _f.email)
+    if ((_d = req.body) === null || _d === void 0 ? void 0 : _d.email)
         jobPosting.email = req.body.email;
-    if ((_g = req.body) === null || _g === void 0 ? void 0 : _g.phone)
+    if ((_e = req.body) === null || _e === void 0 ? void 0 : _e.phone)
         jobPosting.phone = req.body.phone;
-    if ((_h = req.body) === null || _h === void 0 ? void 0 : _h.contactAddress)
+    if ((_f = req.body) === null || _f === void 0 ? void 0 : _f.contactAddress)
         jobPosting.contactAddress = req.body.contactAddress;
-    if ((_j = req.body) === null || _j === void 0 ? void 0 : _j.workAddress)
+    if ((_g = req.body) === null || _g === void 0 ? void 0 : _g.workAddress)
         jobPosting.workAddress = req.body.workAddress;
-    if ((_k = req.body) === null || _k === void 0 ? void 0 : _k.jobTitle)
+    if ((_h = req.body) === null || _h === void 0 ? void 0 : _h.jobTitle)
         jobPosting.jobTitle = req.body.jobTitle;
-    if ((_l = req.body) === null || _l === void 0 ? void 0 : _l.profession)
+    if ((_j = req.body) === null || _j === void 0 ? void 0 : _j.profession)
         jobPosting.profession = req.body.profession;
-    if ((_m = req.body) === null || _m === void 0 ? void 0 : _m.employmentType)
+    if ((_k = req.body) === null || _k === void 0 ? void 0 : _k.employmentType)
         jobPosting.employmentType = (0, enumAction_1.EnumEmploymentType)(req.body.employmentType);
-    if ((_o = req.body) === null || _o === void 0 ? void 0 : _o.degree)
+    if ((_l = req.body) === null || _l === void 0 ? void 0 : _l.degree)
         jobPosting.degree = (0, enumAction_1.EnumDegree)(req.body.degree);
-    if ((_p = req.body) === null || _p === void 0 ? void 0 : _p.experience)
+    if ((_m = req.body) === null || _m === void 0 ? void 0 : _m.experience)
         jobPosting.experience = (0, enumAction_1.EnumExperience)(req.body.experience);
-    if ((_q = req.body) === null || _q === void 0 ? void 0 : _q.positionLevel)
+    if ((_o = req.body) === null || _o === void 0 ? void 0 : _o.positionLevel)
         jobPosting.positionLevel = (0, enumAction_1.EnumPositionLevel)(req.body.positionLevel);
-    if ((_r = req.body) === null || _r === void 0 ? void 0 : _r.minAge)
+    if ((_p = req.body) === null || _p === void 0 ? void 0 : _p.minAge)
         jobPosting.minAge = req.body.minAge;
-    if ((_s = req.body) === null || _s === void 0 ? void 0 : _s.maxAge)
+    if ((_q = req.body) === null || _q === void 0 ? void 0 : _q.maxAge)
         jobPosting.maxAge = req.body.maxAge;
-    if ((_t = req.body) === null || _t === void 0 ? void 0 : _t.sex)
+    if ((_r = req.body) === null || _r === void 0 ? void 0 : _r.sex)
         jobPosting.sex = (0, enumAction_1.EnumSex)(req.body.sex);
-    else if (((_u = req.body) === null || _u === void 0 ? void 0 : _u.sex) === null)
+    else if (((_s = req.body) === null || _s === void 0 ? void 0 : _s.sex) === null)
         jobPosting.sex = null;
-    if ((_v = req.body) === null || _v === void 0 ? void 0 : _v.numberOfVacancies)
+    if ((_t = req.body) === null || _t === void 0 ? void 0 : _t.numberOfVacancies)
         jobPosting.numberOfVacancies = req.body.numberOfVacancies;
-    if ((_w = req.body) === null || _w === void 0 ? void 0 : _w.trialPeriod)
+    if ((_u = req.body) === null || _u === void 0 ? void 0 : _u.trialPeriod)
         jobPosting.trialPeriod = req.body.trialPeriod;
-    if ((_x = req.body) === null || _x === void 0 ? void 0 : _x.applicationDeadline)
+    if ((_v = req.body) === null || _v === void 0 ? void 0 : _v.applicationDeadline)
         jobPosting.applicationDeadline = new Date((0, moment_1.default)(req.body.applicationDeadline).format("YYYY-MM-DD"));
-    if ((_y = req.body) === null || _y === void 0 ? void 0 : _y.minSalary)
+    if ((_w = req.body) === null || _w === void 0 ? void 0 : _w.minSalary)
         jobPosting.minSalary = req.body.minSalary;
-    if ((_z = req.body) === null || _z === void 0 ? void 0 : _z.maxSalary)
+    if ((_x = req.body) === null || _x === void 0 ? void 0 : _x.maxSalary)
         jobPosting.maxSalary = req.body.maxSalary;
-    if ((_0 = req.body) === null || _0 === void 0 ? void 0 : _0.skills)
+    if ((_y = req.body) === null || _y === void 0 ? void 0 : _y.skills)
         jobPosting.skills = req.body.skills;
-    if ((_1 = req.body) === null || _1 === void 0 ? void 0 : _1.jobDescription)
+    if ((_z = req.body) === null || _z === void 0 ? void 0 : _z.jobDescription)
         jobPosting.jobDescription = req.body.jobDescription;
-    if ((_2 = req.body) === null || _2 === void 0 ? void 0 : _2.jobRequirements)
+    if ((_0 = req.body) === null || _0 === void 0 ? void 0 : _0.jobRequirements)
         jobPosting.jobRequirements = req.body.jobRequirements;
-    if ((_3 = req.body) === null || _3 === void 0 ? void 0 : _3.benefits)
+    if ((_1 = req.body) === null || _1 === void 0 ? void 0 : _1.benefits)
         jobPosting.benefits = req.body.benefits;
-    if (((_4 = req.body) === null || _4 === void 0 ? void 0 : _4.isHidden) !== null)
+    if (((_2 = req.body) === null || _2 === void 0 ? void 0 : _2.isHidden) !== null)
         jobPosting.isHidden = req.body.isHidden;
-    if ((_5 = req.body) === null || _5 === void 0 ? void 0 : _5.requiredSkills)
+    if ((_3 = req.body) === null || _3 === void 0 ? void 0 : _3.requiredSkills)
         jobPosting.requiredSkills = req.body.requiredSkills;
-    if ((_6 = req.body) === null || _6 === void 0 ? void 0 : _6.keywords)
+    if ((_4 = req.body) === null || _4 === void 0 ? void 0 : _4.keywords)
         jobPosting.keywords = req.body.keywords;
     jobPosting.status = enum_1.approvalStatus.pending;
     jobPosting.updateAt = new Date();
     jobPosting.check = null;
-    yield jobPostingRepository.save(jobPosting);
+    await jobPostingRepository.save(jobPosting);
     const createNotification = notificationRepository.create({
         content: 'Bạn đã cập nhật tin tuyển dụng ' + jobPosting.jobTitle,
         user: jobPosting.employer.user
     });
-    yield notificationRepository.save(createNotification);
+    await notificationRepository.save(createNotification);
     return ({
         message: `Job posting has postId: ${req.params.postId} are updated successfully`,
         status: 200,
         data: jobPosting
     });
-});
-JobPostingServices.handleCreateNewJobPosting = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    var _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29;
-    if (!((_7 = req === null || req === void 0 ? void 0 : req.body) === null || _7 === void 0 ? void 0 : _7.name) || !((_8 = req === null || req === void 0 ? void 0 : req.body) === null || _8 === void 0 ? void 0 : _8.email) || !((_9 = req === null || req === void 0 ? void 0 : req.body) === null || _9 === void 0 ? void 0 : _9.phone) || !((_10 = req === null || req === void 0 ? void 0 : req.body) === null || _10 === void 0 ? void 0 : _10.contactAddress)) {
+};
+JobPostingServices.handleCreateNewJobPosting = async (req) => {
+    var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
+    // Check parameters
+    if (!((_b = req === null || req === void 0 ? void 0 : req.body) === null || _b === void 0 ? void 0 : _b.name) || !((_c = req === null || req === void 0 ? void 0 : req.body) === null || _c === void 0 ? void 0 : _c.email) || !((_d = req === null || req === void 0 ? void 0 : req.body) === null || _d === void 0 ? void 0 : _d.phone) || !((_e = req === null || req === void 0 ? void 0 : req.body) === null || _e === void 0 ? void 0 : _e.contactAddress)) {
         return ({
             message: 'Thông tin liên hệ còn thiếu',
             status: 400,
             data: null
         });
     }
-    if (!((_11 = req === null || req === void 0 ? void 0 : req.body) === null || _11 === void 0 ? void 0 : _11.jobTitle) || !((_12 = req === null || req === void 0 ? void 0 : req.body) === null || _12 === void 0 ? void 0 : _12.profession) || !((_13 = req === null || req === void 0 ? void 0 : req.body) === null || _13 === void 0 ? void 0 : _13.employmentType) || !((_14 = req === null || req === void 0 ? void 0 : req.body) === null || _14 === void 0 ? void 0 : _14.degree) || !((_15 = req === null || req === void 0 ? void 0 : req.body) === null || _15 === void 0 ? void 0 : _15.experience) ||
-        !((_16 = req === null || req === void 0 ? void 0 : req.body) === null || _16 === void 0 ? void 0 : _16.positionLevel) || !((_17 = req === null || req === void 0 ? void 0 : req.body) === null || _17 === void 0 ? void 0 : _17.numberOfVacancies) || !((_18 = req === null || req === void 0 ? void 0 : req.body) === null || _18 === void 0 ? void 0 : _18.applicationDeadline)) {
+    if (!((_f = req === null || req === void 0 ? void 0 : req.body) === null || _f === void 0 ? void 0 : _f.jobTitle) || !((_g = req === null || req === void 0 ? void 0 : req.body) === null || _g === void 0 ? void 0 : _g.profession) || !((_h = req === null || req === void 0 ? void 0 : req.body) === null || _h === void 0 ? void 0 : _h.employmentType) || !((_j = req === null || req === void 0 ? void 0 : req.body) === null || _j === void 0 ? void 0 : _j.degree) || !((_k = req === null || req === void 0 ? void 0 : req.body) === null || _k === void 0 ? void 0 : _k.experience) ||
+        !((_l = req === null || req === void 0 ? void 0 : req.body) === null || _l === void 0 ? void 0 : _l.positionLevel) || !((_m = req === null || req === void 0 ? void 0 : req.body) === null || _m === void 0 ? void 0 : _m.numberOfVacancies) || !((_o = req === null || req === void 0 ? void 0 : req.body) === null || _o === void 0 ? void 0 : _o.applicationDeadline)) {
         return ({
             message: 'Thông tin cơ bản còn thiếu',
             status: 400,
             data: null
         });
     }
-    if (!((_19 = req === null || req === void 0 ? void 0 : req.body) === null || _19 === void 0 ? void 0 : _19.workAddress) || !((_20 = req === null || req === void 0 ? void 0 : req.body) === null || _20 === void 0 ? void 0 : _20.minSalary) || !((_21 = req === null || req === void 0 ? void 0 : req.body) === null || _21 === void 0 ? void 0 : _21.maxSalary)) {
+    if (!((_p = req === null || req === void 0 ? void 0 : req.body) === null || _p === void 0 ? void 0 : _p.workAddress) || !((_q = req === null || req === void 0 ? void 0 : req.body) === null || _q === void 0 ? void 0 : _q.minSalary) || !((_r = req === null || req === void 0 ? void 0 : req.body) === null || _r === void 0 ? void 0 : _r.maxSalary)) {
         return ({
             message: 'Thông tin địa chỉ làm việc hoặc mức lương còn thiếu',
             status: 400,
             data: null
         });
     }
-    if (!((_22 = req === null || req === void 0 ? void 0 : req.body) === null || _22 === void 0 ? void 0 : _22.jobDescription) || !((_23 = req === null || req === void 0 ? void 0 : req.body) === null || _23 === void 0 ? void 0 : _23.jobRequirements) || !((_24 = req === null || req === void 0 ? void 0 : req.body) === null || _24 === void 0 ? void 0 : _24.benefits)) {
+    if (!((_s = req === null || req === void 0 ? void 0 : req.body) === null || _s === void 0 ? void 0 : _s.jobDescription) || !((_t = req === null || req === void 0 ? void 0 : req.body) === null || _t === void 0 ? void 0 : _t.jobRequirements) || !((_u = req === null || req === void 0 ? void 0 : req.body) === null || _u === void 0 ? void 0 : _u.benefits)) {
         return ({
             message: 'Mô tả công việc còn thiếu',
             status: 400,
             data: null
         });
     }
-    const post = yield jobPostingRepository.create({
+    // Create new post
+    const post = await jobPostingRepository.create({
         name: req.body.name,
         email: req.body.email,
         phone: req.body.phone,
@@ -526,12 +581,12 @@ JobPostingServices.handleCreateNewJobPosting = (req) => __awaiter(void 0, void 0
         benefits: req.body.benefits,
         submissionCount: 0,
         view: 0,
-        isHidden: ((_25 = req === null || req === void 0 ? void 0 : req.body) === null || _25 === void 0 ? void 0 : _25.isHidden) ? req.body.isHidden : false,
-        requiredSkills: ((_26 = req.body) === null || _26 === void 0 ? void 0 : _26.requiredSkills) ? (_27 = req.body) === null || _27 === void 0 ? void 0 : _27.requiredSkills : null,
-        keywords: ((_28 = req.body) === null || _28 === void 0 ? void 0 : _28.keywords) ? (_29 = req.body) === null || _29 === void 0 ? void 0 : _29.keywords : null
+        isHidden: ((_v = req === null || req === void 0 ? void 0 : req.body) === null || _v === void 0 ? void 0 : _v.isHidden) ? req.body.isHidden : false,
+        requiredSkills: ((_w = req.body) === null || _w === void 0 ? void 0 : _w.requiredSkills) ? (_x = req.body) === null || _x === void 0 ? void 0 : _x.requiredSkills : null,
+        keywords: ((_y = req.body) === null || _y === void 0 ? void 0 : _y.keywords) ? (_z = req.body) === null || _z === void 0 ? void 0 : _z.keywords : null
     });
-    const post1 = yield jobPostingRepository.save(post);
-    const user = yield employerRepository.findOne({
+    const post1 = await jobPostingRepository.save(post);
+    const user = await employerRepository.findOne({
         where: { userId: req.user.userId },
         relations: ['jobPostings']
     });
@@ -543,8 +598,9 @@ JobPostingServices.handleCreateNewJobPosting = (req) => __awaiter(void 0, void 0
         });
     }
     user.jobPostings.push(post1);
-    yield employerRepository.save(user);
-    const foundUser = yield userRepository.findOne({
+    await employerRepository.save(user);
+    // Add new notification
+    const foundUser = await userRepository.findOne({
         where: { userId: req.user.userId }
     });
     if (!foundUser) {
@@ -558,23 +614,23 @@ JobPostingServices.handleCreateNewJobPosting = (req) => __awaiter(void 0, void 0
         content: 'Đăng tuyển của bạn đang chờ duyệt',
         user: foundUser
     });
-    yield notificationRepository.save(createNotification);
+    await notificationRepository.save(createNotification);
     return ({
         message: 'Create new job posting successfully',
         status: 200,
         data: post
     });
-});
-JobPostingServices.handleDeleteJobPosting = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    var _30;
-    if (!((_30 = req === null || req === void 0 ? void 0 : req.params) === null || _30 === void 0 ? void 0 : _30.postId)) {
+};
+JobPostingServices.handleDeleteJobPosting = async (req) => {
+    var _b;
+    if (!((_b = req === null || req === void 0 ? void 0 : req.params) === null || _b === void 0 ? void 0 : _b.postId)) {
         return ({
             message: 'postId is required',
             status: 400,
             data: null
         });
     }
-    const jobPosting = yield jobPostingRepository.findOne({
+    const jobPosting = await jobPostingRepository.findOne({
         where: { postId: req.params.postId },
         relations: ['employer']
     });
@@ -585,6 +641,7 @@ JobPostingServices.handleDeleteJobPosting = (req) => __awaiter(void 0, void 0, v
             data: null
         });
     }
+    // Check employer is owner of Job posting ?
     if (jobPosting.employer.userId !== req.user.userId) {
         return ({
             message: `You are not the owner of Job posting has id: ${req.params.postId}`,
@@ -592,23 +649,23 @@ JobPostingServices.handleDeleteJobPosting = (req) => __awaiter(void 0, void 0, v
             data: null
         });
     }
-    yield jobPostingRepository.delete(jobPosting.postId);
+    await jobPostingRepository.delete(jobPosting.postId);
     return ({
         message: `Delete Job posting has postId: ${req.params.postId} successes`,
         status: 200,
         data: jobPosting
     });
-});
-JobPostingServices.handleUpdateApprovalStatus = (req) => __awaiter(void 0, void 0, void 0, function* () {
-    var _31, _32, _33;
-    if (!((_31 = req === null || req === void 0 ? void 0 : req.params) === null || _31 === void 0 ? void 0 : _31.postId)) {
+};
+JobPostingServices.handleUpdateApprovalStatus = async (req) => {
+    var _b, _c, _d;
+    if (!((_b = req === null || req === void 0 ? void 0 : req.params) === null || _b === void 0 ? void 0 : _b.postId)) {
         return ({
             message: 'postId is required',
             status: 400,
             data: null
         });
     }
-    const post = yield jobPostingRepository.findOne({
+    const post = await jobPostingRepository.findOne({
         where: { postId: req.params.postId },
         relations: ['employer']
     });
@@ -619,16 +676,17 @@ JobPostingServices.handleUpdateApprovalStatus = (req) => __awaiter(void 0, void 
             data: null
         });
     }
-    if ((_32 = req.body) === null || _32 === void 0 ? void 0 : _32.status)
+    // Update with req.body
+    if ((_c = req.body) === null || _c === void 0 ? void 0 : _c.status)
         post.status = (0, enumAction_1.EnumApprovalStatus)(req.body.status);
-    if (((_33 = req.body) === null || _33 === void 0 ? void 0 : _33.check) !== null)
+    if (((_d = req.body) === null || _d === void 0 ? void 0 : _d.check) !== null)
         post.check = req.body.check;
-    yield jobPostingRepository.save(post);
+    await jobPostingRepository.save(post);
     return ({
         message: `Status of Post has id: ${req.params.postId} are changed successfully`,
         status: 200,
         data: post
     });
-});
+};
 exports.default = JobPostingServices;
 //# sourceMappingURL=jobpostingServices.js.map
