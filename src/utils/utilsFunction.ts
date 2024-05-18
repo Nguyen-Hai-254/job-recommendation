@@ -1,5 +1,3 @@
-import nodemailer from "nodemailer"
-
 export const countCandidatesbyProfession = (professionCountList) => {
     // Mảng các nghề nghiệp (có giá trị trùng lặp)
     const professionsList = professionCountList.map(item => item.profession.split(', ')).flat();
@@ -30,16 +28,6 @@ export const mergerTwoObject = (obj1, obj2) => {
 
     return result
 }
-
-export const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD
-    }
-});
 
 export const createArrayForDate = (month, year) => {
     if (month === "1" || month === "3" || month === "5" || month === "7" || month === "8" || month === "10" || month === "12")

@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-require('dotenv').config();
 const connectDB_1 = require("../config/connectDB");
 const AttachedDocument_1 = require("../entity/AttachedDocument");
 const Employee_1 = require("../entity/Employee");

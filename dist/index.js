@@ -12,17 +12,15 @@ const connectDB_1 = require("./config/connectDB");
 const cronJob = require('./cron/updateExpiredJobStatusCron');
 const routes = require('./routes/web');
 let app = (0, express_1.default)();
-// app.use(cors({ credentials: true, origin: true }));
 const corsOptions = {
-    origin: 'http://vieclam.infotechacademy.vn',
+    origin: process.env.ORIGIN,
     credentials: true,
     optionSuccessStatus: 200
 };
 app.use((0, cors_1.default)(corsOptions));
 app.use(function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', "http://vieclam.infotechacademy.vn");
+    res.header('Access-Control-Allow-Origin', process.env.ORIGIN);
     res.header('Access-Control-Allow-Headers', '*');
-    // res.header('Access-Control-Allow-Credentials', true);
     res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     next();
 });

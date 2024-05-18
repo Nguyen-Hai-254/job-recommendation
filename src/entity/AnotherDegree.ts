@@ -17,10 +17,6 @@ export class AnotherDegree extends BaseEntity {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     })
-    // @JoinColumn({
-    //     name: 'userId',
-    //     referencedColumnName: 'userId'
-    // })
     online_profile: OnlineProfile
 
 } 

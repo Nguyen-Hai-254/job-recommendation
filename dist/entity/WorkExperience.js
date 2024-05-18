@@ -47,12 +47,7 @@ __decorate([
     (0, typeorm_1.ManyToOne)(() => OnlineProfile_1.OnlineProfile, (online_profile) => online_profile.work_experiences, {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
-    })
-    // @JoinColumn({
-    //     name: 'userId',
-    //     referencedColumnName: 'userId'
-    // })
-    ,
+    }),
     __metadata("design:type", OnlineProfile_1.OnlineProfile)
 ], WorkExperience.prototype, "online_profile", void 0);
 exports.WorkExperience = WorkExperience = __decorate([

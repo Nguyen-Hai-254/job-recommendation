@@ -1,4 +1,3 @@
-require('dotenv').config()
 import { myDataSource } from "../config/connectDB"
 import { AttachedDocument } from "../entity/AttachedDocument"
 import { Employee } from "../entity/Employee"
@@ -7,7 +6,6 @@ import { Notification } from "../entity/Notification"
 import { OnlineProfile } from "../entity/OnlineProfile"
 import { User } from "../entity/Users"
 import { approvalStatus, sex, userRole } from "../utils/enum"
-import { EnumDegree } from "../utils/enumAction"
 import { createToken } from "../utils/JWTAction"
 import bcrypt from "bcrypt"
 import moment from "moment"

@@ -1,10 +1,6 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createArrayForDate = exports.transporter = exports.mergerTwoObject = exports.countCandidatesbyProfession = void 0;
-const nodemailer_1 = __importDefault(require("nodemailer"));
+exports.createArrayForDate = exports.mergerTwoObject = exports.countCandidatesbyProfession = void 0;
 const countCandidatesbyProfession = (professionCountList) => {
     // Mảng các nghề nghiệp (có giá trị trùng lặp)
     const professionsList = professionCountList.map(item => item.profession.split(', ')).flat();
@@ -33,15 +29,6 @@ const mergerTwoObject = (obj1, obj2) => {
     return result;
 };
 exports.mergerTwoObject = mergerTwoObject;
-exports.transporter = nodemailer_1.default.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD
-    }
-});
 const createArrayForDate = (month, year) => {
     if (month === "1" || month === "3" || month === "5" || month === "7" || month === "8" || month === "10" || month === "12")
         return Array.from({ length: 31 }, (_, i) => ({ time: i + 1, value: '0' }));

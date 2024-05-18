@@ -79,9 +79,9 @@ AdminController.getTotalUser = async (req, res) => {
 AdminController.sendEmail = async (req, res) => {
     try {
         if (!req.body.emails || !req.body.subject || !req.body.html) {
-            return res.status(500).json({
+            return res.status(400).json({
                 message: "Missing input parameter!",
-                status: 500,
+                status: 400,
                 error: 'Internal Server Error',
             });
         }
@@ -103,9 +103,9 @@ AdminController.sendEmail = async (req, res) => {
 AdminController.searchEmailOrName = async (req, res) => {
     try {
         if (!req.body.keyword) {
-            return res.status(500).json({
+            return res.status(400).json({
                 message: "Missing input parameter!",
-                status: 500,
+                status: 400,
                 error: 'Internal Server Error',
             });
         }

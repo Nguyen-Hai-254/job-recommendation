@@ -4,8 +4,9 @@ import { approvalStatus, monthMap, userRole } from "../utils/enum";
 import { User } from "../entity/Users";
 import { OnlineProfile } from "../entity/OnlineProfile";
 import { AttachedDocument } from "../entity/AttachedDocument";
-import { countCandidatesbyProfession, createArrayForDate, mergerTwoObject, transporter } from "../utils/utilsFunction";
+import { countCandidatesbyProfession, createArrayForDate, mergerTwoObject } from "../utils/utilsFunction";
 import { ILike } from "typeorm";
+import MailServices from "./mailServices";
 
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
 const userRepository = myDataSource.getRepository(User);
@@ -118,13 +119,7 @@ export default class AdminServices {
     }
 
     static handleSendEmail = async (emails, subject, html) => {
-        const info = await transporter.sendMail({
-            from: 'itbachkhoa.hcmut@gmail.com',
-            to: emails,
-            subject: subject,
-            html: html
-        })
-
+        const info = await MailServices.sendEmailForUsers(emails, subject, html);
         return ({
             message: 'OK',
             status: 200,

@@ -31,12 +31,7 @@ __decorate([
     (0, typeorm_1.ManyToOne)(() => OnlineProfile_1.OnlineProfile, (online_profile) => online_profile.another_degrees, {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
-    })
-    // @JoinColumn({
-    //     name: 'userId',
-    //     referencedColumnName: 'userId'
-    // })
-    ,
+    }),
     __metadata("design:type", OnlineProfile_1.OnlineProfile)
 ], AnotherDegree.prototype, "online_profile", void 0);
 exports.AnotherDegree = AnotherDegree = __decorate([

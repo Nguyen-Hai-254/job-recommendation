@@ -8,8 +8,6 @@ import { AttachedDocument } from "../entity/AttachedDocument"
 import { OnlineProfile } from "../entity/OnlineProfile"
 import { EnumApplicationType, EnumApprovalStatus } from "../utils/enumAction"
 import { applicationType } from "../utils/enum"
-import moment from "moment"
-import { application } from "express"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);

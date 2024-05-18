@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const JobPosting_1 = require("../entity/JobPosting");
@@ -9,6 +12,7 @@ const OnlineProfile_1 = require("../entity/OnlineProfile");
 const AttachedDocument_1 = require("../entity/AttachedDocument");
 const utilsFunction_1 = require("../utils/utilsFunction");
 const typeorm_1 = require("typeorm");
+const mailServices_1 = __importDefault(require("./mailServices"));
 const jobPostingRepository = connectDB_1.myDataSource.getRepository(JobPosting_1.JobPosting);
 const userRepository = connectDB_1.myDataSource.getRepository(Users_1.User);
 const online_profileRepository = connectDB_1.myDataSource.getRepository(OnlineProfile_1.OnlineProfile);
@@ -99,12 +103,7 @@ AdminServices.handleGetTotalUser = async (req) => {
     });
 };
 AdminServices.handleSendEmail = async (emails, subject, html) => {
-    const info = await utilsFunction_1.transporter.sendMail({
-        from: 'itbachkhoa.hcmut@gmail.com',
-        to: emails,
-        subject: subject,
-        html: html
-    });
+    const info = await mailServices_1.default.sendEmailForUsers(emails, subject, html);
     return ({
         message: 'OK',
         status: 200,
