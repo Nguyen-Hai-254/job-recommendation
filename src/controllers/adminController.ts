@@ -2,7 +2,7 @@ import AdminServices from "../services/adminServices";
 
 
 export default class AdminController {
-    static jobPostingsReport = async (req, res) => {
+    static jobPostingsReport = async (req, res, next) => {
         try {
             const jobPostings = await AdminServices.handleGetJobPostingsReport();
             return res.status(jobPostings.status).json({
@@ -10,16 +10,12 @@ export default class AdminController {
                 status: jobPostings.status,
                 data: jobPostings.data ? jobPostings.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static candidateStatistics = async (req, res) => {
+    static candidateStatistics = async (req, res, next) => {
         try {
             const data = await AdminServices.handleCandidateStatistics();
             return res.status(data.status).json({
@@ -27,16 +23,12 @@ export default class AdminController {
                 status: data.status,
                 data: data.data ? data.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getAllUser = async (req, res) => {
+    static getAllUser = async (req, res, next) => {
         try {
             const allUser = await AdminServices.handleGetAllUser(req);
             return res.status(allUser.status).json({
@@ -44,16 +36,12 @@ export default class AdminController {
                 status: allUser.status,
                 data: allUser.data ? allUser.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getTotalUser = async (req, res) => {
+    static getTotalUser = async (req, res, next) => {
         try {
             const totalUser = await AdminServices.handleGetTotalUser(req);
             return res.status(totalUser.status).json({
@@ -61,16 +49,12 @@ export default class AdminController {
                 status: totalUser.status,
                 data: totalUser.data ? totalUser.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static sendEmail = async (req, res) => {
+    static sendEmail = async (req, res, next) => {
         try {
             if (!req.body.emails || !req.body.subject || !req.body.html) {
                 return res.status(400).json({
@@ -86,16 +70,12 @@ export default class AdminController {
                 status: result.status,
                 data: result.data ? result.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static searchEmailOrName = async (req, res) => {
+    static searchEmailOrName = async (req, res, next) => {
         try {
             if (!req.body.keyword) {
                 return res.status(400).json({
@@ -111,16 +91,12 @@ export default class AdminController {
                 status: result.status,
                 data: result.data ? result.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getJobPostingsReportByQuery = async (req, res) => {
+    static getJobPostingsReportByQuery = async (req, res, next) => {
         try {
             if (!req.query.year) {
                 return res.status(500).json({
@@ -136,22 +112,17 @@ export default class AdminController {
                 status: result.status,
                 data: result.data ? result.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static candidateStatisticsByQuery = async (req, res) => {
+    static candidateStatisticsByQuery = async (req, res, next) => {
         try {
             if (!req.query.year) {
-                return res.status(500).json({
+                return res.status(400).json({
                     message: "Missing input parameter!",
-                    status: 500,
-                    error: 'Internal Server Error',
+                    status: 400
                 });
             }
 
@@ -161,12 +132,8 @@ export default class AdminController {
                 status: result.status,
                 data: result.data ? result.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 }

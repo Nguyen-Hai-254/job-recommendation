@@ -5,6 +5,7 @@ import bodyParser from "body-parser"
 import cookieParser from "cookie-parser"
 import cors from "cors"
 import { connectDB } from "./config/connectDB"
+import { errorMiddleware } from "./middleware/error";
 
 const cronJob =  require('./cron/updateExpiredJobStatusCron')
 const routes = require('./routes/web')
@@ -46,3 +47,5 @@ let port = process.env.PORT || 3002;
 app.listen(port, () => {
     console.log('BackEnd NodeJS is running on the port:', port);
 })
+
+app.use(errorMiddleware);

@@ -8,7 +8,7 @@ const employeeServices_1 = __importDefault(require("../services/employeeServices
 class EmployeeController {
 }
 _a = EmployeeController;
-EmployeeController.getAttachedDocument = async (req, res) => {
+EmployeeController.getAttachedDocument = async (req, res, next) => {
     try {
         const attached_document = await employeeServices_1.default.handleGetAttachedDocument(req);
         return res.status(attached_document.status).json({
@@ -17,15 +17,11 @@ EmployeeController.getAttachedDocument = async (req, res) => {
             data: attached_document.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.createNewAttachedDocument = async (req, res) => {
+EmployeeController.createNewAttachedDocument = async (req, res, next) => {
     try {
         const attached_document = await employeeServices_1.default.handleCreateNewAttachedDocument(req);
         return res.status(attached_document.status).json({
@@ -34,15 +30,11 @@ EmployeeController.createNewAttachedDocument = async (req, res) => {
             data: attached_document.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.updateAttachedDocument = async (req, res) => {
+EmployeeController.updateAttachedDocument = async (req, res, next) => {
     try {
         const attached_document = await employeeServices_1.default.handleUpdateAttachedDocument(req);
         return res.status(attached_document.status).json({
@@ -51,15 +43,11 @@ EmployeeController.updateAttachedDocument = async (req, res) => {
             data: attached_document.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.deleteAttachedDocument = async (req, res) => {
+EmployeeController.deleteAttachedDocument = async (req, res, next) => {
     try {
         const attached_document = await employeeServices_1.default.handleDeleteAttachedDocument(req);
         return res.status(attached_document.status).json({
@@ -68,15 +56,11 @@ EmployeeController.deleteAttachedDocument = async (req, res) => {
             data: attached_document.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.getOnlineProfile = async (req, res) => {
+EmployeeController.getOnlineProfile = async (req, res, next) => {
     try {
         const online_profile = await employeeServices_1.default.handleGetOnlineProfile(req);
         return res.status(online_profile.status).json({
@@ -85,15 +69,11 @@ EmployeeController.getOnlineProfile = async (req, res) => {
             data: online_profile.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.createNewOnlineProfile = async (req, res) => {
+EmployeeController.createNewOnlineProfile = async (req, res, next) => {
     try {
         const online_profile = await employeeServices_1.default.handleCreateNewOnlineProfile(req);
         return res.status(online_profile.status).json({
@@ -102,15 +82,11 @@ EmployeeController.createNewOnlineProfile = async (req, res) => {
             data: online_profile.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.updateOnlineProfile = async (req, res) => {
+EmployeeController.updateOnlineProfile = async (req, res, next) => {
     try {
         const online_profile = await employeeServices_1.default.handleUpdateOnlineProfile(req);
         return res.status(online_profile.status).json({
@@ -119,15 +95,11 @@ EmployeeController.updateOnlineProfile = async (req, res) => {
             data: online_profile.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.deleteOnlineProfile = async (req, res) => {
+EmployeeController.deleteOnlineProfile = async (req, res, next) => {
     try {
         const online_profile = await employeeServices_1.default.handleDeleteOnlineProfile(req);
         return res.status(online_profile.status).json({
@@ -136,17 +108,13 @@ EmployeeController.deleteOnlineProfile = async (req, res) => {
             data: online_profile.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
 // online profile : another degree, education information, work experience
 // 1. another degree
-EmployeeController.createNewAnotherDegree = async (req, res) => {
+EmployeeController.createNewAnotherDegree = async (req, res, next) => {
     try {
         const another_degrees = await employeeServices_1.default.handleCreateNewAnotherDegree(req);
         return res.status(another_degrees.status).json({
@@ -155,15 +123,11 @@ EmployeeController.createNewAnotherDegree = async (req, res) => {
             data: another_degrees.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.updateAnotherDegree = async (req, res) => {
+EmployeeController.updateAnotherDegree = async (req, res, next) => {
     try {
         const another_degree = await employeeServices_1.default.handleUpdateAnotherDegree(req);
         return res.status(another_degree.status).json({
@@ -172,15 +136,11 @@ EmployeeController.updateAnotherDegree = async (req, res) => {
             data: another_degree.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.deleteAnotherDegree = async (req, res) => {
+EmployeeController.deleteAnotherDegree = async (req, res, next) => {
     try {
         const another_degree = await employeeServices_1.default.handleDeleteAnotherDegree(req);
         return res.status(another_degree.status).json({
@@ -189,16 +149,12 @@ EmployeeController.deleteAnotherDegree = async (req, res) => {
             data: another_degree.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
 // 2. education information
-EmployeeController.createNewEducationInformation = async (req, res) => {
+EmployeeController.createNewEducationInformation = async (req, res, next) => {
     try {
         const education_informations = await employeeServices_1.default.handleCreateNewEducationInformation(req);
         return res.status(education_informations.status).json({
@@ -207,15 +163,11 @@ EmployeeController.createNewEducationInformation = async (req, res) => {
             data: education_informations.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.updateEducationInformation = async (req, res) => {
+EmployeeController.updateEducationInformation = async (req, res, next) => {
     try {
         const education_informations = await employeeServices_1.default.handleUpdateEducationInformation(req);
         return res.status(education_informations.status).json({
@@ -224,15 +176,11 @@ EmployeeController.updateEducationInformation = async (req, res) => {
             data: education_informations.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.deleteEducationInformation = async (req, res) => {
+EmployeeController.deleteEducationInformation = async (req, res, next) => {
     try {
         const education_informations = await employeeServices_1.default.handleDeleteEducationInformation(req);
         return res.status(education_informations.status).json({
@@ -241,16 +189,12 @@ EmployeeController.deleteEducationInformation = async (req, res) => {
             data: education_informations.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
 // 3. work experience
-EmployeeController.createNewWorkExperience = async (req, res) => {
+EmployeeController.createNewWorkExperience = async (req, res, next) => {
     try {
         const workexperiences = await employeeServices_1.default.handleCreateNewWorkExperience(req);
         return res.status(workexperiences.status).json({
@@ -259,15 +203,11 @@ EmployeeController.createNewWorkExperience = async (req, res) => {
             data: workexperiences.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.updateWorkExperience = async (req, res) => {
+EmployeeController.updateWorkExperience = async (req, res, next) => {
     try {
         const workexperiences = await employeeServices_1.default.handleUpdateWorkExperience(req);
         return res.status(workexperiences.status).json({
@@ -276,15 +216,11 @@ EmployeeController.updateWorkExperience = async (req, res) => {
             data: workexperiences.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.deleteWorkExperience = async (req, res) => {
+EmployeeController.deleteWorkExperience = async (req, res, next) => {
     try {
         const workexperiences = await employeeServices_1.default.handleDeleteWorkExperience(req);
         return res.status(workexperiences.status).json({
@@ -293,15 +229,11 @@ EmployeeController.deleteWorkExperience = async (req, res) => {
             data: workexperiences.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.getEmployeesByAdmin = async (req, res) => {
+EmployeeController.getEmployeesByAdmin = async (req, res, next) => {
     try {
         const employees = await employeeServices_1.default.handleGetEmployeesByAdmin(req);
         return res.status(employees.status).json({
@@ -310,15 +242,11 @@ EmployeeController.getEmployeesByAdmin = async (req, res) => {
             data: employees.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.getLengthOfEmployeesByAdmin = async (req, res) => {
+EmployeeController.getLengthOfEmployeesByAdmin = async (req, res, next) => {
     try {
         const employees = await employeeServices_1.default.handleGetLengthOfEmployeesByAdmin(req);
         return res.status(employees.status).json({
@@ -327,15 +255,11 @@ EmployeeController.getLengthOfEmployeesByAdmin = async (req, res) => {
             data: employees.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.getEmployeesByEmployer = async (req, res) => {
+EmployeeController.getEmployeesByEmployer = async (req, res, next) => {
     try {
         const employees = await employeeServices_1.default.handleGetEmployeesByEmployer(req);
         return res.status(employees.status).json({
@@ -344,15 +268,11 @@ EmployeeController.getEmployeesByEmployer = async (req, res) => {
             data: employees.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.getLengthOfEmployeesByEmployer = async (req, res) => {
+EmployeeController.getLengthOfEmployeesByEmployer = async (req, res, next) => {
     try {
         const employees = await employeeServices_1.default.handleGetLengthOfEmployeesByEmployer(req);
         return res.status(employees.status).json({
@@ -361,15 +281,11 @@ EmployeeController.getLengthOfEmployeesByEmployer = async (req, res) => {
             data: employees.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-EmployeeController.getEmployeesByEmployerSortByKeywords = async (req, res) => {
+EmployeeController.getEmployeesByEmployerSortByKeywords = async (req, res, next) => {
     try {
         const employees = await employeeServices_1.default.handleGetEmployeesByEmployerSortByKeywords(req);
         return res.status(employees.status).json({
@@ -378,12 +294,8 @@ EmployeeController.getEmployeesByEmployerSortByKeywords = async (req, res) => {
             data: employees.data
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
 exports.default = EmployeeController;

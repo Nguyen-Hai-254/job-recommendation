@@ -1,7 +1,7 @@
 import JobPostingServices from "../services/jobpostingServices";
 
 export default class JobPostingController {
-    static getAllJobPostings = async (req, res) => {
+    static getAllJobPostings = async (req, res, next) => {
         try {
             const jobPostings = await JobPostingServices.handleGetAllJobPostings(req);
             return res.status(jobPostings.status).json({
@@ -9,16 +9,12 @@ export default class JobPostingController {
                 status: jobPostings.status,
                 data: jobPostings.data ? jobPostings.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getLengthOfAllJobPostings = async (req, res) => {
+    static getLengthOfAllJobPostings = async (req, res, next) => {
         try {
             const jobPostings = await JobPostingServices.handleGetLengthOfAllJobPostings(req);
             return res.status(jobPostings.status).json({
@@ -26,16 +22,12 @@ export default class JobPostingController {
                 status: jobPostings.status,
                 data: jobPostings.data ? jobPostings.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getAllJobPostingsByAdmin = async (req, res) => {
+    static getAllJobPostingsByAdmin = async (req, res, next) => {
         try {
             const jobPostings = await JobPostingServices.handleGetAllJobPostingsByAdmin(req);
             return res.status(jobPostings.status).json({
@@ -43,16 +35,12 @@ export default class JobPostingController {
                 status: jobPostings.status,
                 data: jobPostings.data ? jobPostings.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getLengthOfAllJobPostingsByAdmin = async (req, res) => {
+    static getLengthOfAllJobPostingsByAdmin = async (req, res, next) => {
         try {
             const jobPostings = await JobPostingServices.handleGetLengthOfAllJobPostingsByAdmin(req);
             return res.status(jobPostings.status).json({
@@ -60,16 +48,12 @@ export default class JobPostingController {
                 status: jobPostings.status,
                 data: jobPostings.data ? jobPostings.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getTotalResultsOfProfession = async (req, res) => {
+    static getTotalResultsOfProfession = async (req, res, next) => {
         try {
             const jobPostings = await JobPostingServices.handleGetTotalResultsOfProfession();
             return res.status(jobPostings.status).json({
@@ -77,16 +61,12 @@ export default class JobPostingController {
                 status: jobPostings.status,
                 data: jobPostings.data ? jobPostings.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getTotalResultsOfProfessionByAdmin = async (req, res) => {
+    static getTotalResultsOfProfessionByAdmin = async (req, res, next) => {
         try {
             const jobPostings = await JobPostingServices.handleGetTotalResultsOfProfessionByAdmin(req);
             return res.status(jobPostings.status).json({
@@ -94,16 +74,12 @@ export default class JobPostingController {
                 status: jobPostings.status,
                 data: jobPostings.data ? jobPostings.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getJobPostingsByEmployer = async (req, res) => {
+    static getJobPostingsByEmployer = async (req, res, next) => {
         try {
             const jobPostings = await JobPostingServices.handleGetJobPostingsByEmployer(req);
             return res.status(jobPostings.status).json({
@@ -111,16 +87,12 @@ export default class JobPostingController {
                 status: 200,
                 data: jobPostings.data ? jobPostings.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getJobPosting = async (req, res) => {
+    static getJobPosting = async (req, res, next) => {
         try {
             const jobPosting = await JobPostingServices.handleGetJobPosting(req);
             return res.status(jobPosting.status).json({
@@ -128,16 +100,12 @@ export default class JobPostingController {
                 status: jobPosting.status,
                 data: jobPosting.data
             })
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getJobPostingByEmployer = async (req, res) => {
+    static getJobPostingByEmployer = async (req, res, next) => {
         try {
             const jobPosting = await JobPostingServices.handleGetJobPostingByEmployer(req);
             return res.status(jobPosting.status).json({
@@ -145,16 +113,12 @@ export default class JobPostingController {
                 status: jobPosting.status,
                 data: jobPosting.data
             })
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static deleteJobPosting = async (req, res) => {
+    static deleteJobPosting = async (req, res, next) => {
         try {
             const jobPosting = await JobPostingServices.handleDeleteJobPosting(req);
             return res.status(jobPosting.status).json({
@@ -162,16 +126,12 @@ export default class JobPostingController {
                 status: jobPosting.status,
                 data: jobPosting.data
             })
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static updateJobPosting = async (req, res) => {
+    static updateJobPosting = async (req, res, next) => {
         try {
             const jobPosting = await JobPostingServices.handleUpdateJobPosting(req);
             return res.status(jobPosting.status).json({
@@ -179,16 +139,12 @@ export default class JobPostingController {
                 status: jobPosting.status,
                 data: jobPosting.data
             })
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static createNewJobPosting = async (req, res) => {
+    static createNewJobPosting = async (req, res, next) => {
         try {
             const jobPosting = await JobPostingServices.handleCreateNewJobPosting(req);
             return res.status(jobPosting.status).json({
@@ -196,16 +152,12 @@ export default class JobPostingController {
                 status: jobPosting.status,
                 data: jobPosting.data
             })
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static updateApprovalStatus = async (req, res) => {
+    static updateApprovalStatus = async (req, res, next) => {
         try {
             const post = await JobPostingServices.handleUpdateApprovalStatus(req);
             return res.status(post.status).json({
@@ -213,12 +165,8 @@ export default class JobPostingController {
                 status: post.status,
                 data: post.data
             })
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 }

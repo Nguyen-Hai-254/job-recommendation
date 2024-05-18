@@ -8,7 +8,7 @@ const followServices_1 = __importDefault(require("../services/followServices"));
 class FollowController {
 }
 _a = FollowController;
-FollowController.followCompany = async (req, res) => {
+FollowController.followCompany = async (req, res, next) => {
     try {
         if (!req.body.employerId) {
             return res.status(500).json({
@@ -24,15 +24,11 @@ FollowController.followCompany = async (req, res) => {
             data: data.data ? data.data : []
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-FollowController.saveEmployee = async (req, res) => {
+FollowController.saveEmployee = async (req, res, next) => {
     try {
         if (!req.body.employeeId || !req.body.isOnlineProfile) {
             return res.status(500).json({
@@ -48,15 +44,11 @@ FollowController.saveEmployee = async (req, res) => {
             data: data.data ? data.data : []
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-FollowController.getFollowByEmployee = async (req, res) => {
+FollowController.getFollowByEmployee = async (req, res, next) => {
     try {
         const data = await followServices_1.default.handleGetFollowByEmployee(req.user);
         return res.status(data.status).json({
@@ -65,15 +57,11 @@ FollowController.getFollowByEmployee = async (req, res) => {
             data: data.data ? data.data : []
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-FollowController.getSaveEmployeeByEmployer = async (req, res) => {
+FollowController.getSaveEmployeeByEmployer = async (req, res, next) => {
     try {
         const data = await followServices_1.default.handleGetSaveEmployeeByEmployer(req.user);
         return res.status(data.status).json({
@@ -82,15 +70,11 @@ FollowController.getSaveEmployeeByEmployer = async (req, res) => {
             data: data.data ? data.data : []
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-FollowController.followJobPosting = async (req, res) => {
+FollowController.followJobPosting = async (req, res, next) => {
     try {
         if (!req.body.jobPosting) {
             return res.status(500).json({
@@ -106,15 +90,11 @@ FollowController.followJobPosting = async (req, res) => {
             data: data.data ? data.data : []
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-FollowController.getFollowJobPosting = async (req, res) => {
+FollowController.getFollowJobPosting = async (req, res, next) => {
     try {
         const data = await followServices_1.default.handleGetFollowJobPosting(req.user);
         return res.status(data.status).json({
@@ -123,12 +103,8 @@ FollowController.getFollowJobPosting = async (req, res) => {
             data: data.data ? data.data : []
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
 exports.default = FollowController;

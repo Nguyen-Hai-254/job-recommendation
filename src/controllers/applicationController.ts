@@ -1,7 +1,7 @@
 import ApplicationServices from "../services/applicationServices";
 
 export default class ApplicationController {
-    static getApplicationsbyEmployee = async (req, res) => {
+    static getApplicationsbyEmployee = async (req, res, next) => {
         try {
             const applications = await ApplicationServices.handleGetApplicationsbyEmployee(req);
             return res.status(applications.status).json({
@@ -9,16 +9,12 @@ export default class ApplicationController {
                 status: 200,
                 data: applications.data ? applications.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getApplication = async (req, res) => {
+    static getApplication = async (req, res, next) => {
         try {
             const application = await ApplicationServices.handleGetApplication(req);
             return res.status(application.status).json({
@@ -26,16 +22,12 @@ export default class ApplicationController {
                 status: application.status,
                 data: application.data
             })
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static createNewApplication = async (req, res) => {
+    static createNewApplication = async (req, res, next) => {
         try {
             const application = await ApplicationServices.handleCreateNewApplication(req);
             return res.status(application.status).json({
@@ -43,16 +35,12 @@ export default class ApplicationController {
                 status: application.status,
                 data: application.data
             })
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getApplicationsbyEmployer = async (req, res) => {
+    static getApplicationsbyEmployer = async (req, res, next) => {
         try {
             const applications = await ApplicationServices.handleGetApplicationsbyEmployer(req);
             return res.status(applications.status).json({
@@ -60,16 +48,12 @@ export default class ApplicationController {
                 status: 200,
                 data: applications.data ? applications.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getLengthOfApplicationsbyEmployer = async (req, res) => {
+    static getLengthOfApplicationsbyEmployer = async (req, res, next) => {
         try {
             const applications = await ApplicationServices.handleGetLengthOfApplicationsbyEmployer(req);
             return res.status(applications.status).json({
@@ -77,16 +61,12 @@ export default class ApplicationController {
                 status: 200,
                 data: applications.data ? applications.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getApplicationbyEmployer = async (req, res) => {
+    static getApplicationbyEmployer = async (req, res, next) => {
         try {
             const applications = await ApplicationServices.handleGetApplicationbyEmployer(req);
             return res.status(applications.status).json({
@@ -94,16 +74,12 @@ export default class ApplicationController {
                 status: 200,
                 data: applications.data ? applications.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static updateApplicationbyEmployer = async (req, res) => {
+    static updateApplicationbyEmployer = async (req, res, next) => {
         try {
             const application = await ApplicationServices.handleUpdateApplicationbyEmployer(req);
             return res.status(application.status).json({
@@ -111,16 +87,12 @@ export default class ApplicationController {
                 status: application.status,
                 data: application.data
             })
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getAllApplications = async (req, res) => {
+    static getAllApplications = async (req, res, next) => {
         try {
             const applications = await ApplicationServices.handleGetAllApplications();
             return res.status(applications.status).json({
@@ -128,12 +100,8 @@ export default class ApplicationController {
                 status: applications.status,
                 data: applications.data ? applications.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 }

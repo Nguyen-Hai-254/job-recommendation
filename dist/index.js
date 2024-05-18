@@ -9,6 +9,7 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const cors_1 = __importDefault(require("cors"));
 const connectDB_1 = require("./config/connectDB");
+const error_1 = require("./middleware/error");
 const cronJob = require('./cron/updateExpiredJobStatusCron');
 const routes = require('./routes/web');
 let app = (0, express_1.default)();
@@ -40,4 +41,5 @@ let port = process.env.PORT || 3002;
 app.listen(port, () => {
     console.log('BackEnd NodeJS is running on the port:', port);
 });
+app.use(error_1.errorMiddleware);
 //# sourceMappingURL=index.js.map

@@ -2,7 +2,7 @@ import FollowServices from "../services/followServices";
 
 
 export default class FollowController {
-    static followCompany = async (req, res) => {
+    static followCompany = async (req, res, next) => {
         try {
             if (!req.body.employerId) {
                 return res.status(500).json({
@@ -18,16 +18,12 @@ export default class FollowController {
                 message: data.message,
                 data: data.data ? data.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static saveEmployee = async (req, res) => {
+    static saveEmployee = async (req, res, next) => {
         try {
             if (!req.body.employeeId || !req.body.isOnlineProfile) {
                 return res.status(500).json({
@@ -43,16 +39,12 @@ export default class FollowController {
                 message: data.message,
                 data: data.data ? data.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getFollowByEmployee = async (req, res) => {
+    static getFollowByEmployee = async (req, res, next) => {
         try {
             const data = await FollowServices.handleGetFollowByEmployee(req.user);
             return res.status(data.status).json({
@@ -60,16 +52,12 @@ export default class FollowController {
                 message: data.message,
                 data: data.data ? data.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getSaveEmployeeByEmployer = async (req, res) => {
+    static getSaveEmployeeByEmployer = async (req, res, next) => {
         try {
             const data = await FollowServices.handleGetSaveEmployeeByEmployer(req.user);
             return res.status(data.status).json({
@@ -77,16 +65,12 @@ export default class FollowController {
                 message: data.message,
                 data: data.data ? data.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static followJobPosting = async (req, res) => {
+    static followJobPosting = async (req, res, next) => {
         try {
             if (!req.body.jobPosting) {
                 return res.status(500).json({
@@ -101,16 +85,12 @@ export default class FollowController {
                 message: data.message,
                 data: data.data ? data.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 
-    static getFollowJobPosting = async (req, res) => {
+    static getFollowJobPosting = async (req, res, next) => {
         try {
             const data = await FollowServices.handleGetFollowJobPosting(req.user)
             return res.status(data.status).json({
@@ -118,12 +98,8 @@ export default class FollowController {
                 message: data.message,
                 data: data.data ? data.data : []
             });
-        } catch (err) {
-            return res.status(500).json({
-                message: err.message,
-                status: 500,
-                error: 'Internal Server Error',
-            });
+        } catch (error) {
+            next(error);
         }
     }
 }
