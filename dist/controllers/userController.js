@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
+const httpException_1 = require("../exceptions/httpException");
 const userServices_1 = __importDefault(require("../services/userServices"));
 class UserController {
 }
@@ -67,18 +68,13 @@ UserController.logOut = async (req, res, next) => {
 };
 UserController.resetPassword = async (req, res, next) => {
     try {
-        if (!req.user.email || !req.body.password || !req.body.newPassword || !req.body.confirmNewPassword) {
-            return res.status(400).json({
-                message: "Missing input parameter!",
-                status: 400,
-            });
+        const { email } = req.user;
+        const { password, newPassword, confirmNewPassword } = req.body;
+        if (!email || !password || !newPassword || !confirmNewPassword) {
+            throw new httpException_1.HttpException(400, 'Invalid input');
         }
-        const userData = await userServices_1.default.handleResetPassword(req.user.email, req.body.password, req.body.newPassword, req.body.confirmNewPassword);
-        return res.status(userData.status).json({
-            message: userData.message,
-            status: userData.status,
-            data: []
-        });
+        const userData = await userServices_1.default.handleResetPassword(email, password, newPassword, confirmNewPassword);
+        return res.status(200).json({ message: 'Reset password successfully', data: userData });
     }
     catch (error) {
         next(error);

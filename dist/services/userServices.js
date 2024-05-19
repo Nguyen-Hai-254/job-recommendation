@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
+const httpException_1 = require("../exceptions/httpException");
 const connectDB_1 = require("../config/connectDB");
 const AttachedDocument_1 = require("../entity/AttachedDocument");
 const Employee_1 = require("../entity/Employee");
@@ -122,11 +123,7 @@ UserServices.handleLogin = async (email, password) => {
 };
 UserServices.handleResetPassword = async (email, password, newPassword, confirmNewPassword) => {
     if (newPassword != confirmNewPassword) {
-        return ({
-            message: 'new Password does not match new confirm password',
-            status: 400,
-            data: null
-        });
+        throw new httpException_1.HttpException(400, 'new Password does not match new confirm password');
     }
     const findUser = await userRepository
         .createQueryBuilder('user')
@@ -134,30 +131,16 @@ UserServices.handleResetPassword = async (email, password, newPassword, confirmN
         .addSelect("user.password")
         .where('user.email = :email', { email })
         .getOne();
-    if (!findUser) {
-        return ({
-            message: `Your's email is't exist`,
-            status: 404,
-            data: null
-        });
-    }
+    if (!findUser)
+        throw new httpException_1.HttpException(404, `Your's email is't exist`);
     const checkUserPassword = await bcrypt_1.default.compare(password, findUser.password);
-    if (!checkUserPassword) {
-        return ({
-            message: 'Wrong password!',
-            status: 400,
-            data: null
-        });
-    }
+    if (!checkUserPassword)
+        throw new httpException_1.HttpException(401, 'Your password is incorrect');
     const salt = await bcrypt_1.default.genSalt(10);
     const hashPassWord = await bcrypt_1.default.hash(newPassword, salt);
     findUser.password = hashPassWord;
     await findUser.save();
-    return ({
-        message: 'reset password success',
-        status: 200,
-        data: null
-    });
+    return null;
 };
 UserServices.handleGetProfile = async (user) => {
     var _b;

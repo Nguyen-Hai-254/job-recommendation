@@ -1,3 +1,4 @@
+import { HttpException } from "../exceptions/httpException"
 import { myDataSource } from "../config/connectDB"
 import { AttachedDocument } from "../entity/AttachedDocument"
 import { Employee } from "../entity/Employee"
@@ -130,47 +131,24 @@ export default class UserServices {
 
     static handleResetPassword = async (email, password, newPassword, confirmNewPassword) => {
         if (newPassword != confirmNewPassword) {
-            return ({
-                message: 'new Password does not match new confirm password',
-                status: 400,
-                data: null
-            })
+            throw new HttpException(400, 'new Password does not match new confirm password')
         }
-
         const findUser = await userRepository
             .createQueryBuilder('user')
             .select("user")
             .addSelect("user.password")
             .where('user.email = :email', { email })
-            .getOne()
-
-        if (!findUser) {
-            return ({
-                message: `Your's email is't exist`,
-                status: 404,
-                data: null
-            })
-        }
-
+            .getOne();
+        if (!findUser) throw new HttpException(404 , `Your's email is't exist`);
+        
         const checkUserPassword = await bcrypt.compare(password, findUser.password);
-
-        if (!checkUserPassword) {
-            return ({
-                message: 'Wrong password!',
-                status: 400,
-                data: null
-            })
-        }
+        if (!checkUserPassword) throw new HttpException(401, 'Your password is incorrect');
 
         const salt = await bcrypt.genSalt(10);
         const hashPassWord = await bcrypt.hash(newPassword, salt);
         findUser.password = hashPassWord;
         await findUser.save();
-        return ({
-            message: 'reset password success',
-            status: 200,
-            data: null
-        })
+        return null;
     }
 
     static handleGetProfile = async (user) => {

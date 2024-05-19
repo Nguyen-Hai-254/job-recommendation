@@ -1,6 +1,5 @@
 import { myDataSource } from "../config/connectDB"
 import { Employee } from "../entity/Employee"
-import { Employer } from "../entity/Employer"
 import { User } from "../entity/Users"
 import { JobPosting } from "../entity/JobPosting"
 import { Application } from "../entity/Application"
@@ -11,7 +10,6 @@ import { MySQLErrorCode, applicationType } from "../utils/enum"
 import { HttpException } from "../exceptions/httpException"
 
 const userRepository = myDataSource.getRepository(User);
-const employerRepository = myDataSource.getRepository(Employer);
 const employeeRepository = myDataSource.getRepository(Employee);
 const applicationRepository = myDataSource.getRepository(Application);
 const jobpostingRepository = myDataSource.getRepository(JobPosting);
