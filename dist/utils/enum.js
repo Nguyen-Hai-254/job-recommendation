@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.monthMap = exports.applicationType = exports.profession = exports.approvalStatus = exports.positionLevel = exports.experience = exports.employmentType = exports.sex = exports.userRole = exports.degree = void 0;
+exports.PostgresErrorCode = exports.monthMap = exports.applicationType = exports.profession = exports.approvalStatus = exports.positionLevel = exports.experience = exports.employmentType = exports.sex = exports.userRole = exports.degree = void 0;
 var degree;
 (function (degree) {
     degree["highSchool"] = "Trung h\u1ECDc";
@@ -136,4 +136,10 @@ exports.monthMap = {
     '11': 'Nov',
     '12': 'Dec',
 };
+var PostgresErrorCode;
+(function (PostgresErrorCode) {
+    PostgresErrorCode["DUPLICATE"] = "23505";
+    PostgresErrorCode["INVALID_RELATION_KEY"] = "23503";
+    PostgresErrorCode["INVALID_INPUT"] = "22P02";
+})(PostgresErrorCode || (exports.PostgresErrorCode = PostgresErrorCode = {}));
 //# sourceMappingURL=enum.js.map

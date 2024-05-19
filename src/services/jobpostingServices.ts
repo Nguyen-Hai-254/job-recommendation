@@ -1,23 +1,31 @@
 import { myDataSource } from "../config/connectDB"
-import { Employee } from "../entity/Employee"
-import { Employer } from "../entity/Employer"
-import { User } from "../entity/Users"
-import { approvalStatus, profession, userRole } from "../utils/enum"
+import { PostgresErrorCode, approvalStatus } from "../utils/enum"
 import { JobPosting } from "../entity/JobPosting"
 import moment from "moment"
 import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex, EnumApprovalStatus } from "../utils/enumAction"
 import { Notification } from "../entity/Notification"
-import { Brackets, LessThan, MoreThanOrEqual } from "typeorm"
+import { Brackets } from "typeorm"
+import { HttpException } from "../exceptions/httpException"
 
-const userRepository = myDataSource.getRepository(User);
-const employerRepository = myDataSource.getRepository(Employer);
-const employeeRepository = myDataSource.getRepository(Employee);
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
 const notificationRepository = myDataSource.getRepository(Notification);
 
 export default class JobPostingServices {
-    static handleGetAllJobPostings = async (req) => {
-        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, employerId, keywords, num, page } = req.query;
+    static handleGetJobPosting = async (postId) => {               
+        const jobPosting = await jobPostingRepository.findOne({
+            where: { postId: postId, isHidden: false },
+            relations: ['employer']
+        })
+        if (!jobPosting) throw new HttpException(404, `No Job posting matches postId: ${postId}`)
+           
+        jobPosting.view += 1
+        await jobPosting.save()
+
+        return jobPosting
+    }
+
+    static handleGetAllJobPostings = async (reqQuery) => {
+        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, employerId, keywords, num, page } = reqQuery;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // jobposting for employee, employer, unknown
         query = query.leftJoinAndSelect("job-postings.employer", "employer")
@@ -84,28 +92,19 @@ export default class JobPostingServices {
 
             query = query.skip(skip).take(take);
         }
+        else {
+            query = query.skip(0).take(10);
+        }
 
         query = query.orderBy('job-postings.updateAt', 'DESC')
 
         const jobPostings = await query.getMany();
 
-        if (!jobPostings || jobPostings.length === 0) {
-            return ({
-                message: 'No jobPostings found',
-                status: 204,
-                data: null
-            })
-        }
-
-        return ({
-            message: 'Find all jobPostings success',
-            status: 200,
-            data: jobPostings
-        })
+        return jobPostings ? jobPostings : [];
     }
 
-    static handleGetLengthOfAllJobPostings = async (req) => {
-        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, employerId, keywords } = req.query;
+    static handleGetLengthOfAllJobPostings = async (reqQuery) => {
+        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, employerId, keywords } = reqQuery;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // jobposting for employee, employer, unknown
         query = query.leftJoinAndSelect("job-postings.employer", "employer")
@@ -168,15 +167,11 @@ export default class JobPostingServices {
 
         const totalResults = await query.getCount();
 
-        return ({
-            message: 'Find length of jobPostings success',
-            status: 200,
-            data: { totalResults: totalResults }
-        })
+        return { totalResults: totalResults };
     }
 
-    static handleGetAllJobPostingsByAdmin = async (req) => {
-        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, status, num, page } = req.query;
+    static handleGetAllJobPostingsByAdmin = async (reqQuery) => {
+        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, status, num, page } = reqQuery;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // all jobposting for admin
         query = query.leftJoinAndSelect("job-postings.employer", "employer");
@@ -234,39 +229,16 @@ export default class JobPostingServices {
 
         const jobPostings = await query.getMany();
 
-        if (!jobPostings || jobPostings.length === 0) {
-            return ({
-                message: 'No jobPostings found',
-                status: 204,
-                data: null
-            })
-        }
-
-        return ({
-            message: 'Find all jobPostings success',
-            status: 200,
-            data: jobPostings.map(job => ({
+        const data = jobPostings.map(job => ({
                 ...job,
                 submissionCount: job.applications.length
-            }))
-        })
+        }));
+        return data ? data : [];
     }
 
-    static handleGetLengthOfAllJobPostingsByAdmin = async (req) => {
-        // Update status of job postings when job postings were expried.
-        // let findExpiredPosts = await jobPostingRepository.find({
-        //     where: {
-        //         applicationDeadline: LessThan(moment(new Date()).subtract(1, 'days').toDate()),
-        //         status: approvalStatus.approved
-        //     }
-        // })
-
-        // findExpiredPosts.map(async (post) => {
-        //     post.status = approvalStatus.expired
-        //     await jobPostingRepository.save(post)
-        // })
-
-        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, status } = req.query;
+    static handleGetLengthOfAllJobPostingsByAdmin = async (reqQuery) => {
+       
+        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, status } = reqQuery;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // all jobposting for admin
         query = query.leftJoinAndSelect("job-postings.employer", "employer");
@@ -309,48 +281,12 @@ export default class JobPostingServices {
         }
         const totalResults = await query.getCount();
 
-        return ({
-            message: 'Find length of jobPostings success',
-            status: 200,
-            data: { totalResults: totalResults }
-        })
-    }
-
-    static handleGetTotalResultsOfProfession = async () => {
-        const posts = await jobPostingRepository
-            .createQueryBuilder('jobPosting')
-            .select('jobPosting.profession', 'profession')
-            .where('jobPosting.status = :status', { status: approvalStatus.approved })
-            .getRawMany();
-
-        const professionCount = {};
-
-        for (const post of posts) {
-            const professions = post.profession.split(',');
-          
-            for (const profession of professions) {
-              if (professionCount[profession.trim()]) {
-                professionCount[profession.trim()] += 1;
-              } else {
-                professionCount[profession.trim()] = 1;
-              }
-            }
-        }
-
-        const result = Object.keys(professionCount).map(key => ({
-            'profession_value': key,
-            'count': professionCount[key]
-          }));
+        return { totalResults: totalResults };
         
-        return ({
-            message: `Find job postings successful!`,
-            status: 200,
-            data: result
-        })
     }
 
-    static handleGetTotalResultsOfProfessionByAdmin = async (req) => {
-        const { status } = req.query;
+    static handleGetTotalResultsOfProfession = async (reqQuery) => {
+        const { status } = reqQuery;
 
         let query = jobPostingRepository.createQueryBuilder('jobPosting')
             .select('jobPosting.profession', 'profession');
@@ -376,21 +312,17 @@ export default class JobPostingServices {
             'count': professionCount[key]
           }));
         
-        return ({
-            message: `Find job postings successful!`,
-            status: 200,
-            data: result
-        })
+        return result;
     }
 
 
-    static handleGetJobPostingsByEmployer = async (req) => {
-        const { status, num, page } = req.query;
+    static handleGetJobPostingsByEmployer = async (employerId, reqQuery) => {
+        const { status, num, page } = reqQuery;
         let query = jobPostingRepository
             .createQueryBuilder('jobPosting')
             .leftJoin('jobPosting.employer', 'employer')
             .leftJoinAndSelect("jobPosting.applications", "applications")
-            .where('employer.userId = :userId', { userId: req.user.userId })
+            .where('employer.userId = :userId', { userId: employerId })
 
         if (status) {
             query = query.andWhere('jobPosting.status = :status', { status });
@@ -413,325 +345,183 @@ export default class JobPostingServices {
 
         const jobPostings = await query.getMany();
 
-        return ({
-            message: `Find job postings successful!`,
-            status: 200,
-            data: {
+        const data = {
                 totalResults: totalResults,
                 result: jobPostings.map(job => ({
                     ...job,
                     submissionCount: job.applications.length
                 }))
             }
-        })
 
+        return data ? data : [];
     }
 
-    static handleGetJobPosting = async (req) => {
-        if (!req?.params?.postId) {
-            return ({
-                message: 'postId is required',
-                status: 400,
-                data: null
-            })
-        }
+    static handleGetJobPostingByEmployer = async (employerId, postId) => { 
         const jobPosting = await jobPostingRepository.findOne({
-            where: { postId: req.params.postId },
-            relations: ['employer']
-        })
-        if (!jobPosting) {
-            return ({
-                message: `No Job posting matches postId: ${req.params.postId}`,
-                status: 400,
-                data: null
-            })
-        }
-
-        jobPosting.view += 1
-        await jobPosting.save()
-
-        return ({
-            message: `Find Job posting has postId: ${req.params.postId} successes`,
-            status: 200,
-            data: jobPosting
-        })
-    }
-
-    static handleGetJobPostingByEmployer = async (req) => {
-        if (!req?.params?.postId) {
-            return ({
-                message: 'postId is required',
-                status: 400,
-                data: null
-            })
-        }
-        const jobPosting = await jobPostingRepository.findOne({
-            where: { postId: req.params.postId },
+            where: { postId: postId },
             relations: ['employer', 'applications'],
         })
-        if (!jobPosting) {
-            return ({
-                message: `No Job posting matches postId: ${req.params.postId}`,
-                status: 400,
-                data: null
-            })
+        if (!jobPosting) throw new HttpException(404, `No Job posting matches postId: ${postId}`)
+        if (jobPosting.employer.userId !== employerId) {
+            throw new HttpException(403, `You aren't a owner of jobPosting with postId: ${postId}`)
         }
-
-        return ({
-            message: `Find Job posting has postId: ${req.params.postId} successes`,
-            status: 200,
-            data: jobPosting
-        })
+        return jobPosting;
     }
 
-    static handleUpdateJobPosting = async (req) => {
-        if (!req?.params?.postId) {
-            return ({
-                message: 'postId is required',
-                status: 400,
-                data: null
-            })
-        }
+    static handleUpdateJobPosting = async (employerId, postId, dto) => {
+        const { 
+            name, email, phone, contactAddress, 
+            workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, minAge, maxAge, sex,
+            numberOfVacancies, trialPeriod, applicationDeadline, minSalary, maxSalary, skills,
+            jobDescription, jobRequirements, benefits, requiredSkills, keywords,
+            isHidden
+         } = dto;
 
         const jobPosting = await jobPostingRepository.findOne({
-            where: { postId: req.params.postId },
+            where: { postId: postId },
             relations: ['employer.user']
         })
-        if (!jobPosting) {
-            return ({
-                message: `No Job posting matches postId: ${req.params.postId}`,
-                status: 400,
-                data: null
-            })
-        }
+        if (!jobPosting) throw new HttpException(404, `No Job posting matches postId: ${postId}`)
 
-        if (jobPosting.employer.userId !== req.user.userId) {
-            return ({
-                message: `You aren't a owner of jobPosting with postId: ${jobPosting.postId}`,
-                status: 403,
-                data: null
-            })
+        if (jobPosting.employer.userId !== employerId) {
+            throw new HttpException(403, `You aren't a owner of jobPosting with postId: ${postId}`)
         }
 
         // Update with req.body
-        if (req.body?.name) jobPosting.name = req.body.name
-        if (req.body?.email) jobPosting.email = req.body.email
-        if (req.body?.phone) jobPosting.phone = req.body.phone
-        if (req.body?.contactAddress) jobPosting.contactAddress = req.body.contactAddress
-        if (req.body?.workAddress) jobPosting.workAddress = req.body.workAddress
+        if (name) jobPosting.name = name
+        if (email) jobPosting.email = email
+        if (phone) jobPosting.phone = phone
+        if (contactAddress) jobPosting.contactAddress = contactAddress
+        if (workAddress) jobPosting.workAddress = workAddress
 
-        if (req.body?.jobTitle) jobPosting.jobTitle = req.body.jobTitle
-        if (req.body?.profession) jobPosting.profession = req.body.profession
-        if (req.body?.employmentType) jobPosting.employmentType = EnumEmploymentType(req.body.employmentType)
-        if (req.body?.degree) jobPosting.degree = EnumDegree(req.body.degree)
-        if (req.body?.experience) jobPosting.experience = EnumExperience(req.body.experience)
-        if (req.body?.positionLevel) jobPosting.positionLevel = EnumPositionLevel(req.body.positionLevel)
-        if (req.body?.minAge) jobPosting.minAge = req.body.minAge
-        if (req.body?.maxAge) jobPosting.maxAge = req.body.maxAge
-        if (req.body?.sex) jobPosting.sex = EnumSex(req.body.sex)
-        else if (req.body?.sex === null) jobPosting.sex = null;
-        if (req.body?.numberOfVacancies) jobPosting.numberOfVacancies = req.body.numberOfVacancies
-        if (req.body?.trialPeriod) jobPosting.trialPeriod = req.body.trialPeriod
-        if (req.body?.applicationDeadline) jobPosting.applicationDeadline = new Date(moment(req.body.applicationDeadline).format("YYYY-MM-DD"));
-        if (req.body?.minSalary) jobPosting.minSalary = req.body.minSalary
-        if (req.body?.maxSalary) jobPosting.maxSalary = req.body.maxSalary
-        if (req.body?.skills) jobPosting.skills = req.body.skills
-        if (req.body?.jobDescription) jobPosting.jobDescription = req.body.jobDescription
-        if (req.body?.jobRequirements) jobPosting.jobRequirements = req.body.jobRequirements
-        if (req.body?.benefits) jobPosting.benefits = req.body.benefits
-        if (req.body?.isHidden !== null) jobPosting.isHidden = req.body.isHidden
-        if (req.body?.requiredSkills) jobPosting.requiredSkills = req.body.requiredSkills
-        if (req.body?.keywords) jobPosting.keywords = req.body.keywords
+        if (jobTitle) jobPosting.jobTitle = jobTitle
+        if (profession) jobPosting.profession = profession
+        if (employmentType) jobPosting.employmentType = EnumEmploymentType(employmentType)
+        if (degree) jobPosting.degree = EnumDegree(degree)
+        if (experience) jobPosting.experience = EnumExperience(experience)
+        if (positionLevel) jobPosting.positionLevel = EnumPositionLevel(positionLevel)
+        if (minAge) jobPosting.minAge = minAge
+        if (maxAge) jobPosting.maxAge = maxAge
+        if (sex) jobPosting.sex = EnumSex(sex)
+        else if (sex === null) jobPosting.sex = null;
+        if (numberOfVacancies) jobPosting.numberOfVacancies = numberOfVacancies
+        if (trialPeriod) jobPosting.trialPeriod = trialPeriod
+        if (applicationDeadline) jobPosting.applicationDeadline = new Date(moment(applicationDeadline).format("YYYY-MM-DD"));
+        if (minSalary) jobPosting.minSalary = minSalary
+        if (maxSalary) jobPosting.maxSalary = maxSalary
+        if (skills) jobPosting.skills = skills
+        if (jobDescription) jobPosting.jobDescription = jobDescription
+        if (jobRequirements) jobPosting.jobRequirements = jobRequirements
+        if (benefits) jobPosting.benefits = benefits
+        if (isHidden !== null) jobPosting.isHidden = isHidden
+        if (requiredSkills) jobPosting.requiredSkills = requiredSkills
+        if (keywords) jobPosting.keywords = keywords
         jobPosting.status = approvalStatus.pending
         jobPosting.updateAt = new Date()
         jobPosting.check = null
 
         await jobPostingRepository.save(jobPosting);
+
         const createNotification = notificationRepository.create({
             content: 'Bạn đã cập nhật tin tuyển dụng ' + jobPosting.jobTitle,
             user: jobPosting.employer.user
         })
         await notificationRepository.save(createNotification);
 
-        return ({
-            message: `Job posting has postId: ${req.params.postId} are updated successfully`,
-            status: 200,
-            data: jobPosting
-        })
+        return jobPosting;
     }
 
-    static handleCreateNewJobPosting = async (req) => {
+    static handleCreateNewJobPosting = async (employerId, req) => {
         // Check parameters
         if (!req?.body?.name || !req?.body?.email || !req?.body?.phone || !req?.body?.contactAddress) {
-            return ({
-                message: 'Thông tin liên hệ còn thiếu',
-                status: 400,
-                data: null
-            })
+            throw new HttpException(400, 'body is required');
         }
         if (!req?.body?.jobTitle || !req?.body?.profession || !req?.body?.employmentType || !req?.body?.degree || !req?.body?.experience ||
             !req?.body?.positionLevel || !req?.body?.numberOfVacancies || !req?.body?.applicationDeadline) {
-            return ({
-                message: 'Thông tin cơ bản còn thiếu',
-                status: 400,
-                data: null
-            })
+            throw new HttpException(400, 'body is required');
         }
         if (!req?.body?.workAddress || !req?.body?.minSalary || !req?.body?.maxSalary) {
-            return ({
-                message: 'Thông tin địa chỉ làm việc hoặc mức lương còn thiếu',
-                status: 400,
-                data: null
-            })
+            throw new HttpException(400, 'body is required');
         }
         if (!req?.body?.jobDescription || !req?.body?.jobRequirements || !req?.body?.benefits) {
-            return ({
-                message: 'Mô tả công việc còn thiếu',
-                status: 400,
-                data: null
-            })
+            throw new HttpException(400, 'body is required');
         }
-        // Create new post
-        const post = await jobPostingRepository.create({
-            name: req.body.name,
-            email: req.body.email,
-            phone: req.body.phone,
-            contactAddress: req.body.contactAddress,
-            workAddress: req.body.workAddress,
-            jobTitle: req.body.jobTitle,
-            profession: req.body.profession,
-            employmentType: req.body.employmentType,
-            degree: req.body.degree,
-            experience: req.body.experience,
-            positionLevel: req.body.positionLevel,
-            minAge: req.body.minAge ? req.body.minAge : null,
-            maxAge: req.body.maxAge ? req.body.maxAge : null,
-            sex: req.body.sex ? req.body.sex : null,
-            numberOfVacancies: req.body.numberOfVacancies,
-            trialPeriod: req.body.trialPeriod ? req.body.trialPeriod : null,
-            applicationDeadline: new Date(moment(req.body.applicationDeadline, "DD-MM-YYYY").format("MM-DD-YYYY")),
-            minSalary: req.body.minSalary,
-            maxSalary: req.body.maxSalary,
-            skills: req.body.skills ? req.body.skills : null,
-            jobDescription: req.body.jobDescription,
-            jobRequirements: req.body.jobRequirements,
-            benefits: req.body.benefits,
-            submissionCount: 0,
-            view: 0,
-            isHidden: req?.body?.isHidden ? req.body.isHidden : false,
-            requiredSkills: req.body?.requiredSkills ? req.body?.requiredSkills : null,
-            keywords: req.body?.keywords ? req.body?.keywords : null
-        })
-        const post1 = await jobPostingRepository.save(post)
-
-        const user = await employerRepository.findOne({
-            where: { userId: req.user.userId },
-            relations: ['jobPostings']
-        })
-        if (!user) {
-            return ({
-                message: 'User not found',
-                status: 400,
-                data: null
+        try {
+            // Create new post
+            const post = jobPostingRepository.create({
+                name: req.body.name,
+                email: req.body.email,
+                phone: req.body.phone,
+                contactAddress: req.body.contactAddress,
+                workAddress: req.body.workAddress,
+                jobTitle: req.body.jobTitle,
+                profession: req.body.profession,
+                employmentType: req.body.employmentType,
+                degree: req.body.degree,
+                experience: req.body.experience,
+                positionLevel: req.body.positionLevel,
+                minAge: req.body.minAge ? req.body.minAge : null,
+                maxAge: req.body.maxAge ? req.body.maxAge : null,
+                sex: req.body.sex ? req.body.sex : null,
+                numberOfVacancies: req.body.numberOfVacancies,
+                trialPeriod: req.body.trialPeriod ? req.body.trialPeriod : null,
+                applicationDeadline: new Date(moment(req.body.applicationDeadline, "DD-MM-YYYY").format("MM-DD-YYYY")),
+                minSalary: req.body.minSalary,
+                maxSalary: req.body.maxSalary,
+                skills: req.body.skills ? req.body.skills : null,
+                jobDescription: req.body.jobDescription,
+                jobRequirements: req.body.jobRequirements,
+                benefits: req.body.benefits,
+                submissionCount: 0,
+                view: 0,
+                isHidden: req?.body?.isHidden ? req.body.isHidden : false,
+                requiredSkills: req.body?.requiredSkills ? req.body?.requiredSkills : null,
+                keywords: req.body?.keywords ? req.body?.keywords : null,
+                employer: { userId: employerId}
             })
-        }
+            await jobPostingRepository.save(post);
 
-        user.jobPostings.push(post1);
-        await employerRepository.save(user);
-
-        // Add new notification
-        const foundUser = await userRepository.findOne({
-            where: { userId: req.user.userId }
-        })
-        if (!foundUser) {
-            return ({
-                message: 'User not found',
-                status: 400,
-                data: null
+            // Add new notification
+            const createNotification = notificationRepository.create({
+                content: 'Đăng tuyển của bạn đang chờ duyệt',
+                user: { userId: employerId}
             })
+            await notificationRepository.save(createNotification);
+            return post;
+        } catch (err) {
+            if (err.code === PostgresErrorCode.INVALID_RELATION_KEY) {
+                throw new HttpException(404, 'Employer not found')
+            }
+            throw err;
         }
-        const createNotification = notificationRepository.create({
-            content: 'Đăng tuyển của bạn đang chờ duyệt',
-            user: foundUser
-        })
-        await notificationRepository.save(createNotification);
-
-        return ({
-            message: 'Create new job posting successfully',
-            status: 200,
-            data: post
-        })
     }
 
-    static handleDeleteJobPosting = async (req) => {
-        if (!req?.params?.postId) {
-            return ({
-                message: 'postId is required',
-                status: 400,
-                data: null
-            })
-        }
+    static handleDeleteJobPosting = async (employerId, postId ) => {
         const jobPosting = await jobPostingRepository.findOne({
-            where: { postId: req.params.postId },
+            where: { postId: postId },
             relations: ['employer']
         })
-        if (!jobPosting) {
-            return ({
-                message: `No Job posting matches postId: ${req.params.postId}`,
-                status: 400,
-                data: null
-            })
+        if (!jobPosting) throw new HttpException(404, `No Job posting matches postId: ${postId}`)
+        if (jobPosting.employer.userId !== employerId) {
+            throw new HttpException(403, `You aren't a owner of jobPosting with postId: ${postId}`)
         }
 
-        // Check employer is owner of Job posting ?
-        if (jobPosting.employer.userId !== req.user.userId) {
-            return ({
-                message: `You are not the owner of Job posting has id: ${req.params.postId}`,
-                status: 403,
-                data: null
-            })
-        }
-
-        await jobPostingRepository.delete(jobPosting.postId);
-
-        return ({
-            message: `Delete Job posting has postId: ${req.params.postId} successes`,
-            status: 200,
-            data: jobPosting
-        })
+        return await jobPostingRepository.remove(jobPosting);
     }
 
-    static handleUpdateApprovalStatus = async (req) => {
-        if (!req?.params?.postId) {
-            return ({
-                message: 'postId is required',
-                status: 400,
-                data: null
-            })
-        }
-
-        const post = await jobPostingRepository.findOne({
-            where: { postId: req.params.postId },
+    static handleUpdateApprovalStatus = async (postId, dto) => {
+        const { status, check } = dto;
+        const jobPosting = await jobPostingRepository.findOne({
+            where: { postId: postId },
             relations: ['employer']
         })
-        if (!post) {
-            return ({
-                message: `No Post matches postId: ${req.params.postId}`,
-                status: 400,
-                data: null
-            })
-        }
+        if (!jobPosting) throw new HttpException(404, `No Job posting matches postId: ${postId}`)
 
-        // Update with req.body
-        if (req.body?.status) post.status = EnumApprovalStatus(req.body.status);
-        if (req.body?.check !== null) post.check = req.body.check
+        // Update with dto
+        if (status) jobPosting.status = EnumApprovalStatus(status);
+        if (check !== null) jobPosting.check = check;
 
-        await jobPostingRepository.save(post)
+        return await jobPostingRepository.save(jobPosting);
 
-        return ({
-            message: `Status of Post has id: ${req.params.postId} are changed successfully`,
-            status: 200,
-            data: post
-        })
     }
 }
