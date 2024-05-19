@@ -111,7 +111,6 @@ EmployeeController.createNewAnotherDegree = async (req, res, next) => {
         if (!req.body)
             throw new httpException_1.HttpException(400, 'Invalid body');
         const another_degree = await employeeServices_1.default.handleCreateNewAnotherDegree(userId, req.body);
-        console.log(another_degree);
         return res.status(201).json({ message: 'Create new another degree successfully', data: another_degree });
     }
     catch (error) {

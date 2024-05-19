@@ -47,15 +47,40 @@ AuthController.logOut = async (req, res, next) => {
         next(error);
     }
 };
-AuthController.resetPassword = async (req, res, next) => {
+AuthController.changePassword = async (req, res, next) => {
     try {
         const { email } = req.user;
         const { password, newPassword, confirmNewPassword } = req.body;
         if (!email || !password || !newPassword || !confirmNewPassword) {
             throw new httpException_1.HttpException(400, 'Invalid input');
         }
-        const userData = await authServices_1.default.handleResetPassword(email, password, newPassword, confirmNewPassword);
-        return res.status(200).json({ message: 'Reset password successfully', data: userData });
+        const userData = await authServices_1.default.handleChangePassword(email, password, newPassword, confirmNewPassword);
+        return res.status(200).json({ message: 'Change password successfully', data: userData });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+AuthController.requestPasswordReset = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+        if (!email)
+            throw new httpException_1.HttpException(400, 'Email is required');
+        await authServices_1.default.hanldeRequestPasswordReset(email);
+        res.status(200).json({ message: 'Password reset instructions have been sent to your email' });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+AuthController.resetPassword = async (req, res, next) => {
+    try {
+        const { email, token, newPassword } = req.body;
+        if (!email || !token || !newPassword) {
+            throw new httpException_1.HttpException(400, 'email, token and new password are required');
+        }
+        const userData = await authServices_1.default.handleResetPassword(email, token, newPassword);
+        return res.status(200).json({ message: 'Password reset successfully.', data: userData });
     }
     catch (error) {
         next(error);

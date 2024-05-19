@@ -40,7 +40,7 @@ export default class AuthController {
         }
     }
 
-    static resetPassword = async (req, res, next) => {
+    static changePassword = async (req, res, next) => {
         try {
             const { email } = req.user;
             const { password, newPassword, confirmNewPassword } = req.body;
@@ -48,9 +48,33 @@ export default class AuthController {
                 throw new HttpException(400, 'Invalid input');
             }
             
-            const userData = await AuthServices.handleResetPassword(email, password, newPassword, confirmNewPassword);
-            return res.status(200).json({message: 'Reset password successfully', data: userData});
+            const userData = await AuthServices.handleChangePassword(email, password, newPassword, confirmNewPassword);
+            return res.status(200).json({message: 'Change password successfully', data: userData});
 
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    static requestPasswordReset = async (req, res, next) => {
+        try {
+            const { email } = req.body;
+            if (!email ) throw new HttpException(400, 'Email is required');
+            await AuthServices.hanldeRequestPasswordReset(email);
+            res.status(200).json({ message: 'Password reset instructions have been sent to your email' });
+        } catch (error) {
+            next(error);
+        }
+    }
+    
+    static resetPassword = async (req, res, next) => {
+        try {
+            const { email, token, newPassword } = req.body;
+            if (!email || !token || !newPassword) {
+                throw new HttpException(400, 'email, token and new password are required');
+            } 
+            const userData = await AuthServices.handleResetPassword(email, token, newPassword);
+            return res.status(200).json({ message: 'Password reset successfully.', data: userData });
         } catch (error) {
             next(error);
         }

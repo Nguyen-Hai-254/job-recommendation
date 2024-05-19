@@ -13,6 +13,9 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const enum_1 = require("../utils/enum");
 const Employee_1 = require("../entity/Employee");
 const Employer_1 = require("../entity/Employer");
+const redisServices_1 = __importDefault(require("./redisServices"));
+const mailServices_1 = __importDefault(require("../services/mailServices"));
+const userServices_1 = __importDefault(require("../services/userServices"));
 const createToken = (payload) => {
     return jsonwebtoken_1.default.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
 };
@@ -81,7 +84,7 @@ AuthServices.handleLogin = async (email, password) => {
         userData: payload
     };
 };
-AuthServices.handleResetPassword = async (email, password, newPassword, confirmNewPassword) => {
+AuthServices.handleChangePassword = async (email, password, newPassword, confirmNewPassword) => {
     if (newPassword != confirmNewPassword) {
         throw new httpException_1.HttpException(400, 'new Password does not match new confirm password');
     }
@@ -105,6 +108,40 @@ AuthServices.handleResetPassword = async (email, password, newPassword, confirmN
         email: findUser.email,
         role: findUser.role
     };
+};
+AuthServices.hanldeRequestPasswordReset = async (email) => {
+    const userId = await userServices_1.default.getUserIdByEmail(email);
+    const token = _a.generatePasswordResetToken();
+    const expiresAt = new Date().getTime() + 10 * 60 * 1000; // Mã xác thực có hiệu lực 10 phút
+    await _a.storePasswordResetToken(userId, token, expiresAt);
+    await mailServices_1.default.sendTokenForResetPassword(email, token);
+};
+AuthServices.handleResetPassword = async (email, token, newPassword) => {
+    const findUser = await userRepository.findOneBy({ email: email });
+    if (!findUser)
+        throw new httpException_1.HttpException(404, `Your's email is't exist`);
+    const isTokenValid = await _a.verifyPasswordResetToken(findUser.userId, token);
+    if (!isTokenValid)
+        throw new httpException_1.HttpException(401, 'Invalid token');
+    const salt = await bcrypt_1.default.genSalt(10);
+    const hashPassWord = await bcrypt_1.default.hash(newPassword, salt);
+    findUser.password = hashPassWord;
+    await findUser.save();
+    return {
+        userId: findUser.userId,
+        email: findUser.email,
+        role: findUser.role
+    };
+};
+AuthServices.generatePasswordResetToken = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString(); // Tạo mã xác thực 6 số ngẫu nhiên
+};
+AuthServices.storePasswordResetToken = async (userId, token, expiresAt) => {
+    await redisServices_1.default.setPasswordResetToken(userId, token, expiresAt);
+};
+AuthServices.verifyPasswordResetToken = async (userId, token) => {
+    const storedToken = await redisServices_1.default.getPasswordResetToken(userId);
+    return storedToken === token;
 };
 exports.default = AuthServices;
 //# sourceMappingURL=authServices.js.map

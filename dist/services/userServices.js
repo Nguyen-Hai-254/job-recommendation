@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
+const httpException_1 = require("../exceptions/httpException");
 const connectDB_1 = require("../config/connectDB");
 const AttachedDocument_1 = require("../entity/AttachedDocument");
 const Employee_1 = require("../entity/Employee");
@@ -519,6 +520,13 @@ UserServices.handleGetAttachedDocumentByUser = async (userId) => {
         status: 200,
         data: newData
     });
+};
+UserServices.getUserIdByEmail = async (email) => {
+    const findUser = await userRepository.findOneBy({ email: email });
+    if (!findUser) {
+        throw new httpException_1.HttpException(404, 'User not found');
+    }
+    return findUser.userId;
 };
 exports.default = UserServices;
 //# sourceMappingURL=userServices.js.map

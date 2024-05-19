@@ -578,4 +578,11 @@ export default class UserServices {
             data: newData
         })
     }
+    static getUserIdByEmail = async (email) => {
+        const findUser = await userRepository.findOneBy({ email: email });
+        if (!findUser) {
+           throw new HttpException(404, 'User not found');
+        }
+        return findUser.userId;
+    }
 }

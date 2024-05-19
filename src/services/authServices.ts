@@ -6,6 +6,11 @@ import jwt from "jsonwebtoken"
 import { MySQLErrorCode } from "../utils/enum"
 import { Employee } from "../entity/Employee"
 import { Employer } from "../entity/Employer"
+import RedisServices from "./redisServices";
+import MailServices from "../services/mailServices";
+import UserServices from "../services/userServices";
+
+
 
 export const createToken = (payload) => {
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
@@ -78,7 +83,7 @@ export default class AuthServices {
         }
     }
 
-    static handleResetPassword = async (email, password, newPassword, confirmNewPassword) => {
+    static handleChangePassword = async (email, password, newPassword, confirmNewPassword) => {
         if (newPassword != confirmNewPassword) {
             throw new HttpException(400, 'new Password does not match new confirm password')
         }
@@ -102,5 +107,47 @@ export default class AuthServices {
             email: findUser.email,
             role: findUser.role
         };
+    }
+
+    static hanldeRequestPasswordReset = async (email) => {
+        const userId  = await UserServices.getUserIdByEmail(email);
+
+        const token = this.generatePasswordResetToken();
+        const expiresAt = new Date().getTime() + 10 * 60 * 1000; // Mã xác thực có hiệu lực 10 phút
+
+        await this.storePasswordResetToken(userId, token, expiresAt);
+        await MailServices.sendTokenForResetPassword(email, token);
+    }
+
+    static handleResetPassword = async (email, token, newPassword) => {
+        const findUser = await userRepository.findOneBy({ email: email });
+        if (!findUser) throw new HttpException(404 , `Your's email is't exist`);
+
+        const isTokenValid = await this.verifyPasswordResetToken(findUser.userId, token);
+        if (!isTokenValid) throw new HttpException(401, 'Invalid token');
+
+        const salt = await bcrypt.genSalt(10);
+        const hashPassWord = await bcrypt.hash(newPassword, salt);
+        findUser.password = hashPassWord;
+        await findUser.save();
+        return {
+            userId: findUser.userId,
+            email: findUser.email,
+            role: findUser.role
+        };
+
+    }
+
+    static generatePasswordResetToken = () => {
+        return Math.floor(100000 + Math.random() * 900000).toString(); // Tạo mã xác thực 6 số ngẫu nhiên
+    }
+    
+    static storePasswordResetToken = async (userId, token, expiresAt) => {
+        await RedisServices.setPasswordResetToken(userId, token, expiresAt);
+    }
+    
+    static verifyPasswordResetToken = async (userId, token) => {
+        const storedToken = await RedisServices.getPasswordResetToken(userId);
+        return storedToken === token;
     }
 }
