@@ -247,10 +247,9 @@ export default class EmployeeController {
             if (!num) req.query.num = 10;
 
             const employees = await EmployeeServices.handleGetEmployeesByEmployerSortByKeywords(req.query);
-            return res.status(employees.status).json({
-                message: employees.message,
-                status: employees.status,
-                data: employees.data
+            return res.status(200).json({
+                message: 'get employees by employer sort by keywords successfully',
+                data: employees
             })
         } catch (error) {
             next(error);

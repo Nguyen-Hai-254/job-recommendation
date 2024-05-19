@@ -6,7 +6,7 @@ export default class ApplicationController {
         try {
             const { userId } = req.user;
             const applications = await ApplicationServices.handleGetApplicationsbyEmployee(userId);
-            return res.status(200).json({ message: 'get my applications successfully', applications});
+            return res.status(200).json({ message: 'get my applications successfully', data: applications});
         } catch (error) {
             next(error);
         }
@@ -17,7 +17,7 @@ export default class ApplicationController {
             const { id } = req.params;
             if (!id) throw new HttpException(400, 'Invalid id')
             const application = await ApplicationServices.handleGetApplication(id);
-            return res.status(200).json({ message: 'get the application successfully', application});
+            return res.status(200).json({ message: 'get the application successfully', data: application});
         } catch (error) {
             next(error);
         }

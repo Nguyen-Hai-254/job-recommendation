@@ -658,14 +658,11 @@ export default class EmployeeServices {
                 results.push(tmp);
             }
         }
-        return ({
-            message: 'Get Employees By Employer sort by keywords sucesss',
-            status: 200,
-            data: {
-                totalCount: sortByKeywords.totalCount,
-                result: results
-            }
-        })
+        return  {
+            totalCount: sortByKeywords.totalCount,
+            result: results
+        }
+        
     }
 
     static handleDeleteOnlineProfile = async (id) => {
