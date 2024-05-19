@@ -1,6 +1,7 @@
 "use strict";
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
+const httpException_1 = require("../exceptions/httpException");
 const connectDB_1 = require("../config/connectDB");
 const Employee_1 = require("../entity/Employee");
 const Employer_1 = require("../entity/Employer");
@@ -21,23 +22,13 @@ FollowServices.handleFollowCompany = async (user, employerId) => {
         where: { userId: user.userId },
         relations: ['follow']
     });
-    if (!findUser) {
-        return ({
-            message: 'Người dùng không tồn tại',
-            status: 404,
-            data: null
-        });
-    }
+    if (!findUser)
+        throw new httpException_1.HttpException(404, 'User not found');
     let findEmployer = await employerRepository.findOne({
         where: { userId: employerId }
     });
-    if (!findEmployer) {
-        return ({
-            message: 'Công ty không tồn tại!',
-            status: 404,
-            data: null
-        });
-    }
+    if (!findEmployer)
+        throw new httpException_1.HttpException(404, 'Employer not found');
     const find = findUser.follow.findIndex((follow) => follow.employerId == employerId);
     if (find !== -1) {
         await followRepository.delete({
@@ -53,11 +44,7 @@ FollowServices.handleFollowCompany = async (user, employerId) => {
         await followRepository.save(createFollow);
     }
     ;
-    return ({
-        message: find !== -1 ? 'Đã bỏ theo dõi công ty' : 'Đã theo dõi công ty',
-        status: 200,
-        data: true
-    });
+    return find !== -1 ? 'Đã bỏ theo dõi công ty' : 'Đã theo dõi công ty';
 };
 FollowServices.handleSaveEmployee = async (user, emloyeeId, isOnlineProfile) => {
     let findEmployer = await employerRepository.findOne({
@@ -66,31 +53,17 @@ FollowServices.handleSaveEmployee = async (user, emloyeeId, isOnlineProfile) => 
         },
         relations: ['saveEmployee']
     });
-    if (!findEmployer) {
-        return ({
-            message: 'Không tìm thấy thông tin công ty!',
-            status: 404,
-            data: null
-        });
-    }
+    if (!findEmployer)
+        throw new httpException_1.HttpException(404, 'Employer not found');
     const findEmployee = await employeeRepository.findOne({
         where: { userId: emloyeeId }
     });
-    if (!findEmployee) {
-        return ({
-            message: 'Không tìm thấy thông tin người xin việc!',
-            status: 404,
-            data: null
-        });
-    }
+    if (!findEmployee)
+        throw new httpException_1.HttpException(404, 'Employee not found');
     const find = findEmployer.saveEmployee.filter(save => save.employerId == user.userId && save.employeeId == emloyeeId && save.isOnlineProfile == isOnlineProfile);
     if (find.length > 0) {
         await saveRepository.remove(find);
-        return ({
-            message: 'Đã bỏ lưu hồ sơ',
-            status: 200,
-            data: true
-        });
+        return 'Đã bỏ lưu hồ sơ';
     }
     else {
         const createSave = saveRepository.create({
@@ -99,11 +72,7 @@ FollowServices.handleSaveEmployee = async (user, emloyeeId, isOnlineProfile) => 
             isOnlineProfile: isOnlineProfile == '1' ? true : false
         });
         await saveRepository.save(createSave);
-        return ({
-            message: 'Đã lưu hồ sơ',
-            status: 200,
-            data: true
-        });
+        return 'Đã lưu hồ sơ';
     }
     ;
 };
@@ -112,13 +81,8 @@ FollowServices.handleGetFollowByEmployee = async (user) => {
         where: { employeeId: user.userId },
         relations: ['employer.jobPostings']
     });
-    if (!findEmployee) {
-        return ({
-            message: 'Không tìm thấy thông tin người xin việc!',
-            status: 404,
-            data: null
-        });
-    }
+    if (!findEmployee)
+        throw new httpException_1.HttpException(404, 'Employee not found');
     const company = findEmployee.map((follow) => {
         return ({
             employerId: follow.employerId,
@@ -131,15 +95,11 @@ FollowServices.handleGetFollowByEmployee = async (user) => {
             banner: follow.employer.banner
         });
     });
-    return ({
-        message: 'OK',
-        status: 200,
-        data: {
-            employeeId: user.userId,
-            email: user.email,
-            followCompany: company
-        }
-    });
+    return {
+        employeeId: user.userId,
+        email: user.email,
+        followCompany: company
+    };
 };
 FollowServices.handleGetSaveEmployeeByEmployer = async (user) => {
     const findEmployer = await saveRepository.find({
@@ -148,13 +108,8 @@ FollowServices.handleGetSaveEmployeeByEmployer = async (user) => {
         },
         relations: ['employee.user', 'employee.online_profile', 'employee.attached_document']
     });
-    if (!findEmployer) {
-        return ({
-            message: 'Không tìm thấy thông tin công ty!',
-            status: 404,
-            data: null
-        });
-    }
+    if (!findEmployer)
+        throw new httpException_1.HttpException(404, 'Employer not found');
     const data = findEmployer.map(save => {
         var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
         if ((save.isOnlineProfile && save.employee.online_profile && !save.employee.online_profile.isHidden) || (!save.isOnlineProfile && save.employee.attached_document && !save.employee.attached_document.isHidden))
@@ -178,41 +133,22 @@ FollowServices.handleGetSaveEmployeeByEmployer = async (user) => {
         else
             return;
     });
-    const filterData = data.filter(save => save);
-    return ({
-        message: 'OK',
-        status: 200,
-        data: filterData
-    });
+    return data.filter(save => save);
 };
 FollowServices.handleFollowJobPosting = async (user, jobId) => {
     const findEmployee = await employeeRepository.findOne({
         where: { userId: user.userId },
         relations: ['jobs']
     });
-    if (!findEmployee) {
-        return ({
-            message: 'Không tìm thấy thông tin người xin việc!',
-            status: 404,
-            data: null
-        });
-    }
+    if (!findEmployee)
+        throw new httpException_1.HttpException(404, 'Employee not found');
     const findJobPosing = await jobPostingRepository.findOneBy({
         postId: jobId
     });
-    if (!findJobPosing) {
-        return ({
-            message: 'Không tìm thấy thông tin đăng tuyển!',
-            status: 404,
-            data: null
-        });
-    }
+    if (!findJobPosing)
+        throw new httpException_1.HttpException(404, 'Job posting not found');
     if (findJobPosing.status === enum_1.approvalStatus.pending || findJobPosing.status === enum_1.approvalStatus.rejected || findJobPosing.isHidden) {
-        return ({
-            message: 'Bạn không thể theo dõi đăng tuyển này',
-            status: 403,
-            data: null
-        });
+        throw new httpException_1.HttpException(403, 'Bạn không thể theo dõi đăng tuyển này');
     }
     let findFollow = -1;
     if (findEmployee.jobs.length !== 0) {
@@ -225,45 +161,33 @@ FollowServices.handleFollowJobPosting = async (user, jobId) => {
         delete findEmployee.jobs[findFollow];
     }
     await employeeRepository.save(findEmployee);
-    return ({
-        message: findFollow === -1 ? 'Theo dõi đăng tuyển thành công' : 'Đã bỏ theo dõi đăng tuyển',
-        status: 200,
-        data: []
-    });
+    return findFollow === -1 ? 'Theo dõi đăng tuyển thành công' : 'Đã bỏ theo dõi đăng tuyển';
 };
 FollowServices.handleGetFollowJobPosting = async (user) => {
     const findEmployee = await employeeRepository.findOne({
         where: { userId: user.userId },
         relations: ['jobs.employer']
     });
-    if (!findEmployee) {
-        return ({
-            message: 'Không tìm thấy thông tin người xin việc!',
-            status: 404,
-            data: null
-        });
-    }
-    return ({
-        message: 'OK',
-        status: 200,
-        data: {
-            userId: findEmployee.userId,
-            jobs: findEmployee.jobs.filter((job) => {
-                return (job.isHidden === false);
-            }).map((job) => {
-                return ({
-                    postId: job.postId,
-                    jobTitle: job.jobTitle,
-                    companyName: job.employer.companyName,
-                    minSalary: job.minSalary,
-                    maxSalary: job.maxSalary,
-                    workAddress: job.workAddress,
-                    createAt: job.createAt,
-                    logo: job.employer.logo
-                });
-            })
-        }
-    });
+    if (!findEmployee)
+        throw new httpException_1.HttpException(404, 'Employee not found');
+    const data = {
+        userId: findEmployee.userId,
+        jobs: findEmployee.jobs.filter((job) => {
+            return (job.isHidden === false);
+        }).map((job) => {
+            return ({
+                postId: job.postId,
+                jobTitle: job.jobTitle,
+                companyName: job.employer.companyName,
+                minSalary: job.minSalary,
+                maxSalary: job.maxSalary,
+                workAddress: job.workAddress,
+                createAt: job.createAt,
+                logo: job.employer.logo
+            });
+        })
+    };
+    return data;
 };
 exports.default = FollowServices;
 //# sourceMappingURL=followServices.js.map

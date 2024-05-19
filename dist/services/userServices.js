@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-require('dotenv').config();
 const connectDB_1 = require("../config/connectDB");
 const AttachedDocument_1 = require("../entity/AttachedDocument");
 const Employee_1 = require("../entity/Employee");
@@ -105,7 +104,6 @@ UserServices.handleLogin = async (email, password) => {
         userId: findUser.userId,
         email: findUser.email,
         role: findUser.role,
-        expireIn: process.env.JWT_EXPIRE_IN
     };
     let token = (0, JWTAction_1.createToken)(payload);
     return ({

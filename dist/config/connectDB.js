@@ -1,22 +1,17 @@
 "use strict";
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectDB = exports.myDataSource = void 0;
 const typeorm_1 = require("typeorm");
-require('dotenv').config();
-const port = process.env.PORT_DB || 3307;
 exports.myDataSource = new typeorm_1.DataSource({
     type: "mysql",
-    host: process.env.HOST || '127.0.0.1',
-    port: +port,
-    username: process.env.DB_USERNAME || 'root',
-    password: process.env.DB_PASSWORD ? process.env.DB_PASSWORD : "",
-    database: (_a = process.env.DB_NAME) !== null && _a !== void 0 ? _a : "job-recommendation",
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
     entities: [__dirname + '/../entity/*.{js,ts}'],
     logging: false,
-    // dropSchema: true,
     synchronize: true,
-    // timezone: 'Z'
 });
 exports.connectDB = exports.myDataSource
     .initialize()

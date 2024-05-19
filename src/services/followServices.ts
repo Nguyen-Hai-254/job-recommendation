@@ -1,3 +1,4 @@
+import { HttpException } from "../exceptions/httpException";
 import { myDataSource } from "../config/connectDB";
 import { Employee } from "../entity/Employee";
 import { Employer } from "../entity/Employer";
@@ -19,25 +20,13 @@ export default class FollowServices {
             relations: ['follow']
         })
 
-        if (!findUser) {
-            return ({
-                message: 'Người dùng không tồn tại',
-                status: 404,
-                data: null
-            })
-        }
+        if (!findUser) throw new HttpException(404, 'User not found')
 
         let findEmployer = await employerRepository.findOne({
             where: { userId: employerId }
         })
+        if (!findEmployer) throw new HttpException(404, 'Employer not found')
 
-        if (!findEmployer) {
-            return ({
-                message: 'Công ty không tồn tại!',
-                status: 404,
-                data: null
-            })
-        }
         const find = findUser.follow.findIndex((follow) => follow.employerId == employerId);
 
         if (find !== -1) {
@@ -55,11 +44,8 @@ export default class FollowServices {
             await followRepository.save(createFollow);
         };
 
-        return ({
-            message: find !== -1 ? 'Đã bỏ theo dõi công ty' : 'Đã theo dõi công ty',
-            status: 200,
-            data: true
-        })
+        return find !== -1 ? 'Đã bỏ theo dõi công ty' : 'Đã theo dõi công ty';
+            
     }
 
     static handleSaveEmployee = async (user, emloyeeId, isOnlineProfile) => {
@@ -70,36 +56,19 @@ export default class FollowServices {
             relations: ['saveEmployee']
         })
 
-        if (!findEmployer) {
-            return ({
-                message: 'Không tìm thấy thông tin công ty!',
-                status: 404,
-                data: null
-            })
-        }
+        if (!findEmployer) throw new HttpException(404, 'Employer not found')
 
         const findEmployee = await employeeRepository.findOne({
             where: { userId: emloyeeId }
         })
-
-        if (!findEmployee) {
-            return ({
-                message: 'Không tìm thấy thông tin người xin việc!',
-                status: 404,
-                data: null
-            })
-        }
+        if (!findEmployee) throw new HttpException(404, 'Employee not found')
 
         const find = findEmployer.saveEmployee.filter(save => save.employerId == user.userId && save.employeeId == emloyeeId && save.isOnlineProfile == isOnlineProfile);
 
         if (find.length > 0) {
             await saveRepository.remove(find);
 
-            return ({
-                message: 'Đã bỏ lưu hồ sơ',
-                status: 200,
-                data: true
-            })
+            return 'Đã bỏ lưu hồ sơ';
         }
         else {
             const createSave = saveRepository.create({
@@ -108,12 +77,7 @@ export default class FollowServices {
                 isOnlineProfile: isOnlineProfile == '1' ? true : false
             })
             await saveRepository.save(createSave);
-
-            return ({
-                message: 'Đã lưu hồ sơ',
-                status: 200,
-                data: true
-            })
+            return 'Đã lưu hồ sơ';   
         };
     }
 
@@ -123,13 +87,7 @@ export default class FollowServices {
             relations: ['employer.jobPostings']
         })
 
-        if (!findEmployee) {
-            return ({
-                message: 'Không tìm thấy thông tin người xin việc!',
-                status: 404,
-                data: null
-            })
-        }
+        if (!findEmployee) throw new HttpException(404, 'Employee not found')
 
         const company = findEmployee.map((follow) => {
             return ({
@@ -144,15 +102,12 @@ export default class FollowServices {
             })
         })
 
-        return ({
-            message: 'OK',
-            status: 200,
-            data: {
+        return  {
                 employeeId: user.userId,
                 email: user.email,
                 followCompany: company
             }
-        })
+        
     }
 
     static handleGetSaveEmployeeByEmployer = async (user) => {
@@ -163,13 +118,7 @@ export default class FollowServices {
             relations: ['employee.user', 'employee.online_profile', 'employee.attached_document']
         })
 
-        if (!findEmployer) {
-            return ({
-                message: 'Không tìm thấy thông tin công ty!',
-                status: 404,
-                data: null
-            })
-        }
+        if (!findEmployer) throw new HttpException(404, 'Employer not found')
 
         const data = findEmployer.map(save => {
             if ((save.isOnlineProfile && save.employee.online_profile && !save.employee.online_profile.isHidden) || (!save.isOnlineProfile && save.employee.attached_document && !save.employee.attached_document.isHidden))
@@ -193,13 +142,7 @@ export default class FollowServices {
             else return
         })
 
-        const filterData = data.filter(save => save)
-
-        return ({
-            message: 'OK',
-            status: 200,
-            data: filterData
-        })
+        return data.filter(save => save)
     }
 
     static handleFollowJobPosting = async (user, jobId) => {
@@ -207,32 +150,15 @@ export default class FollowServices {
             where: { userId: user.userId },
             relations: ['jobs']
         })
-
-        if (!findEmployee) {
-            return ({
-                message: 'Không tìm thấy thông tin người xin việc!',
-                status: 404,
-                data: null
-            })
-        }
+        if (!findEmployee) throw new HttpException(404, 'Employee not found')
 
         const findJobPosing = await jobPostingRepository.findOneBy({
             postId: jobId
         })
+        if (!findJobPosing) throw new HttpException(404, 'Job posting not found')
 
-        if (!findJobPosing) {
-            return ({
-                message: 'Không tìm thấy thông tin đăng tuyển!',
-                status: 404,
-                data: null
-            })
-        }
         if (findJobPosing.status === approvalStatus.pending || findJobPosing.status === approvalStatus.rejected || findJobPosing.isHidden) {
-            return ({
-                message: 'Bạn không thể theo dõi đăng tuyển này',
-                status: 403,
-                data: null
-            })
+            throw new HttpException(403, 'Bạn không thể theo dõi đăng tuyển này')
         }
 
         let findFollow = -1;
@@ -246,14 +172,9 @@ export default class FollowServices {
         else {
             delete findEmployee.jobs[findFollow];
         }
-
         await employeeRepository.save(findEmployee);
 
-        return ({
-            message: findFollow === -1 ? 'Theo dõi đăng tuyển thành công' : 'Đã bỏ theo dõi đăng tuyển',
-            status: 200,
-            data: []
-        })
+        return findFollow === -1 ? 'Theo dõi đăng tuyển thành công' : 'Đã bỏ theo dõi đăng tuyển';
     }
 
     static handleGetFollowJobPosting = async (user) => {
@@ -261,19 +182,9 @@ export default class FollowServices {
             where: { userId: user.userId },
             relations: ['jobs.employer']
         })
+        if (!findEmployee) throw new HttpException(404, 'Employee not found')
 
-        if (!findEmployee) {
-            return ({
-                message: 'Không tìm thấy thông tin người xin việc!',
-                status: 404,
-                data: null
-            })
-        }
-
-        return ({
-            message: 'OK',
-            status: 200,
-            data: {
+        const data = {
                 userId: findEmployee.userId,
                 jobs: findEmployee.jobs.filter((job) => {
                     return (
@@ -291,7 +202,9 @@ export default class FollowServices {
                         logo: job.employer.logo
                     })
                 })
-            }
-        })
+        }
+
+        return data;
+      
     }
 }

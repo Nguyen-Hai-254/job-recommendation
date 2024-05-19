@@ -8,7 +8,7 @@ const userServices_1 = __importDefault(require("../services/userServices"));
 class UserController {
 }
 _a = UserController;
-UserController.register = async (req, res) => {
+UserController.register = async (req, res, next) => {
     try {
         if (!req.body.email || !req.body.password || !req.body.confirmPassword) {
             return res.status(500).json({
@@ -25,15 +25,11 @@ UserController.register = async (req, res) => {
             // userData: data.data ? data.data : []
         });
     }
-    catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-UserController.login = async (req, res) => {
+UserController.login = async (req, res, next) => {
     var _b;
     try {
         if (!req.body.email || !req.body.password) {
@@ -51,15 +47,11 @@ UserController.login = async (req, res) => {
             data: userData.data ? userData.data : []
         });
     }
-    catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-UserController.logOut = async (req, res) => {
+UserController.logOut = async (req, res, next) => {
     try {
         res.clearCookie("jwt");
         if (req.user)
@@ -69,15 +61,11 @@ UserController.logOut = async (req, res) => {
             status: 200
         });
     }
-    catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-UserController.getProfile = async (req, res) => {
+UserController.getProfile = async (req, res, next) => {
     try {
         const getUser = await userServices_1.default.handleGetProfile(req.user);
         return res.status(getUser.status).json({
@@ -86,15 +74,11 @@ UserController.getProfile = async (req, res) => {
             data: getUser.data ? getUser.data : []
         });
     }
-    catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-UserController.editProfile = async (req, res) => {
+UserController.editProfile = async (req, res, next) => {
     try {
         const editUser = await userServices_1.default.handleEditProfile(req.user, req.body);
         return res.status(editUser.status).json({
@@ -103,15 +87,11 @@ UserController.editProfile = async (req, res) => {
             data: editUser.data ? editUser.data : []
         });
     }
-    catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-UserController.getInformationCompany = async (req, res) => {
+UserController.getInformationCompany = async (req, res, next) => {
     try {
         const getCompany = await userServices_1.default.handleGetInformationCompany(req.user);
         return res.status(getCompany.status).json({
@@ -120,15 +100,11 @@ UserController.getInformationCompany = async (req, res) => {
             data: getCompany.data ? getCompany.data : []
         });
     }
-    catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-UserController.editInformationCompany = async (req, res) => {
+UserController.editInformationCompany = async (req, res, next) => {
     try {
         const editCompany = await userServices_1.default.handleEditInformationCompany(req.user, req.body);
         return res.status(editCompany.status).json({
@@ -137,15 +113,11 @@ UserController.editInformationCompany = async (req, res) => {
             data: editCompany.data ? editCompany.data : []
         });
     }
-    catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-UserController.uploadAvatar = async (req, res) => {
+UserController.uploadAvatar = async (req, res, next) => {
     try {
         if (!req.body.avatar) {
             return res.status(500).json({
@@ -157,15 +129,11 @@ UserController.uploadAvatar = async (req, res) => {
         const avatar = await userServices_1.default.handleUploadAvatar(req.user, req.body.avatar);
         return res.status(avatar.status).json(avatar);
     }
-    catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-UserController.uploadLogo = async (req, res) => {
+UserController.uploadLogo = async (req, res, next) => {
     try {
         if (!req.body.logo) {
             return res.status(500).json({
@@ -177,15 +145,11 @@ UserController.uploadLogo = async (req, res) => {
         const logo = await userServices_1.default.handleUploadLogo(req.user, req.body.logo);
         return res.status(logo.status).json(logo);
     }
-    catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-UserController.uploadBanner = async (req, res) => {
+UserController.uploadBanner = async (req, res, next) => {
     try {
         if (!req.body.banner) {
             return res.status(500).json({
@@ -197,15 +161,11 @@ UserController.uploadBanner = async (req, res) => {
         const banner = await userServices_1.default.handleUploadBanner(req.user, req.body.banner);
         return res.status(banner.status).json(banner);
     }
-    catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-UserController.getInformationCompanyByUser = async (req, res) => {
+UserController.getInformationCompanyByUser = async (req, res, next) => {
     try {
         if (!req.query.employerId) {
             return res.status(500).json({
@@ -217,15 +177,11 @@ UserController.getInformationCompanyByUser = async (req, res) => {
         const company = await userServices_1.default.handleGetInformationCompanyByUser(req.query.employerId);
         return res.status(company.status).json(company);
     }
-    catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-UserController.getAllCompanyByUser = async (req, res) => {
+UserController.getAllCompanyByUser = async (req, res, next) => {
     try {
         if (!req.query.num || !req.query.page) {
             return res.status(500).json({
@@ -237,15 +193,11 @@ UserController.getAllCompanyByUser = async (req, res) => {
         const companyList = await userServices_1.default.handleGetAllCompanyByUser(req.query.num, req.query.page);
         return res.status(companyList.status).json(companyList);
     }
-    catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-UserController.deleteUser = async (req, res) => {
+UserController.deleteUser = async (req, res, next) => {
     try {
         const user = await userServices_1.default.handleDeleteUser(req);
         return res.status(user.status).json({
@@ -254,15 +206,11 @@ UserController.deleteUser = async (req, res) => {
             data: user.data
         });
     }
-    catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-UserController.getOnlineProfileByUser = async (req, res) => {
+UserController.getOnlineProfileByUser = async (req, res, next) => {
     try {
         if (!req.query.userId) {
             return res.status(500).json({
@@ -278,15 +226,11 @@ UserController.getOnlineProfileByUser = async (req, res) => {
             data: user.data
         });
     }
-    catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-UserController.getAttachedDocumentByUser = async (req, res) => {
+UserController.getAttachedDocumentByUser = async (req, res, next) => {
     try {
         if (!req.query.userId) {
             return res.status(500).json({
@@ -302,12 +246,8 @@ UserController.getAttachedDocumentByUser = async (req, res) => {
             data: user.data
         });
     }
-    catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
 exports.default = UserController;

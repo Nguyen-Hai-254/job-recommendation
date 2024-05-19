@@ -3,7 +3,6 @@ import { User } from "./Users";
 import { Application } from "./Application";
 import { OnlineProfile } from "./OnlineProfile";
 import { AttachedDocument } from "./AttachedDocument";
-import { Employer } from "./Employer";
 import { Follow } from "./follow";
 import { JobPosting } from "./JobPosting";
 

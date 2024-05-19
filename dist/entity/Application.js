@@ -31,9 +31,7 @@ __decorate([
 ], Application.prototype, "applicationType", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamp' }),
-    __metadata("design:type", Date
-    // Optional properties while applicationType = cv_enclosed
-    )
+    __metadata("design:type", Date)
 ], Application.prototype, "createAt", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
@@ -71,24 +69,14 @@ __decorate([
     (0, typeorm_1.ManyToOne)(() => Employee_1.Employee, (employee) => employee.applications, {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
-    })
-    // @JoinColumn({
-    //     name: 'userId',
-    //     referencedColumnName: 'userId'
-    // })
-    ,
+    }),
     __metadata("design:type", Employee_1.Employee)
 ], Application.prototype, "employee", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => JobPosting_1.JobPosting, (jobPosting) => jobPosting.applications, {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
-    })
-    // @JoinColumn({
-    //     name: 'postId',
-    //     referencedColumnName: 'postId'
-    // })
-    ,
+    }),
     __metadata("design:type", JobPosting_1.JobPosting)
 ], Application.prototype, "jobPosting", void 0);
 exports.Application = Application = __decorate([

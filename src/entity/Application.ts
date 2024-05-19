@@ -20,7 +20,6 @@ export class Application extends BaseEntity {
     @CreateDateColumn({ type: 'timestamp' })
     createAt: Date
 
-    // Optional properties while applicationType = cv_enclosed
     @Column({ nullable: true })
     CV: string
 
@@ -40,7 +39,6 @@ export class Application extends BaseEntity {
     @Column({ nullable: true })
     matchingScore: number
 
-    ///////////////////////////////////////////////////////////
     @Column({
         type: 'enum',
         enum: approvalStatus,
@@ -52,19 +50,11 @@ export class Application extends BaseEntity {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     })
-    // @JoinColumn({
-    //     name: 'userId',
-    //     referencedColumnName: 'userId'
-    // })
     employee: Employee
 
     @ManyToOne(() => JobPosting, (jobPosting) => jobPosting.applications, {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     })
-    // @JoinColumn({
-    //     name: 'postId',
-    //     referencedColumnName: 'postId'
-    // })
     jobPosting: JobPosting
 }

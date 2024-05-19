@@ -9,20 +9,19 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const cors_1 = __importDefault(require("cors"));
 const connectDB_1 = require("./config/connectDB");
+const error_1 = require("./middleware/error");
 const cronJob = require('./cron/updateExpiredJobStatusCron');
 const routes = require('./routes/web');
 let app = (0, express_1.default)();
-// app.use(cors({ credentials: true, origin: true }));
 const corsOptions = {
-    origin: 'http://vieclam.infotechacademy.vn',
+    origin: process.env.ORIGIN,
     credentials: true,
     optionSuccessStatus: 200
 };
 app.use((0, cors_1.default)(corsOptions));
 app.use(function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', "http://vieclam.infotechacademy.vn");
+    res.header('Access-Control-Allow-Origin', process.env.ORIGIN);
     res.header('Access-Control-Allow-Headers', '*');
-    // res.header('Access-Control-Allow-Credentials', true);
     res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     next();
 });
@@ -42,4 +41,5 @@ let port = process.env.PORT || 3002;
 app.listen(port, () => {
     console.log('BackEnd NodeJS is running on the port:', port);
 });
+app.use(error_1.errorMiddleware);
 //# sourceMappingURL=index.js.map

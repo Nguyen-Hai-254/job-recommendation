@@ -8,7 +8,7 @@ const adminServices_1 = __importDefault(require("../services/adminServices"));
 class AdminController {
 }
 _a = AdminController;
-AdminController.jobPostingsReport = async (req, res) => {
+AdminController.jobPostingsReport = async (req, res, next) => {
     try {
         const jobPostings = await adminServices_1.default.handleGetJobPostingsReport();
         return res.status(jobPostings.status).json({
@@ -17,15 +17,11 @@ AdminController.jobPostingsReport = async (req, res) => {
             data: jobPostings.data ? jobPostings.data : []
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-AdminController.candidateStatistics = async (req, res) => {
+AdminController.candidateStatistics = async (req, res, next) => {
     try {
         const data = await adminServices_1.default.handleCandidateStatistics();
         return res.status(data.status).json({
@@ -34,15 +30,11 @@ AdminController.candidateStatistics = async (req, res) => {
             data: data.data ? data.data : []
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-AdminController.getAllUser = async (req, res) => {
+AdminController.getAllUser = async (req, res, next) => {
     try {
         const allUser = await adminServices_1.default.handleGetAllUser(req);
         return res.status(allUser.status).json({
@@ -51,15 +43,11 @@ AdminController.getAllUser = async (req, res) => {
             data: allUser.data ? allUser.data : []
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-AdminController.getTotalUser = async (req, res) => {
+AdminController.getTotalUser = async (req, res, next) => {
     try {
         const totalUser = await adminServices_1.default.handleGetTotalUser(req);
         return res.status(totalUser.status).json({
@@ -68,20 +56,16 @@ AdminController.getTotalUser = async (req, res) => {
             data: totalUser.data ? totalUser.data : []
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-AdminController.sendEmail = async (req, res) => {
+AdminController.sendEmail = async (req, res, next) => {
     try {
         if (!req.body.emails || !req.body.subject || !req.body.html) {
-            return res.status(500).json({
+            return res.status(400).json({
                 message: "Missing input parameter!",
-                status: 500,
+                status: 400,
                 error: 'Internal Server Error',
             });
         }
@@ -92,20 +76,16 @@ AdminController.sendEmail = async (req, res) => {
             data: result.data ? result.data : []
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-AdminController.searchEmailOrName = async (req, res) => {
+AdminController.searchEmailOrName = async (req, res, next) => {
     try {
         if (!req.body.keyword) {
-            return res.status(500).json({
+            return res.status(400).json({
                 message: "Missing input parameter!",
-                status: 500,
+                status: 400,
                 error: 'Internal Server Error',
             });
         }
@@ -116,15 +96,11 @@ AdminController.searchEmailOrName = async (req, res) => {
             data: result.data ? result.data : []
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-AdminController.getJobPostingsReportByQuery = async (req, res) => {
+AdminController.getJobPostingsReportByQuery = async (req, res, next) => {
     try {
         if (!req.query.year) {
             return res.status(500).json({
@@ -140,21 +116,16 @@ AdminController.getJobPostingsReportByQuery = async (req, res) => {
             data: result.data ? result.data : []
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
-AdminController.candidateStatisticsByQuery = async (req, res) => {
+AdminController.candidateStatisticsByQuery = async (req, res, next) => {
     try {
         if (!req.query.year) {
-            return res.status(500).json({
+            return res.status(400).json({
                 message: "Missing input parameter!",
-                status: 500,
-                error: 'Internal Server Error',
+                status: 400
             });
         }
         const result = await adminServices_1.default.handleCandidateStatisticsByQuery(req.query.year, req.query.month);
@@ -164,12 +135,8 @@ AdminController.candidateStatisticsByQuery = async (req, res) => {
             data: result.data ? result.data : []
         });
     }
-    catch (err) {
-        return res.status(500).json({
-            message: err.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
 exports.default = AdminController;
