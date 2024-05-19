@@ -62,22 +62,6 @@ export default class UserController {
         }
     }
 
-    static resetPassword = async (req, res, next) => {
-        try {
-            const { email } = req.user;
-            const { password, newPassword, confirmNewPassword } = req.body;
-            if (!email || !password || !newPassword || !confirmNewPassword) {
-                throw new HttpException(400, 'Invalid input');
-            }
-            
-            const userData = await UserServices.handleResetPassword(email, password, newPassword, confirmNewPassword);
-            return res.status(200).json({message: 'Reset password successfully', data: userData});
-
-        } catch (error) {
-            next(error);
-        }
-    }
-
     static getProfile = async (req, res, next) => {
         try {
             const getUser = await UserServices.handleGetProfile(req.user);

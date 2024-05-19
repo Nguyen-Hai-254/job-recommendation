@@ -7,7 +7,6 @@ const route = express.Router()
 
 route.post('/api/v1/register', UserController.register);
 route.post('/api/v1/login', UserController.login);
-route.post('/api/v1/password', verifyToken, UserController.resetPassword);
 route.get('/api/v1/get-information-company-by-user', UserController.getInformationCompanyByUser);
 route.get('/api/v1/get-all-company-by-user', UserController.getAllCompanyByUser);
 route.get('/api/v1/logout', verifyToken, UserController.logOut);

@@ -6,9 +6,10 @@ import employeeRoute from "./employeeRoute"
 import utilsRoute from "./utilsRoute"
 import followRoute from "./followRoute"
 import adminRoute from './adminRoute'
+import authRoute from "./authRoute";
 const route = express.Router();
 
-
+route.use('/', authRoute)
 route.use('/', userRoute)
 route.use('/', postRoute)
 route.use('/', applicationRoute)

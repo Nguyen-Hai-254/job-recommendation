@@ -111,7 +111,6 @@ export default class UserServices {
             userId: findUser.userId,
             email: findUser.email,
             role: findUser.role,
-            expireIn: process.env.JWT_EXPIRE_IN
         }
         let token = createToken(payload)
 
@@ -127,28 +126,6 @@ export default class UserServices {
                 }
             }
         })
-    }
-
-    static handleResetPassword = async (email, password, newPassword, confirmNewPassword) => {
-        if (newPassword != confirmNewPassword) {
-            throw new HttpException(400, 'new Password does not match new confirm password')
-        }
-        const findUser = await userRepository
-            .createQueryBuilder('user')
-            .select("user")
-            .addSelect("user.password")
-            .where('user.email = :email', { email })
-            .getOne();
-        if (!findUser) throw new HttpException(404 , `Your's email is't exist`);
-        
-        const checkUserPassword = await bcrypt.compare(password, findUser.password);
-        if (!checkUserPassword) throw new HttpException(401, 'Your password is incorrect');
-
-        const salt = await bcrypt.genSalt(10);
-        const hashPassWord = await bcrypt.hash(newPassword, salt);
-        findUser.password = hashPassWord;
-        await findUser.save();
-        return null;
     }
 
     static handleGetProfile = async (user) => {
