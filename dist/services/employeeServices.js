@@ -349,6 +349,7 @@ EmployeeServices.handleCreateNewWorkExperience = async (userId, dto) => {
         if (err.code === enum_1.MySQLErrorCode.INVALID_RELATION_KEY || err.code === enum_1.MySQLErrorCode.INVALID_RELATION_KEY2) {
             throw new httpException_1.HttpException(404, 'Online profile Not Found');
         }
+        throw err;
     }
 };
 EmployeeServices.handleUpdateWorkExperience = async (userId, id, dto) => {

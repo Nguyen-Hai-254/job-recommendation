@@ -330,6 +330,7 @@ export default class EmployeeServices {
             if (err.code === MySQLErrorCode.INVALID_RELATION_KEY || err.code === MySQLErrorCode.INVALID_RELATION_KEY2) {
                 throw new HttpException(404, 'Online profile Not Found')
             }
+            throw err;
         }
     }
 

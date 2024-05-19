@@ -7,7 +7,8 @@ import { Application } from "../entity/Application"
 import { AttachedDocument } from "../entity/AttachedDocument"
 import { OnlineProfile } from "../entity/OnlineProfile"
 import { EnumApplicationType, EnumApprovalStatus } from "../utils/enumAction"
-import { applicationType } from "../utils/enum"
+import { MySQLErrorCode, applicationType } from "../utils/enum"
+import { HttpException } from "../exceptions/httpException"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -18,20 +19,13 @@ const attached_documentRepository = myDataSource.getRepository(AttachedDocument)
 const online_profileRepository = myDataSource.getRepository(OnlineProfile);
 
 export default class ApplicationServices {
-    static handleGetApplicationsbyEmployee = async (req) => {
+    static handleGetApplicationsbyEmployee = async (userId) => {
         const applications = await employeeRepository.findOne({
-            where: { userId: req.user.userId },
+            where: { userId: userId },
             relations: ['applications', 'applications.jobPosting.employer']
         })
-
-        if (!applications) {
-            return ({
-                message: `User ${req.user.userId} don't have  any applications`,
-                status: 400,
-                data: null
-            })
-        }
-        let data = applications.applications.flatMap(application => {
+    
+        let data = applications?.applications.flatMap(application => {
             return {
                 application_id: application.application_id,
                 applicationType: application.applicationType,
@@ -48,136 +42,59 @@ export default class ApplicationServices {
             }
         })
 
-        return ({
-            message: `Find applications successful!`,
-            status: 200,
-            data: data
-        })
-
+        return data ? data : [];
+      
     }
 
-    static handleGetApplication = async (req) => {
-        if (!req?.params?.id) {
-            return ({
-                message: 'id is required',
-                status: 400,
-                data: null
-            })
-        }
+    static handleGetApplication = async (id) => {
         const application = await applicationRepository.findOne({
-            where: { application_id: req.params.id },
+            where: { application_id: id },
             relations: ['employee']
         })
-        if (!application) {
-            return ({
-                message: `No Application matches id: ${req.params.id}`,
-                status: 400,
-                data: null
-            })
-        }
+        if (!application) throw new HttpException(404, "Application not found");
 
-        return ({
-            message: `Find Application has id: ${req.params.id} successes`,
-            status: 200,
-            data: application
-        })
+        return application;
     }
 
-    static handleCreateNewApplication = async (req) => {
-        // Check applicationType and postId
-        if (!req?.body?.applicationType || !req?.body?.postId) {
-            return ({
-                message: 'applicationType and postId are required',
-                status: 400,
-                data: null
-            })
-        }
-        // Check CV, name, email and phone
-        if (!req?.body?.CV || !req?.body?.name || !req?.body?.email || !req?.body?.phone) {
-            return ({
-                message: 'CV,name,email, phone are required',
-                status: 400,
-                data: null
-            })
-        }
-
+    static handleCreateNewApplication = async (userId, dto) => {
+        if (!dto.applicationType || !dto.postId) throw new HttpException(400, 'applicationType and postId are required');
+        if (!dto.CV || !dto.name || !dto.email || !dto.phone) throw new HttpException(400, 'CV,name,email, phone are required');
+        
         // Check applicationType is correct
-        if (EnumApplicationType(req.body.applicationType) === applicationType.attached_document) {
-            const attached_document = await attached_documentRepository.findOne({
-                where: { userId: req.user.userId }
-            })
-            if (!attached_document) {
-                return ({
-                    message: 'attached document not found, you need to creat a new attached document',
-                    status: 400,
-                    data: null
-                })
+        if (EnumApplicationType(dto.applicationType) === applicationType.attached_document) {
+            const attached_document = await attached_documentRepository.findOneBy({ userId: userId });
+            if (!attached_document) throw new HttpException(404, 'attached Document not found');
+        }
+        else if (EnumApplicationType(dto.applicationType) === applicationType.online_profile) {
+            const online_profile = await online_profileRepository.findOneBy({ userId: userId });
+            if (!online_profile) throw new HttpException(404, 'online profile not found');
+        }
+
+        try {
+            // Create new application
+            const application = applicationRepository.create({
+                applicationType: EnumApplicationType(dto.applicationType),
+                CV: dto.CV,
+                name: dto.name,
+                email: dto.email,
+                phone: dto.phone,
+                keywords: dto.keywords ? dto.keywords : null,
+                employee: { userId: userId},
+                jobPosting: { postId: dto.postId }
+            });
+            const result = await applicationRepository.save(application);
+            return result;
+        } catch (err) {
+            if (err.code === MySQLErrorCode.INVALID_RELATION_KEY || err.code === MySQLErrorCode.INVALID_RELATION_KEY2) {
+                throw new HttpException(404, 'Employee, Job posting Not Found')
             }
-        }
-        else if (EnumApplicationType(req.body.applicationType) === applicationType.online_profile) {
-            const online_profile = await online_profileRepository.findOne({
-                where: { userId: req.user.userId }
-            })
-            if (!online_profile) {
-                return ({
-                    message: 'online profile not found, you need to creat a new online profile',
-                    status: 400,
-                    data: null
-                })
-            }
+            throw err;
         }
 
-
-        // Check employee exists
-        const employee = await employeeRepository.findOne({
-            where: { userId: req.user.userId },
-            relations: ['applications']
-        })
-        if (!employee) {
-            return ({
-                message: 'Employee not found',
-                status: 400,
-                data: null
-            })
-        }
-        // Check job posting exists
-        const job_posting = await jobpostingRepository.findOne({
-            where: { postId: req.body.postId },
-            relations: ['applications']
-        })
-        if (!job_posting) {
-            return ({
-                message: 'Job posting not found',
-                status: 400,
-                data: null
-            })
-        }
-        // Create new application
-        const application = await applicationRepository.create({
-            applicationType: EnumApplicationType(req.body.applicationType),
-            CV: req.body.CV,
-            name: req.body.name,
-            email: req.body.email,
-            phone: req.body.phone,
-            keywords: req.body?.keywords ? req.body?.keywords : null,
-        })
-        const application1 = await applicationRepository.save(application);
-
-        employee.applications.push(application1);
-        await employeeRepository.save(employee);
-
-        job_posting.applications.push(application1);
-        await jobpostingRepository.save(job_posting);
-
-        return ({
-            message: 'Create New Application successfully',
-            status: 200,
-            data: application
-        })
     }
 
-    static handleGetApplicationsbyEmployer = async (req) => {
-        const { applicationType, name, status, postId, num, page} = req.query;
+    static handleGetApplicationsbyEmployer = async (userId, reqQuery) => {
+        const { applicationType, name, status, postId, num, page} = reqQuery;
         // get list of applications by employer
         let query = applicationRepository
             .createQueryBuilder('application')
@@ -185,7 +102,7 @@ export default class ApplicationServices {
             .leftJoin('application.employee','employee')
             .leftJoin('application.jobPosting', 'jobPosting')
             .leftJoin('jobPosting.employer', 'employer')
-            .where('employer.userId = :userId', { userId: req.user.userId });
+            .where('employer.userId = :userId', { userId: userId });
         // query by applicationType, name, status, postId
         if (applicationType) {
             query = query.andWhere('application.applicationType = :applicationType', { applicationType });
@@ -207,19 +124,18 @@ export default class ApplicationServices {
       
             query = query.skip(skip).take(take);
         }
+        else {
+            query = query.skip(0).take(10);
+        }
 
         const applications = await query.getMany();
 
-        return ({
-            message: `Find applications successful!`,
-            status: 200,
-            data: applications
-        })
+        return applications ? applications : [];
 
     }
 
-    static handleGetLengthOfApplicationsbyEmployer = async (req) => {
-        const { applicationType, name, status, postId} = req.query;
+    static handleGetLengthOfApplicationsbyEmployer = async (userId, reqQuery) => {
+        const { applicationType, name, status, postId} = reqQuery;
         // get list of applications by employer
         let query = applicationRepository
             .createQueryBuilder('application')
@@ -227,7 +143,7 @@ export default class ApplicationServices {
             .leftJoin('application.employee','employee')
             .leftJoin('application.jobPosting', 'jobPosting')
             .leftJoin('jobPosting.employer', 'employer')
-            .where('employer.userId = :userId', { userId: req.user.userId });
+            .where('employer.userId = :userId', { userId: userId });
         // query by applicationType, name, status, postId
         if (applicationType) {
             query = query.andWhere('application.applicationType = :applicationType', { applicationType });
@@ -243,73 +159,38 @@ export default class ApplicationServices {
         }
         const totalResults = await query.getCount();
 
-        return ({
-            message: `Find applications successful!`,
-            status: 200,
-            data: {totalResults: totalResults}
-        })
+        return {totalResults: totalResults};
 
     }
 
-    static handleGetApplicationbyEmployer = async (req) => {
-        if (!req?.params?.id) {
-            return ({
-                message: 'id is required',
-                status: 400,
-                data: null
-            })
-        }
+    static handleGetApplicationbyEmployer = async (userId, id) => {
+        
         const application = await applicationRepository.findOne({
-            where: { application_id: req.params.id },
+            where: { application_id: id },
             relations: ['employee']
         })
-        if (!application) {
-            return ({
-                message: `No Application matches id: ${req.params.id}`,
-                status: 400,
-                data: null
-            })
-        }
+        if (!application) throw new HttpException(404,'Application not found');
+
         // Check employer is owner of application
         const post = await jobpostingRepository.findOne({
-            where: { applications: { application_id: req.params.id } },
+            where: { applications: { application_id: id } },
             relations: ['applications', 'employer']
         })
-        if (!post) {
-            return ({
-                message: `Find employer is owner of application id: ${req.params.id} failed`,
-                status: 400,
-                data: null
-            })
-        }
-        if (post.employer.userId !== req.user.userId) {
-            return ({
-                message: `You isn't owner of application id: ${req.params.id}`,
-                status: 400,
-                data: null
-            })
-        }
+        if (!post) throw new HttpException(404,'Post not found');
+        
+        if (post.employer.userId != userId) throw new HttpException(403, `You are not the owner of post has id: ${post.postId}`);
+
         // Find information about details of CV with applicationType: cv_enclosed, online-profile, attached-document
         // TH1: cv_enclosed
         if (application.applicationType === applicationType.cv_enclosed) {
-            return ({
-                message: `Find details of Application has id: ${req.params.id} successes`,
-                status: 200,
-                data: { application }
-            })
+            return { application }
         }
         // Find personal information about employee of application if applicationType != cv_enclosed
         const user = await userRepository.findOne({
             where: { userId: application.employee.userId },
             relations: ['employee']
         })
-        if (!user) {
-            return ({
-                message: `Find personal information of employee of Application has id: ${req.params.id} failures`,
-                status: 400,
-                data: null
-            })
-        }
+        if (!user) throw new HttpException(404, 'Personal information of user not found');
         const personal_information = {
             avatar: user.avatar,
             name: user.name,
@@ -325,108 +206,50 @@ export default class ApplicationServices {
             const attached_document = await attached_documentRepository.findOne({
                 where: { userId: application.employee.userId }
             })
-            if (!attached_document) {
-                return ({
-                    message: `Find attached documet of employee of Application has id: ${req.params.id} failures`,
-                    status: 400,
-                    data: null
-                })
-            }
-            return ({
-                message: `Find details of Application has id: ${req.params.id} successes`,
-                status: 200,
-                data: { application, personal_information, attached_document }
-            })
+            if (!attached_document) throw new HttpException(404, 'Not Found attached document');
+            return { application, personal_information, attached_document };
         }
         // TH3 : online_profile 
         const online_profile = await online_profileRepository.findOne({
             where: { userId: application.employee.userId },
             relations: ['another_degrees', 'education_informations', 'work_experiences']
         })
-        if (!online_profile) {
-            return ({
-                message: `Find online profile of employee of Application has id: ${req.params.id} failures`,
-                status: 400,
-                data: null
-            })
-        }
-        return ({
-            message: `Find details of Application has id: ${req.params.id} successes`,
-            status: 200,
-            data: { application, personal_information, online_profile }
-        })
+        if (!online_profile) throw new HttpException(404, 'Not Found online profile');
+        return { application, personal_information, online_profile }
+        
 
     }
 
-    static handleUpdateApplicationbyEmployer = async (req) => {
-        if (!req?.params?.id) {
-            return ({
-                message: 'id is required',
-                status: 400,
-                data: null
-            })
-        }
-
+    static handleUpdateApplicationbyEmployer = async (userId, id, dto) => {
+      
         const application = await applicationRepository.findOne({
-            where: { application_id: req.params.id },
+            where: { application_id: id },
             relations: ['employee']
         })
-        if (!application) {
-            return ({
-                message: `No Application matches id: ${req.params.id}`,
-                status: 400,
-                data: null
-            })
-        }
+        if (!application) throw new HttpException(404,'Application not found');
         // Check employer is owner of application
         const post = await jobpostingRepository.findOne({
-            where: { applications: { application_id: req.params.id } },
+            where: { applications: { application_id: id } },
             relations: ['applications', 'employer']
         })
-        if (!post) {
-            return ({
-                message: `Find employer is owner of application id: ${req.params.id} failed`,
-                status: 400,
-                data: null
-            })
-        }
-        if (post.employer.userId !== req.user.userId) {
-            return ({
-                message: `You isn't owner of application id: ${req.params.id}`,
-                status: 400,
-                data: null
-            })
-        }
+        if (!post) throw new HttpException(404,'Post not found');
+        
+        if (post.employer.userId != userId) throw new HttpException(403, `You are not the owner of post has id: ${post.postId}`);
+
         // Update with req.body
-        if (req.body?.status) application.status = EnumApprovalStatus(req.body.status)
-        if (req.body?.matchingScore) application.matchingScore = req.body.matchingScore
+        if (dto.status) application.status = EnumApprovalStatus(dto.status)
+        if (dto.matchingScore) application.matchingScore = dto.matchingScore
 
         await applicationRepository.save(application)
 
-        return ({
-            message: `Status of Application has id: ${req.params.id} are changed successfully`,
-            status: 200,
-            data: application
-        })
+        return application
     }
 
     static handleGetAllApplications = async () => {
         const applications = await applicationRepository.find({
             relations: ['employee']
         })
-        if (!applications || applications.length === 0) {
-            return ({
-                message: 'No Applications found',
-                status: 204,
-                data: null
-            })
-        }
-
-        return ({
-            message: 'Find AllJobpostings success',
-            status: 200,
-            data: applications
-        })
+        return applications;
     }
 }
 
