@@ -81,8 +81,19 @@ AuthServices.handleLogin = async (email, password) => {
     const token = (0, exports.createToken)(payload);
     return {
         access_token: token,
-        userData: payload
+        expiresIn: process.env.JWT_EXPIRES_IN,
+        userData: payload,
     };
+};
+AuthServices.handleLogout = async (jwt1, jwt2) => {
+    if (jwt1)
+        await redisServices_1.default.setBlockedToken(jwt1);
+    if (jwt2)
+        await redisServices_1.default.setBlockedToken(jwt1);
+    if (jwt1 === null && jwt2 === null) {
+        throw new httpException_1.HttpException(401, "You have already logged out before.");
+    }
+    return;
 };
 AuthServices.handleChangePassword = async (email, password, newPassword, confirmNewPassword) => {
     if (newPassword != confirmNewPassword) {

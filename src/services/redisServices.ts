@@ -7,4 +7,10 @@ export default class RedisServices {
     static getPasswordResetToken = (userId) => {
         return redisClient.get(`password-reset-${userId}`);
     }
+    static setBlockedToken = (token) => {
+        return redisClient.set(`blocked-token-${token}`, token, { EX: 60 * 60 * 24 });
+    }
+    static getBlockedToken = (token) => {
+        return redisClient.get(`blocked-token-${token}`);
+    }
 }

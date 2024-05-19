@@ -1,43 +1,51 @@
-require('dotenv').config()
 import jwt from "jsonwebtoken"
+import RedisServices from "../services/redisServices"
+import { HttpException } from "../exceptions/httpException"
 
-const tokenFromHeader = (req) => {
+export const tokenFromHeader = async(req) => {
     if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
-        return req.headers.authorization.split(' ')[1]
+        const jwt = req.headers.authorization.split(' ')[1];
+        const isBlockListed = await RedisServices.getBlockedToken(jwt);
+        if (isBlockListed) return null;
+        return jwt;
     }
-    return null
+    return undefined;
+}
+
+export const tokenFromCookie = async (req) => {
+    if (req.cookie?.jwt) {
+        const isBlockListed = await RedisServices.getBlockedToken(req.cookie.jwt);
+        if (isBlockListed) return null;
+        return req.cookie.jwt;
+    }
+    return undefined;
 }
 
 export const verifyToken = async (req, res, next) => {
     let key = process.env.JWT_SECRET;
     try {
-        if (tokenFromHeader(req) || (req.cookies && req.cookies.jwt)) {
-            let decoded = tokenFromHeader(req) ? jwt.verify(tokenFromHeader(req), key) : jwt.verify(req.cookies.jwt, key);
+        const token1 = await tokenFromHeader(req);
+        const token2 = await tokenFromCookie(req);
+        if (token1 || token2) {
+            let decoded = token1 ? jwt.verify(token1, key) : jwt.verify(token2, key);
             if (decoded && decoded.userId && decoded.email && decoded.role) {
                 req.user = { userId: decoded.userId, email: decoded.email, role: decoded.role };
                 req.role = decoded.role;
                 next()
             }
             else {
-                return res.status(403).json({
-                    message: 'You are not authorized to do this',
-                    status: 403
-                })
+                next(new HttpException(401, 'Token is invalid'));
             }
         }
+        else if (token1 === null || token2 === null) {
+            next(new HttpException(401, 'You have already logged out before.'))
+        }
         else {
-            return res.status(401).json({
-                message: 'Token is valid',
-                status: 401
-            })
+            next(new HttpException(401, 'Token is invalid'));
         }
 
-    } catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        })
+    } catch (error) {
+        next(error);
     }
 
 

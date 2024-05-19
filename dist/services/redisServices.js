@@ -12,5 +12,11 @@ RedisServices.setPasswordResetToken = (userId, token, expiresAt) => {
 RedisServices.getPasswordResetToken = (userId) => {
     return redis_1.default.get(`password-reset-${userId}`);
 };
+RedisServices.setBlockedToken = (token) => {
+    return redis_1.default.set(`blocked-token-${token}`, token, { EX: 60 * 60 * 24 });
+};
+RedisServices.getBlockedToken = (token) => {
+    return redis_1.default.get(`blocked-token-${token}`);
+};
 exports.default = RedisServices;
 //# sourceMappingURL=redisServices.js.map

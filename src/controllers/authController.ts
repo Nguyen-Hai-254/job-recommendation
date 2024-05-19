@@ -1,3 +1,4 @@
+import { tokenFromCookie, tokenFromHeader } from "../middleware/auth";
 import { HttpException } from "../exceptions/httpException";
 import AuthServices from "../services/authServices";
 
@@ -20,6 +21,8 @@ export default class AuthController {
             if (!email || !password) throw new HttpException(400, 'Invalid email or password');
 
             const data = await AuthServices.handleLogin(email, password);
+
+            res.setHeader('jwt',[`Authorization=${data.access_token}; HttpOnly; Max-Age=${data.expiresIn};`])
             res.cookie("jwt", data.access_token, { httpOnly: true })
 
             return res.status(200).json({message: 'login successfully', data: data});
@@ -30,11 +33,18 @@ export default class AuthController {
 
     static logOut = async (req, res, next) => {
         try {
+            const jwt1 = await tokenFromHeader(req);
+            const jwt2 = await tokenFromCookie(req);   
+
             res.setHeader('jwt', ['Authorization=; Max-age=0']);
             res.clearCookie("jwt");
+            
             const data = req.user;
             if (req.user) req.user = null;
-            return res.status(200).json({message: 'Logged out!', data: data});
+
+            await AuthServices.handleLogout(jwt1, jwt2);
+
+            return res.status(200).json({message: "You've been logged out!", data: data});
         } catch (error) {
             next(error);
         }

@@ -10,8 +10,6 @@ import RedisServices from "./redisServices";
 import MailServices from "../services/mailServices";
 import UserServices from "../services/userServices";
 
-
-
 export const createToken = (payload) => {
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
 }
@@ -19,7 +17,6 @@ export const createToken = (payload) => {
 const userRepository = myDataSource.getRepository(User);
 const employeeRepository = myDataSource.getRepository(Employee);
 const employerRepository = myDataSource.getRepository(Employer);
-
 
 export default class AuthServices {
     static handleRegister = async (email, password, confirmPassword, role) => {
@@ -79,8 +76,19 @@ export default class AuthServices {
       
         return {
             access_token: token,
-            userData: payload
+            expiresIn: process.env.JWT_EXPIRES_IN,
+            userData: payload,
         }
+    }
+
+    static handleLogout = async (jwt1, jwt2) => {
+        if (jwt1) await RedisServices.setBlockedToken(jwt1);
+        if (jwt2) await RedisServices.setBlockedToken(jwt1);
+        
+        if(jwt1===null && jwt2===null) {
+            throw new HttpException(401, "You have already logged out before.");
+        }
+        return;
     }
 
     static handleChangePassword = async (email, password, newPassword, confirmNewPassword) => {
