@@ -1,14 +1,13 @@
 import { myDataSource } from "../config/connectDB"
-import { PostgresErrorCode, approvalStatus } from "../utils/enum"
+import { MySQLErrorCode, approvalStatus } from "../utils/enum"
 import { JobPosting } from "../entity/JobPosting"
 import moment from "moment"
 import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex, EnumApprovalStatus } from "../utils/enumAction"
-import { Notification } from "../entity/Notification"
 import { Brackets } from "typeorm"
 import { HttpException } from "../exceptions/httpException"
+import NotificationServices from "./notificationServices"
 
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
-const notificationRepository = myDataSource.getRepository(Notification);
 
 export default class JobPostingServices {
     static handleGetJobPosting = async (postId) => {               
@@ -422,11 +421,7 @@ export default class JobPostingServices {
 
         await jobPostingRepository.save(jobPosting);
 
-        const createNotification = notificationRepository.create({
-            content: 'Bạn đã cập nhật tin tuyển dụng ' + jobPosting.jobTitle,
-            user: jobPosting.employer.user
-        })
-        await notificationRepository.save(createNotification);
+        await NotificationServices.handleCreateNewNotification(employerId, `Bạn đã cập nhật tin tuyển dụng  ${jobPosting.jobTitle}`);
 
         return jobPosting;
     }
@@ -481,15 +476,11 @@ export default class JobPostingServices {
             })
             await jobPostingRepository.save(post);
 
-            // Add new notification
-            const createNotification = notificationRepository.create({
-                content: 'Đăng tuyển của bạn đang chờ duyệt',
-                user: { userId: employerId}
-            })
-            await notificationRepository.save(createNotification);
+            await NotificationServices.handleCreateNewNotification(employerId, 'Đăng tuyển của bạn đang chờ duyệt');
+          
             return post;
         } catch (err) {
-            if (err.code === PostgresErrorCode.INVALID_RELATION_KEY) {
+            if (err.code === MySQLErrorCode.INVALID_RELATION_KEY || err.code === MySQLErrorCode.INVALID_RELATION_KEY2) {
                 throw new HttpException(404, 'Employer not found')
             }
             throw err;

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PostgresErrorCode = exports.monthMap = exports.applicationType = exports.profession = exports.approvalStatus = exports.positionLevel = exports.experience = exports.employmentType = exports.sex = exports.userRole = exports.degree = void 0;
+exports.MySQLErrorCode = exports.monthMap = exports.applicationType = exports.profession = exports.approvalStatus = exports.positionLevel = exports.experience = exports.employmentType = exports.sex = exports.userRole = exports.degree = void 0;
 var degree;
 (function (degree) {
     degree["highSchool"] = "Trung h\u1ECDc";
@@ -136,10 +136,11 @@ exports.monthMap = {
     '11': 'Nov',
     '12': 'Dec',
 };
-var PostgresErrorCode;
-(function (PostgresErrorCode) {
-    PostgresErrorCode["DUPLICATE"] = "23505";
-    PostgresErrorCode["INVALID_RELATION_KEY"] = "23503";
-    PostgresErrorCode["INVALID_INPUT"] = "22P02";
-})(PostgresErrorCode || (exports.PostgresErrorCode = PostgresErrorCode = {}));
+var MySQLErrorCode;
+(function (MySQLErrorCode) {
+    MySQLErrorCode["DUPLICATE"] = "ER_DUP_ENTRY";
+    MySQLErrorCode["INVALID_RELATION_KEY"] = "ER_NO_REFERENCED_ROW";
+    MySQLErrorCode["INVALID_RELATION_KEY2"] = "ER_NO_REFERENCED_ROW_2";
+    MySQLErrorCode["INVALID_INPUT"] = "ER_TRUNCATED_WRONG_VALUE";
+})(MySQLErrorCode || (exports.MySQLErrorCode = MySQLErrorCode = {}));
 //# sourceMappingURL=enum.js.map

@@ -134,9 +134,10 @@ export const monthMap: { [key: string]: string } = {
     '12': 'Dec',
 };
 
-export enum PostgresErrorCode {
-    DUPLICATE = '23505',
-    INVALID_RELATION_KEY = '23503',
-    INVALID_INPUT = '22P02',
+export enum MySQLErrorCode {
+    DUPLICATE = "ER_DUP_ENTRY",
+    INVALID_RELATION_KEY = "ER_NO_REFERENCED_ROW",
+    INVALID_RELATION_KEY2 = "ER_NO_REFERENCED_ROW_2",
+    INVALID_INPUT = "ER_TRUNCATED_WRONG_VALUE",
   }
   

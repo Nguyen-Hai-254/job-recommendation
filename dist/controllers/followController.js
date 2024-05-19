@@ -4,25 +4,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
+const httpException_1 = require("../exceptions/httpException");
 const followServices_1 = __importDefault(require("../services/followServices"));
 class FollowController {
 }
 _a = FollowController;
 FollowController.followCompany = async (req, res, next) => {
     try {
-        if (!req.body.employerId) {
-            return res.status(500).json({
-                message: 'Thiếu id của công ty',
-                status: 500,
-                error: 'Internal Server Error',
-            });
-        }
-        const data = await followServices_1.default.handleFollowCompany(req.user, req.body.employerId);
-        return res.status(data.status).json({
-            status: data.status,
-            message: data.message,
-            data: data.data ? data.data : []
-        });
+        const { employerId } = req.body;
+        if (!employerId)
+            throw new httpException_1.HttpException(400, 'EmployerId required');
+        const message = await followServices_1.default.handleFollowCompany(req.user, employerId);
+        return res.status(200).json({ message: message, data: [] });
     }
     catch (error) {
         next(error);
@@ -30,19 +23,11 @@ FollowController.followCompany = async (req, res, next) => {
 };
 FollowController.saveEmployee = async (req, res, next) => {
     try {
-        if (!req.body.employeeId || !req.body.isOnlineProfile) {
-            return res.status(500).json({
-                message: 'Thiếu thông tin người xin việc',
-                status: 500,
-                error: 'Internal Server Error',
-            });
-        }
-        const data = await followServices_1.default.handleSaveEmployee(req.user, req.body.employeeId, req.body.isOnlineProfile);
-        return res.status(data.status).json({
-            status: data.status,
-            message: data.message,
-            data: data.data ? data.data : []
-        });
+        const { employeeId, isOnlineProfile } = req.body;
+        if (!employeeId || !isOnlineProfile)
+            throw new httpException_1.HttpException(400, 'EmployeeId, isOnlineProfile required');
+        const message = await followServices_1.default.handleSaveEmployee(req.user, employeeId, isOnlineProfile);
+        return res.status(200).json({ message: message, data: [] });
     }
     catch (error) {
         next(error);
@@ -51,11 +36,7 @@ FollowController.saveEmployee = async (req, res, next) => {
 FollowController.getFollowByEmployee = async (req, res, next) => {
     try {
         const data = await followServices_1.default.handleGetFollowByEmployee(req.user);
-        return res.status(data.status).json({
-            status: data.status,
-            message: data.message,
-            data: data.data ? data.data : []
-        });
+        return res.status(200).json({ message: "OK", data: data });
     }
     catch (error) {
         next(error);
@@ -64,11 +45,7 @@ FollowController.getFollowByEmployee = async (req, res, next) => {
 FollowController.getSaveEmployeeByEmployer = async (req, res, next) => {
     try {
         const data = await followServices_1.default.handleGetSaveEmployeeByEmployer(req.user);
-        return res.status(data.status).json({
-            status: data.status,
-            message: data.message,
-            data: data.data ? data.data : []
-        });
+        return res.status(200).json({ message: "OK", data: data });
     }
     catch (error) {
         next(error);
@@ -76,18 +53,13 @@ FollowController.getSaveEmployeeByEmployer = async (req, res, next) => {
 };
 FollowController.followJobPosting = async (req, res, next) => {
     try {
-        if (!req.body.jobPosting) {
-            return res.status(500).json({
-                message: 'Thiếu id của đăng tuyển',
-                status: 500,
-                error: 'Internal Server Error',
-            });
-        }
-        const data = await followServices_1.default.handleFollowJobPosting(req.user, req.body.jobPosting);
-        return res.status(data.status).json({
-            status: data.status,
-            message: data.message,
-            data: data.data ? data.data : []
+        const { jobPosting } = req.body;
+        if (!jobPosting)
+            throw new httpException_1.HttpException(400, 'Job posting required');
+        const message = await followServices_1.default.handleFollowJobPosting(req.user, jobPosting);
+        return res.status(200).json({
+            message: message,
+            data: []
         });
     }
     catch (error) {
@@ -97,11 +69,7 @@ FollowController.followJobPosting = async (req, res, next) => {
 FollowController.getFollowJobPosting = async (req, res, next) => {
     try {
         const data = await followServices_1.default.handleGetFollowJobPosting(req.user);
-        return res.status(data.status).json({
-            status: data.status,
-            message: data.message,
-            data: data.data ? data.data : []
-        });
+        return res.status(200).json({ message: "OK", data: data });
     }
     catch (error) {
         next(error);

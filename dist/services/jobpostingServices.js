@@ -9,11 +9,10 @@ const enum_1 = require("../utils/enum");
 const JobPosting_1 = require("../entity/JobPosting");
 const moment_1 = __importDefault(require("moment"));
 const enumAction_1 = require("../utils/enumAction");
-const Notification_1 = require("../entity/Notification");
 const typeorm_1 = require("typeorm");
 const httpException_1 = require("../exceptions/httpException");
+const notificationServices_1 = __importDefault(require("./notificationServices"));
 const jobPostingRepository = connectDB_1.myDataSource.getRepository(JobPosting_1.JobPosting);
-const notificationRepository = connectDB_1.myDataSource.getRepository(Notification_1.Notification);
 class JobPostingServices {
 }
 _a = JobPostingServices;
@@ -387,11 +386,7 @@ JobPostingServices.handleUpdateJobPosting = async (employerId, postId, dto) => {
     jobPosting.updateAt = new Date();
     jobPosting.check = null;
     await jobPostingRepository.save(jobPosting);
-    const createNotification = notificationRepository.create({
-        content: 'Bạn đã cập nhật tin tuyển dụng ' + jobPosting.jobTitle,
-        user: jobPosting.employer.user
-    });
-    await notificationRepository.save(createNotification);
+    await notificationServices_1.default.handleCreateNewNotification(employerId, `Bạn đã cập nhật tin tuyển dụng  ${jobPosting.jobTitle}`);
     return jobPosting;
 };
 JobPostingServices.handleCreateNewJobPosting = async (employerId, req) => {
@@ -444,16 +439,11 @@ JobPostingServices.handleCreateNewJobPosting = async (employerId, req) => {
             employer: { userId: employerId }
         });
         await jobPostingRepository.save(post);
-        // Add new notification
-        const createNotification = notificationRepository.create({
-            content: 'Đăng tuyển của bạn đang chờ duyệt',
-            user: { userId: employerId }
-        });
-        await notificationRepository.save(createNotification);
+        await notificationServices_1.default.handleCreateNewNotification(employerId, 'Đăng tuyển của bạn đang chờ duyệt');
         return post;
     }
     catch (err) {
-        if (err.code === enum_1.PostgresErrorCode.INVALID_RELATION_KEY) {
+        if (err.code === enum_1.MySQLErrorCode.INVALID_RELATION_KEY || err.code === enum_1.MySQLErrorCode.INVALID_RELATION_KEY2) {
             throw new httpException_1.HttpException(404, 'Employer not found');
         }
         throw err;

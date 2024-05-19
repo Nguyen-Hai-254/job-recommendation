@@ -1,4 +1,4 @@
-import { HttpException } from "src/exceptions/httpException";
+import { HttpException } from "../exceptions/httpException";
 import { myDataSource } from "../config/connectDB";
 import { Employee } from "../entity/Employee";
 import { Employer } from "../entity/Employer";
