@@ -28,8 +28,7 @@ AuthController.login = async (req, res, next) => {
         if (!email || !password)
             throw new httpException_1.HttpException(400, 'Invalid email or password');
         const data = await authServices_1.default.handleLogin(email, password);
-        res.setHeader('jwt', [`Authorization=${data.access_token}; HttpOnly; Max-Age=${data.expiresIn};`]);
-        res.cookie("jwt", data.access_token, { httpOnly: true });
+        res.cookie('jwt', data.access_token, { httpOnly: true, expiresIn: data.expiresIn });
         return res.status(200).json({ message: 'login successfully', data: data });
     }
     catch (error) {
@@ -40,13 +39,12 @@ AuthController.logOut = async (req, res, next) => {
     try {
         const jwt1 = await (0, auth_1.tokenFromHeader)(req);
         const jwt2 = await (0, auth_1.tokenFromCookie)(req);
-        res.setHeader('jwt', ['Authorization=; Max-age=0']);
-        res.clearCookie("jwt");
+        res.clearCookie('jwt');
         const data = req.user;
         if (req.user)
             req.user = null;
         await authServices_1.default.handleLogout(jwt1, jwt2);
-        return res.status(200).json({ message: "You've been logged out!", data: data });
+        return res.status(200).json({ message: "You've been logged out!", data: data.email });
     }
     catch (error) {
         next(error);

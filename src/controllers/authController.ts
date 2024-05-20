@@ -22,8 +22,7 @@ export default class AuthController {
 
             const data = await AuthServices.handleLogin(email, password);
 
-            res.setHeader('jwt',[`Authorization=${data.access_token}; HttpOnly; Max-Age=${data.expiresIn};`])
-            res.cookie("jwt", data.access_token, { httpOnly: true })
+            res.cookie('jwt', data.access_token, { httpOnly: true, expiresIn: data.expiresIn })
 
             return res.status(200).json({message: 'login successfully', data: data});
         } catch (error) {
@@ -36,15 +35,14 @@ export default class AuthController {
             const jwt1 = await tokenFromHeader(req);
             const jwt2 = await tokenFromCookie(req);   
 
-            res.setHeader('jwt', ['Authorization=; Max-age=0']);
-            res.clearCookie("jwt");
+            res.clearCookie('jwt');
             
             const data = req.user;
             if (req.user) req.user = null;
 
             await AuthServices.handleLogout(jwt1, jwt2);
 
-            return res.status(200).json({message: "You've been logged out!", data: data});
+            return res.status(200).json({message: "You've been logged out!", data: data.email});
         } catch (error) {
             next(error);
         }
