@@ -1,6 +1,7 @@
 import { approvalStatus } from "../utils/enum";
 import { HttpException } from "../exceptions/httpException";
 import JobPostingServices from "../services/jobpostingServices";
+import respondSuccess from "../utils/respondSuccess";
 
 export default class JobPostingController {
     // Every User
@@ -9,7 +10,7 @@ export default class JobPostingController {
             const { postId } = req.params;
             if (!postId) throw new HttpException(400, 'postID is required');
             const jobPosting = await JobPostingServices.handleGetJobPosting(postId);
-            return res.status(200).json({ message: 'get job posting successfully', data: jobPosting});
+            return respondSuccess(res, 'get job posting successfully', jobPosting);
         } catch (error) {
             next(error);
         }
@@ -18,7 +19,7 @@ export default class JobPostingController {
     static getAllJobPostings = async (req, res, next) => {
         try {
             const jobPostings = await JobPostingServices.handleGetAllJobPostings(req.query);
-            return res.status(200).json({ message: 'get all job postings successfully', data: jobPostings});
+            return respondSuccess(res, 'get all job postings successfully', jobPostings);
         } catch (error) {
             next(error);
         }
@@ -27,7 +28,7 @@ export default class JobPostingController {
     static getLengthOfAllJobPostings = async (req, res, next) => {
         try {
             const jobPostings = await JobPostingServices.handleGetLengthOfAllJobPostings(req.query);
-            return res.status(200).json({message: 'get length of jobpostings successfully', data: jobPostings });
+            return respondSuccess(res, 'get length of jobpostings successfully', jobPostings);
         } catch (error) {
             next(error);
         }
@@ -37,7 +38,7 @@ export default class JobPostingController {
         try {
             req.query.status = approvalStatus.approved;
             const jobPostings = await JobPostingServices.handleGetTotalResultsOfProfession(req.query);
-            return res.status(200).json({message: 'get total results of professions successfully', data: jobPostings });
+            return respondSuccess(res, 'get total results of professions successfully', jobPostings);
         } catch (error) {
             next(error);
         }
@@ -47,7 +48,7 @@ export default class JobPostingController {
     static getAllJobPostingsByAdmin = async (req, res, next) => {
         try {
             const jobPostings = await JobPostingServices.handleGetAllJobPostingsByAdmin(req.query);
-            return res.status(200).json({ message: 'get all job postings by admin successfully', data: jobPostings});
+            return respondSuccess(res, 'get all job postings by admin successfully', jobPostings);
         } catch (error) {
             next(error);
         }
@@ -56,7 +57,7 @@ export default class JobPostingController {
     static getLengthOfAllJobPostingsByAdmin = async (req, res, next) => {
         try {
             const jobPostings = await JobPostingServices.handleGetLengthOfAllJobPostingsByAdmin(req.query);
-            return res.status(200).json({message: 'get length of jobpostings by admin successfully', data: jobPostings });
+            return respondSuccess(res, 'get length of jobpostings by admin successfully', jobPostings);
         } catch (error) {
             next(error);
         }
@@ -69,7 +70,7 @@ export default class JobPostingController {
             if (!req.body) throw new HttpException(400, 'req body is required');
 
             const jobPosting = await JobPostingServices.handleUpdateApprovalStatus(postId, req.body);
-            return res.status(200).json({ message: `Job posting has postId: ${postId} are updated successfully`, data: jobPosting});
+            return respondSuccess(res, `Job posting has postId: ${postId} are updated successfully`, jobPosting);
         } catch (error) {
             next(error);
         }
@@ -78,7 +79,7 @@ export default class JobPostingController {
     static getTotalResultsOfProfessionByAdmin = async (req, res, next) => {
         try {
             const jobPostings = await JobPostingServices.handleGetTotalResultsOfProfession(req.query);
-            return res.status(200).json({message: 'get total results of professions by admin successfully', data: jobPostings });
+            return respondSuccess(res, 'get total results of professions by admin successfully', jobPostings);
         } catch (error) {
             next(error);
         }
@@ -89,7 +90,7 @@ export default class JobPostingController {
         try {
             const { userId } = req.user;
             const jobPosting = await JobPostingServices.handleCreateNewJobPosting(userId, req);
-            return res.status(201).json({ message: 'Create job posting successfully', data: jobPosting});
+            return respondSuccess(res, 'Create job posting successfully', jobPosting, 201);
         } catch (error) {
             next(error);
         }
@@ -102,7 +103,7 @@ export default class JobPostingController {
             if ( !postId ) throw new HttpException(400, 'postID is required');
 
             const jobPosting = await JobPostingServices.handleGetJobPostingByEmployer( userId , postId );
-            return res.status(200).json({ message: 'get job posting by employer successfully', data: jobPosting});
+            return respondSuccess(res, 'get job posting by employer successfully', jobPosting);
         } catch (error) {
             next(error);
         }
@@ -112,7 +113,7 @@ export default class JobPostingController {
         try {
             const { userId } = req.user;
             const jobPostings = await JobPostingServices.handleGetJobPostingsByEmployer(userId, req.query);
-            return res.status(200).json({ message: 'get job postings by employer successfully', data: jobPostings});
+            return respondSuccess(res, 'get job postings by employer successfully', jobPostings);
         } catch (error) {
             next(error);
         }
@@ -126,7 +127,7 @@ export default class JobPostingController {
             if (!req.body) throw new HttpException(400, 'req body is required');
 
             const jobPosting = await JobPostingServices.handleUpdateJobPosting( userId, postId, req.body);
-            return res.status(200).json({ message: `Job posting has postId: ${postId} are updated successfully`, data: jobPosting});
+            return respondSuccess(res, `Job posting has postId: ${postId} are updated successfully`, jobPosting);
         } catch (error) {
             next(error);
         }
@@ -138,7 +139,7 @@ export default class JobPostingController {
             const { postId } = req.params;
             if (!postId) throw new HttpException(400, 'postID is required');
             const jobPosting = await JobPostingServices.handleDeleteJobPosting(userId, postId);
-            return res.status(200).json({ message: `Job posting has postId: ${postId} are removed successfully`, data: jobPosting});
+            return respondSuccess(res, `Job posting has postId: ${postId} are removed successfully`, jobPosting);
         } catch (error) {
             next(error);
         }

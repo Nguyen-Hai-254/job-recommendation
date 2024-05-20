@@ -7,6 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const auth_1 = require("../middleware/auth");
 const httpException_1 = require("../exceptions/httpException");
 const authServices_1 = __importDefault(require("../services/authServices"));
+const respondSuccess_1 = __importDefault(require("../utils/respondSuccess"));
 class AuthController {
 }
 _a = AuthController;
@@ -16,7 +17,7 @@ AuthController.register = async (req, res, next) => {
         if (!email || !password || !confirmPassword || !role)
             throw new httpException_1.HttpException(400, 'Invalid email, password, confirm password or role');
         const data = await authServices_1.default.handleRegister(email, password, confirmPassword, role);
-        return res.status(201).json({ message: 'Register account successfully', data: data });
+        return (0, respondSuccess_1.default)(res, 'Register account successfully', data, 201);
     }
     catch (error) {
         next(error);
@@ -29,7 +30,7 @@ AuthController.login = async (req, res, next) => {
             throw new httpException_1.HttpException(400, 'Invalid email or password');
         const data = await authServices_1.default.handleLogin(email, password);
         res.cookie('jwt', data.access_token, { httpOnly: true, expiresIn: data.expiresIn });
-        return res.status(200).json({ message: 'login successfully', data: data });
+        return (0, respondSuccess_1.default)(res, 'login successfully', data);
     }
     catch (error) {
         next(error);
@@ -44,7 +45,7 @@ AuthController.logOut = async (req, res, next) => {
         if (req.user)
             req.user = null;
         await authServices_1.default.handleLogout(jwt1, jwt2);
-        return res.status(200).json({ message: "You've been logged out!", data: data.email });
+        return (0, respondSuccess_1.default)(res, "You've been logged out!", data.email);
     }
     catch (error) {
         next(error);
@@ -58,7 +59,7 @@ AuthController.changePassword = async (req, res, next) => {
             throw new httpException_1.HttpException(400, 'Invalid input');
         }
         const userData = await authServices_1.default.handleChangePassword(email, password, newPassword, confirmNewPassword);
-        return res.status(200).json({ message: 'Change password successfully', data: userData });
+        return (0, respondSuccess_1.default)(res, 'Change password successfully', userData);
     }
     catch (error) {
         next(error);
@@ -70,7 +71,7 @@ AuthController.requestPasswordReset = async (req, res, next) => {
         if (!email)
             throw new httpException_1.HttpException(400, 'Email is required');
         await authServices_1.default.hanldeRequestPasswordReset(email);
-        res.status(200).json({ message: 'Password reset instructions have been sent to your email' });
+        return (0, respondSuccess_1.default)(res, 'Password reset instructions have been sent to your email');
     }
     catch (error) {
         next(error);
@@ -83,7 +84,7 @@ AuthController.resetPassword = async (req, res, next) => {
             throw new httpException_1.HttpException(400, 'email, token and new password are required');
         }
         const userData = await authServices_1.default.handleResetPassword(email, token, newPassword);
-        return res.status(200).json({ message: 'Password reset successfully.', data: userData });
+        return (0, respondSuccess_1.default)(res, 'Password reset successfully.', userData);
     }
     catch (error) {
         next(error);

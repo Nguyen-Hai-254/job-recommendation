@@ -1,12 +1,13 @@
 import { HttpException } from "../exceptions/httpException";
 import EmployeeServices from "../services/employeeServices";
+import respondSuccess from "../utils/respondSuccess";
 
 export default class EmployeeController {
     static getAttachedDocument = async (req, res, next) => {
         try {
             const { userId } = req.user;
             const attached_document = await EmployeeServices.handleGetAttachedDocument(userId);
-            return res.status(200).json({message: 'get my attached document successfully', data: attached_document})
+            return respondSuccess(res, 'get my attached document successfully', attached_document)
         } catch (error) {
             next(error);
         }
@@ -17,7 +18,7 @@ export default class EmployeeController {
             const { userId } = req.user;
             if (!req.body) throw new HttpException(400, 'Invalid body')
             const attached_document = await EmployeeServices.handleCreateNewAttachedDocument(userId, req.body);
-            return res.status(201).json({message: 'Create my new attached document successfully', data: attached_document})
+            return respondSuccess(res, 'Create my new attached document successfully', attached_document, 201)
         } catch (error) {
             next(error);
         }
@@ -28,19 +29,18 @@ export default class EmployeeController {
             const { userId } = req.user;
             if (!req.body) throw new HttpException(400, 'Invalid body')
             const attached_document = await EmployeeServices.handleUpdateAttachedDocument(userId, req.body);
-            return res.status(200).json({message: 'update my attached document successfully', data: attached_document})
+            return respondSuccess(res, 'update my attached document successfully', attached_document)
         } catch (error) {
             next(error);
         }
     }
-
     // Admin
     static deleteAttachedDocument = async (req, res, next) => {
         try {
             const { id } = req.params;
             if (!id) throw new HttpException(400, 'id is required');
             const attached_document = await EmployeeServices.handleDeleteAttachedDocument(id);
-            return res.status(200).json({message: 'remove attached document successfully', data: attached_document})
+            return respondSuccess(res, 'remove attached document successfully', attached_document)
         } catch (error) {
             next(error);
         }
@@ -50,7 +50,7 @@ export default class EmployeeController {
         try {
             const { userId } = req.user;
             const online_profile = await EmployeeServices.handleGetOnlineProfile(userId);
-            return res.status(200).json({message: 'get my online profile successfully', data: online_profile})
+            return respondSuccess(res, 'get my online profile successfully', online_profile)
         } catch (error) {
             next(error);
         }
@@ -61,7 +61,7 @@ export default class EmployeeController {
             const { userId } = req.user;
             if (!req.body) throw new HttpException(400, 'Invalid body');
             const online_profile = await EmployeeServices.handleCreateNewOnlineProfile(userId, req.body);
-            return res.status(201).json({message: 'Create my new online profile successfully', data: online_profile });
+            return respondSuccess(res, 'Create my new online profile successfully', online_profile, 201);
         } catch (error) {
             next(error);
         }
@@ -72,7 +72,7 @@ export default class EmployeeController {
             const { userId } = req.user;
             if (!req.body) throw new HttpException(400, 'Invalid body');
             const online_profile = await EmployeeServices.handleUpdateOnlineProfile(userId, req.body);
-            return res.status(200).json({message: 'Update my online profile successfully', data: online_profile });
+            return respondSuccess(res, 'Update my online profile successfully', online_profile);
         } catch (error) {
             next(error);
         }
@@ -84,7 +84,7 @@ export default class EmployeeController {
             const { id } = req.params;
             if (!id) throw new HttpException(400, 'id is required');
             const online_profile = await EmployeeServices.handleDeleteOnlineProfile(id);
-            return res.status(200).json({message: 'remove online profile successfully', data: online_profile})
+            return respondSuccess(res, 'remove online profile successfully', online_profile)
         } catch (error) {
             next(error);
         }
@@ -97,7 +97,7 @@ export default class EmployeeController {
             const { userId } = req.user;
             if (!req.body) throw new HttpException(400, 'Invalid body');
             const another_degree = await EmployeeServices.handleCreateNewAnotherDegree(userId, req.body);
-            return res.status(201).json({message: 'Create new another degree successfully', data: another_degree})
+            return respondSuccess(res, 'Create new another degree successfully', another_degree, 201)
         } catch (error) {
             next(error);
         }
@@ -110,7 +110,7 @@ export default class EmployeeController {
             if (!id) throw new HttpException(400, 'Invalid id');
             if (!req.body) throw new HttpException(400, 'Invalid body');
             const another_degree = await EmployeeServices.handleUpdateAnotherDegree(userId, id, req.body);
-            return res.status(200).json({message: 'Updated degree successfully', data: another_degree });
+            return respondSuccess(res, 'Updated degree successfully', another_degree);
         } catch (error) {
             next(error);
         }
@@ -122,7 +122,7 @@ export default class EmployeeController {
             const { id } = req.params;
             if (!id) throw new HttpException(400, 'Invalid id');
             const another_degree = await EmployeeServices.handleDeleteAnotherDegree(userId, id);
-            return res.status(200).json({message: 'Delete degree successfully', data: another_degree });
+            return respondSuccess(res, 'Delete degree successfully', another_degree);
         } catch (error) {
             next(error);
         }
@@ -134,7 +134,7 @@ export default class EmployeeController {
             const { userId } = req.user;
             if (!req.body) throw new HttpException(400, 'Invalid body');
             const education_information = await EmployeeServices.handleCreateNewEducationInformation(userId, req.body);
-            return res.status(201).json({message: 'Create new education information successfully', data: education_information})
+            return respondSuccess(res, 'Create new education information successfully', education_information, 201)
         } catch (error) {
             next(error);
         }
@@ -147,7 +147,7 @@ export default class EmployeeController {
             if (!id) throw new HttpException(400, 'Invalid id');
             if (!req.body) throw new HttpException(400, 'Invalid body');
             const education_information = await EmployeeServices.handleUpdateEducationInformation(userId, id, req.body);
-            return res.status(200).json({message: 'Update education information successfully', data: education_information})
+            return respondSuccess(res, 'Update education information successfully', education_information)
         } catch (error) {
             next(error);
         }
@@ -159,7 +159,7 @@ export default class EmployeeController {
             const { id } = req.params;
             if (!id) throw new HttpException(400, 'Invalid id');
             const education_informations = await EmployeeServices.handleDeleteEducationInformation(userId, id);
-            return res.status(200).json({message: 'Delete education information successfully', data: education_informations });
+            return respondSuccess(res, 'Delete education information successfully', education_informations);
         } catch (error) {
             next(error);
         }
@@ -171,7 +171,7 @@ export default class EmployeeController {
             const { userId } = req.user;
             if (!req.body) throw new HttpException(400, 'Invalid body');
             const work_experience = await EmployeeServices.handleCreateNewWorkExperience(userId, req.body);
-            return res.status(201).json({message: 'Create new work experience successfully', data: work_experience})
+            return respondSuccess(res, 'Create new work experience successfully', work_experience, 201)
         } catch (error) {
             next(error);
         }
@@ -184,7 +184,7 @@ export default class EmployeeController {
             if (!id) throw new HttpException(400, 'Invalid id');
             if (!req.body) throw new HttpException(400, 'Invalid body');
             const workexperience = await EmployeeServices.handleUpdateWorkExperience(userId, id, req.body);
-            return res.status(200).json({message: 'Update education information successfully', data: workexperience})
+            return respondSuccess(res, 'Update education information successfully', workexperience)
         } catch (error) {
             next(error);
         }
@@ -196,7 +196,7 @@ export default class EmployeeController {
             const { id } = req.params;
             if (!id) throw new HttpException(400, 'Invalid id');
             const work_experience = await EmployeeServices.handleDeleteWorkExperience(userId, id);
-            return res.status(200).json({message: 'Delete work experience successfully', data: work_experience });
+            return respondSuccess(res, 'Delete work experience successfully', work_experience );
         } catch (error) {
             next(error);
         }
@@ -205,7 +205,7 @@ export default class EmployeeController {
     static getEmployeesByAdmin = async (req, res, next) => {
         try {
             const employees = await EmployeeServices.handleGetEmployeesByAdmin(req.query);
-            return res.status(200).json({message: 'get employees by admin successfully', data: employees});
+            return respondSuccess(res, 'get employees by admin successfully', employees);
         } catch (error) {
             next(error);
         }
@@ -214,7 +214,7 @@ export default class EmployeeController {
     static getLengthOfEmployeesByAdmin = async (req, res, next) => {
         try {
             const employees = await EmployeeServices.handleGetLengthOfEmployeesByAdmin(req.query);
-            return res.status(200).json({message: 'get length of employees by admin successfully', data: employees});
+            return respondSuccess(res, 'get length of employees by admin successfully', employees);
         } catch (error) {
             next(error);
         }
@@ -223,7 +223,7 @@ export default class EmployeeController {
     static getEmployeesByEmployer = async (req, res, next) => {
         try {
             const employees = await EmployeeServices.handleGetEmployeesByEmployer(req.query);
-            return res.status(200).json({message: 'get employees by employer successfully', data: employees});
+            return respondSuccess(res, 'get employees by employer successfully', employees);
         } catch (error) {
             next(error);
         }
@@ -232,7 +232,7 @@ export default class EmployeeController {
     static getLengthOfEmployeesByEmployer = async (req, res, next) => {
         try {
             const employees = await EmployeeServices.handleGetLengthOfEmployeesByEmployer(req.query);
-            return res.status(200).json({message: 'get length of employees by employer successfully', data: employees});
+            return respondSuccess(res, 'get length of employees by employer successfully', employees);
         } catch (error) {
             next(error);
         }
@@ -246,10 +246,7 @@ export default class EmployeeController {
             if (!num) req.query.num = 10;
 
             const employees = await EmployeeServices.handleGetEmployeesByEmployerSortByKeywords(req.query);
-            return res.status(200).json({
-                message: 'get employees by employer sort by keywords successfully',
-                data: employees
-            })
+            return respondSuccess(res, 'get employees by employer sort by keywords successfully', employees)
         } catch (error) {
             next(error);
         }

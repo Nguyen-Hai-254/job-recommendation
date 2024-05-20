@@ -1,6 +1,6 @@
 import { HttpException } from "../exceptions/httpException";
 import FollowServices from "../services/followServices";
-
+import respondSuccess from "../utils/respondSuccess";
 
 export default class FollowController {
     static followCompany = async (req, res, next) => {
@@ -8,7 +8,7 @@ export default class FollowController {
             const { employerId } = req.body
             if (!employerId) throw new HttpException(400, 'EmployerId required');
             const message = await FollowServices.handleFollowCompany(req.user, employerId);
-            return res.status(200).json({message: message, data: []});
+            return respondSuccess(res, message);
         } catch (error) {
             next(error);
         }
@@ -19,7 +19,7 @@ export default class FollowController {
             const { employeeId, isOnlineProfile } = req.body;
             if (!employeeId || !isOnlineProfile) throw new HttpException(400, 'EmployeeId, isOnlineProfile required');
             const message = await FollowServices.handleSaveEmployee(req.user, employeeId, isOnlineProfile);
-            return res.status(200).json({message: message, data: []});
+            return respondSuccess(res, message);
         } catch (error) {
             next(error);
         }
@@ -28,7 +28,7 @@ export default class FollowController {
     static getFollowByEmployee = async (req, res, next) => {
         try {
             const data = await FollowServices.handleGetFollowByEmployee(req.user);
-            return res.status(200).json({message: "OK", data: data});
+            return respondSuccess(res, "OK", data);
         } catch (error) {
             next(error);
         }
@@ -37,7 +37,7 @@ export default class FollowController {
     static getSaveEmployeeByEmployer = async (req, res, next) => {
         try {
             const data = await FollowServices.handleGetSaveEmployeeByEmployer(req.user);
-            return res.status(200).json({message: "OK", data: data});
+            return respondSuccess(res, "OK", data);
         } catch (error) {
             next(error);
         }
@@ -48,10 +48,7 @@ export default class FollowController {
             const { jobPosting } = req.body;
             if (!jobPosting) throw new HttpException(400, 'Job posting required');
             const message = await FollowServices.handleFollowJobPosting(req.user, jobPosting)
-            return res.status(200).json({
-                message: message,
-                data: []
-            });
+            return respondSuccess(res, message);
         } catch (error) {
             next(error);
         }
@@ -60,7 +57,7 @@ export default class FollowController {
     static getFollowJobPosting = async (req, res, next) => {
         try {
             const data = await FollowServices.handleGetFollowJobPosting(req.user)
-            return res.status(200).json({message: "OK", data: data});
+            return respondSuccess(res, "OK", data);
         } catch (error) {
             next(error);
         }

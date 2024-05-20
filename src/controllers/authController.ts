@@ -1,6 +1,8 @@
 import { tokenFromCookie, tokenFromHeader } from "../middleware/auth";
 import { HttpException } from "../exceptions/httpException";
 import AuthServices from "../services/authServices";
+import respondSuccess from "../utils/respondSuccess";
+
 
 export default class AuthController {
     static register = async (req, res, next) => {
@@ -9,7 +11,7 @@ export default class AuthController {
             if (!email || !password || !confirmPassword || !role) throw new HttpException(400, 'Invalid email, password, confirm password or role');
 
             const data = await AuthServices.handleRegister(email, password, confirmPassword, role);
-            return res.status(201).json({message: 'Register account successfully', data: data});
+            return respondSuccess(res, 'Register account successfully', data, 201);
         } catch (error) {
             next(error);
         }
@@ -21,10 +23,9 @@ export default class AuthController {
             if (!email || !password) throw new HttpException(400, 'Invalid email or password');
 
             const data = await AuthServices.handleLogin(email, password);
-
             res.cookie('jwt', data.access_token, { httpOnly: true, expiresIn: data.expiresIn })
 
-            return res.status(200).json({message: 'login successfully', data: data});
+            return respondSuccess(res, 'login successfully', data);
         } catch (error) {
             next(error);
         }
@@ -34,15 +35,12 @@ export default class AuthController {
         try {
             const jwt1 = await tokenFromHeader(req);
             const jwt2 = await tokenFromCookie(req);   
-
             res.clearCookie('jwt');
-            
             const data = req.user;
             if (req.user) req.user = null;
 
             await AuthServices.handleLogout(jwt1, jwt2);
-
-            return res.status(200).json({message: "You've been logged out!", data: data.email});
+            return respondSuccess(res, "You've been logged out!", data.email);
         } catch (error) {
             next(error);
         }
@@ -57,7 +55,7 @@ export default class AuthController {
             }
             
             const userData = await AuthServices.handleChangePassword(email, password, newPassword, confirmNewPassword);
-            return res.status(200).json({message: 'Change password successfully', data: userData});
+            return respondSuccess(res, 'Change password successfully', userData);
 
         } catch (error) {
             next(error);
@@ -68,8 +66,9 @@ export default class AuthController {
         try {
             const { email } = req.body;
             if (!email ) throw new HttpException(400, 'Email is required');
+
             await AuthServices.hanldeRequestPasswordReset(email);
-            res.status(200).json({ message: 'Password reset instructions have been sent to your email' });
+            return respondSuccess(res, 'Password reset instructions have been sent to your email');
         } catch (error) {
             next(error);
         }
@@ -82,7 +81,7 @@ export default class AuthController {
                 throw new HttpException(400, 'email, token and new password are required');
             } 
             const userData = await AuthServices.handleResetPassword(email, token, newPassword);
-            return res.status(200).json({ message: 'Password reset successfully.', data: userData });
+            return respondSuccess(res, 'Password reset successfully.', userData);
         } catch (error) {
             next(error);
         }
