@@ -1,23 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyRole = void 0;
+const httpException_1 = require("../exceptions/httpException");
 const verifyRole = (...allowedRoles) => {
     return (req, res, next) => {
-        if (!(req === null || req === void 0 ? void 0 : req.role)) {
-            return res.status(401).json({
-                message: 'Token is valid',
-                status: 401
-            });
+        try {
+            if (!(req === null || req === void 0 ? void 0 : req.role))
+                next(new httpException_1.HttpException(401, 'Token is invalid'));
+            const rolesArray = [...allowedRoles];
+            const result = rolesArray.includes(req.role);
+            if (!result)
+                next(new httpException_1.HttpException(403, 'You are not authorized to do this'));
+            next();
         }
-        const rolesArray = [...allowedRoles];
-        const result = rolesArray.includes(req.role);
-        if (!result) {
-            return res.status(403).json({
-                message: 'You are not authorized to do this',
-                status: 403
-            });
+        catch (error) {
+            next(error);
         }
-        next();
     };
 };
 exports.verifyRole = verifyRole;

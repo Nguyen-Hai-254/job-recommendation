@@ -4,15 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-const connectDB_1 = require("../config/connectDB");
-const enum_1 = require("../utils/enum");
-const JobPosting_1 = require("../entity/JobPosting");
-const moment_1 = __importDefault(require("moment"));
-const enumAction_1 = require("../utils/enumAction");
 const typeorm_1 = require("typeorm");
-const httpException_1 = require("../exceptions/httpException");
+const moment_1 = __importDefault(require("moment"));
+const connectDB_1 = require("../config/connectDB");
+const entity_1 = require("../entity");
+const enum_1 = require("../utils/enum");
+const enumAction_1 = require("../utils/enumAction");
 const notificationServices_1 = __importDefault(require("./notificationServices"));
-const jobPostingRepository = connectDB_1.myDataSource.getRepository(JobPosting_1.JobPosting);
+const httpException_1 = require("../exceptions/httpException");
+const jobPostingRepository = connectDB_1.myDataSource.getRepository(entity_1.JobPosting);
 class JobPostingServices {
 }
 _a = JobPostingServices;

@@ -2,21 +2,16 @@
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const connectDB_1 = require("../config/connectDB");
-const Employee_1 = require("../entity/Employee");
-const Users_1 = require("../entity/Users");
-const JobPosting_1 = require("../entity/JobPosting");
-const Application_1 = require("../entity/Application");
-const AttachedDocument_1 = require("../entity/AttachedDocument");
-const OnlineProfile_1 = require("../entity/OnlineProfile");
-const enumAction_1 = require("../utils/enumAction");
+const entity_1 = require("../entity");
 const enum_1 = require("../utils/enum");
+const enumAction_1 = require("../utils/enumAction");
 const httpException_1 = require("../exceptions/httpException");
-const userRepository = connectDB_1.myDataSource.getRepository(Users_1.User);
-const employeeRepository = connectDB_1.myDataSource.getRepository(Employee_1.Employee);
-const applicationRepository = connectDB_1.myDataSource.getRepository(Application_1.Application);
-const jobpostingRepository = connectDB_1.myDataSource.getRepository(JobPosting_1.JobPosting);
-const attached_documentRepository = connectDB_1.myDataSource.getRepository(AttachedDocument_1.AttachedDocument);
-const online_profileRepository = connectDB_1.myDataSource.getRepository(OnlineProfile_1.OnlineProfile);
+const userRepository = connectDB_1.myDataSource.getRepository(entity_1.User);
+const employeeRepository = connectDB_1.myDataSource.getRepository(entity_1.Employee);
+const applicationRepository = connectDB_1.myDataSource.getRepository(entity_1.Application);
+const jobpostingRepository = connectDB_1.myDataSource.getRepository(entity_1.JobPosting);
+const attached_documentRepository = connectDB_1.myDataSource.getRepository(entity_1.AttachedDocument);
+const online_profileRepository = connectDB_1.myDataSource.getRepository(entity_1.OnlineProfile);
 class ApplicationServices {
 }
 _a = ApplicationServices;

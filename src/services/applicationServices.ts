@@ -1,12 +1,7 @@
 import { myDataSource } from "../config/connectDB"
-import { Employee } from "../entity/Employee"
-import { User } from "../entity/Users"
-import { JobPosting } from "../entity/JobPosting"
-import { Application } from "../entity/Application"
-import { AttachedDocument } from "../entity/AttachedDocument"
-import { OnlineProfile } from "../entity/OnlineProfile"
-import { EnumApplicationType, EnumApprovalStatus } from "../utils/enumAction"
+import { User, Employee, Application, JobPosting, AttachedDocument, OnlineProfile } from "../entity"
 import { MySQLErrorCode, applicationType } from "../utils/enum"
+import { EnumApplicationType, EnumApprovalStatus } from "../utils/enumAction"
 import { HttpException } from "../exceptions/httpException"
 
 const userRepository = myDataSource.getRepository(User);

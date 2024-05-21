@@ -1,21 +1,21 @@
-import { HttpException } from "../exceptions/httpException"
-import { myDataSource } from "../config/connectDB"
-import { User } from "../entity/Users"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
+import { myDataSource } from "../config/connectDB"
+import { User, Employee, Employer } from "../entity"
 import { MySQLErrorCode } from "../utils/enum"
-import { Employee } from "../entity/Employee"
-import { Employer } from "../entity/Employer"
-
-export const createToken = (payload) => {
-    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
-}
+import RedisServices from "./redisServices"
+import MailServices from "./mailServices"
+import UserServices from "./userServices"
+import { tokenFromCookie, tokenFromHeader } from "../middleware/auth"
+import { HttpException } from "../exceptions/httpException"
 
 const userRepository = myDataSource.getRepository(User);
 const employeeRepository = myDataSource.getRepository(Employee);
 const employerRepository = myDataSource.getRepository(Employer);
 
-
+export const createToken = (payload) => {
+    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
+}
 export default class AuthServices {
     static handleRegister = async (email, password, confirmPassword, role) => {
         if (password != confirmPassword) throw new HttpException(400, 'Password does not match confirm password');
@@ -74,11 +74,20 @@ export default class AuthServices {
       
         return {
             access_token: token,
-            userData: payload
+            expiresIn: process.env.JWT_EXPIRES_IN,
+            userData: payload,
         }
     }
 
-    static handleResetPassword = async (email, password, newPassword, confirmNewPassword) => {
+    static handleLogout = async (req) => {
+        const jwt1 = await tokenFromHeader(req);
+        const jwt2 = await tokenFromCookie(req);   
+        if (jwt1) await RedisServices.setBlockedToken(jwt1);
+        if (jwt2 && jwt1!==jwt2) await RedisServices.setBlockedToken(jwt2);
+        return;
+    }
+
+    static handleChangePassword = async (email, password, newPassword, confirmNewPassword) => {
         if (newPassword != confirmNewPassword) {
             throw new HttpException(400, 'new Password does not match new confirm password')
         }
@@ -102,5 +111,47 @@ export default class AuthServices {
             email: findUser.email,
             role: findUser.role
         };
+    }
+
+    static hanldeRequestPasswordReset = async (email) => {
+        const userId  = await UserServices.getUserIdByEmail(email);
+
+        const token = this.generatePasswordResetToken();
+        const expiresAt = new Date().getTime() + 10 * 60 * 1000; // Mã xác thực có hiệu lực 10 phút
+
+        await this.storePasswordResetToken(userId, token, expiresAt);
+        await MailServices.sendTokenForResetPassword(email, token);
+    }
+
+    static handleResetPassword = async (email, token, newPassword) => {
+        const findUser = await userRepository.findOneBy({ email: email });
+        if (!findUser) throw new HttpException(404 , `Your's email is't exist`);
+
+        const isTokenValid = await this.verifyPasswordResetToken(findUser.userId, token);
+        if (!isTokenValid) throw new HttpException(401, 'Invalid token');
+
+        const salt = await bcrypt.genSalt(10);
+        const hashPassWord = await bcrypt.hash(newPassword, salt);
+        findUser.password = hashPassWord;
+        await findUser.save();
+        return {
+            userId: findUser.userId,
+            email: findUser.email,
+            role: findUser.role
+        };
+
+    }
+
+    static generatePasswordResetToken = () => {
+        return Math.floor(100000 + Math.random() * 900000).toString(); // Tạo mã xác thực 6 số ngẫu nhiên
+    }
+    
+    static storePasswordResetToken = async (userId, token, expiresAt) => {
+        await RedisServices.setPasswordResetToken(userId, token, expiresAt);
+    }
+    
+    static verifyPasswordResetToken = async (userId, token) => {
+        const storedToken = await RedisServices.getPasswordResetToken(userId);
+        return storedToken === token;
     }
 }

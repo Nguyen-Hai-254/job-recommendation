@@ -3,45 +3,57 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyToken = void 0;
-require('dotenv').config();
+exports.verifyToken = exports.tokenFromCookie = exports.tokenFromHeader = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const tokenFromHeader = (req) => {
+const redisServices_1 = __importDefault(require("../services/redisServices"));
+const httpException_1 = require("../exceptions/httpException");
+const tokenFromHeader = async (req) => {
     if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
-        return req.headers.authorization.split(' ')[1];
+        const jwt = req.headers.authorization.split(' ')[1];
+        const isBlockListed = await redisServices_1.default.getBlockedToken(jwt);
+        if (isBlockListed)
+            return null;
+        return jwt;
     }
-    return null;
+    return undefined;
 };
+exports.tokenFromHeader = tokenFromHeader;
+const tokenFromCookie = async (req) => {
+    var _a;
+    if ((_a = req.cookie) === null || _a === void 0 ? void 0 : _a.jwt) {
+        const isBlockListed = await redisServices_1.default.getBlockedToken(req.cookie.jwt);
+        if (isBlockListed)
+            return null;
+        return req.cookie.jwt;
+    }
+    return undefined;
+};
+exports.tokenFromCookie = tokenFromCookie;
 const verifyToken = async (req, res, next) => {
     let key = process.env.JWT_SECRET;
     try {
-        if (tokenFromHeader(req) || (req.cookies && req.cookies.jwt)) {
-            let decoded = tokenFromHeader(req) ? jsonwebtoken_1.default.verify(tokenFromHeader(req), key) : jsonwebtoken_1.default.verify(req.cookies.jwt, key);
+        const token1 = await (0, exports.tokenFromHeader)(req);
+        const token2 = await (0, exports.tokenFromCookie)(req);
+        if (token1 || token2) {
+            let decoded = token1 ? jsonwebtoken_1.default.verify(token1, key) : jsonwebtoken_1.default.verify(token2, key);
             if (decoded && decoded.userId && decoded.email && decoded.role) {
                 req.user = { userId: decoded.userId, email: decoded.email, role: decoded.role };
                 req.role = decoded.role;
                 next();
             }
             else {
-                return res.status(403).json({
-                    message: 'You are not authorized to do this',
-                    status: 403
-                });
+                next(new httpException_1.HttpException(401, 'Token is invalid'));
             }
         }
+        else if (token1 === null || token2 === null) {
+            next(new httpException_1.HttpException(401, 'You have already logged out before.'));
+        }
         else {
-            return res.status(401).json({
-                message: 'Token is valid',
-                status: 401
-            });
+            next(new httpException_1.HttpException(401, 'Token is invalid'));
         }
     }
-    catch (e) {
-        return res.status(500).json({
-            message: e.message,
-            status: 500,
-            error: 'Internal Server Error',
-        });
+    catch (error) {
+        next(error);
     }
 };
 exports.verifyToken = verifyToken;

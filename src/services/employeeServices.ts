@@ -1,17 +1,11 @@
-import { myDataSource } from "../config/connectDB"
-import { Employee } from "../entity/Employee"
-import { MySQLErrorCode, applicationType, userRole } from "../utils/enum"
-import { Application } from "../entity/Application"
-import { AttachedDocument } from "../entity/AttachedDocument"
-import { OnlineProfile } from "../entity/OnlineProfile"
-import { EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } from "../utils/enumAction"
-import { AnotherDegree } from "../entity/AnotherDegree"
-import { EducationInformation } from "../entity/EducationInformation"
-import { WorkExperience } from "../entity/WorkExperience"
-import moment from "moment"
 import { Brackets, EntityManager } from "typeorm"
-import { HttpException } from "../exceptions/httpException"
+import moment from "moment"
+import { myDataSource } from "../config/connectDB"
+import { Employee, Application, AttachedDocument, OnlineProfile, AnotherDegree, EducationInformation, WorkExperience } from "../entity"
+import { MySQLErrorCode, applicationType} from "../utils/enum"
+import { EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } from "../utils/enumAction"
 import NotificationServices from "./notificationServices"
+import { HttpException } from "../exceptions/httpException"
 
 const employeeRepository = myDataSource.getRepository(Employee);
 const applicationRepository = myDataSource.getRepository(Application);

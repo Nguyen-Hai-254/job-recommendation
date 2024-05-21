@@ -1,19 +1,15 @@
 "use strict";
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-const httpException_1 = require("../exceptions/httpException");
 const connectDB_1 = require("../config/connectDB");
-const Employee_1 = require("../entity/Employee");
-const Employer_1 = require("../entity/Employer");
-const JobPosting_1 = require("../entity/JobPosting");
-const follow_1 = require("../entity/follow");
-const save_1 = require("../entity/save");
+const entity_1 = require("../entity");
 const enum_1 = require("../utils/enum");
-const employeeRepository = connectDB_1.myDataSource.getRepository(Employee_1.Employee);
-const employerRepository = connectDB_1.myDataSource.getRepository(Employer_1.Employer);
-const followRepository = connectDB_1.myDataSource.getRepository(follow_1.Follow);
-const saveRepository = connectDB_1.myDataSource.getRepository(save_1.Save);
-const jobPostingRepository = connectDB_1.myDataSource.getRepository(JobPosting_1.JobPosting);
+const httpException_1 = require("../exceptions/httpException");
+const employeeRepository = connectDB_1.myDataSource.getRepository(entity_1.Employee);
+const employerRepository = connectDB_1.myDataSource.getRepository(entity_1.Employer);
+const followRepository = connectDB_1.myDataSource.getRepository(entity_1.Follow);
+const saveRepository = connectDB_1.myDataSource.getRepository(entity_1.Save);
+const jobPostingRepository = connectDB_1.myDataSource.getRepository(entity_1.JobPosting);
 class FollowServices {
 }
 _a = FollowServices;

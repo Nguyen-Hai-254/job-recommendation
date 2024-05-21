@@ -1,12 +1,13 @@
 import { HttpException } from "../exceptions/httpException";
 import ApplicationServices from "../services/applicationServices";
+import respondSuccess from "../utils/respondSuccess";
 
 export default class ApplicationController {
     static getApplicationsbyEmployee = async (req, res, next) => {
         try {
             const { userId } = req.user;
             const applications = await ApplicationServices.handleGetApplicationsbyEmployee(userId);
-            return res.status(200).json({ message: 'get my applications successfully', data: applications});
+            return respondSuccess(res, 'get my applications successfully', applications);
         } catch (error) {
             next(error);
         }
@@ -17,7 +18,7 @@ export default class ApplicationController {
             const { id } = req.params;
             if (!id) throw new HttpException(400, 'Invalid id')
             const application = await ApplicationServices.handleGetApplication(id);
-            return res.status(200).json({ message: 'get the application successfully', data: application});
+            return respondSuccess(res, 'get my application successfully', application);
         } catch (error) {
             next(error);
         }
@@ -28,7 +29,7 @@ export default class ApplicationController {
             const { userId } = req.user;
             if (!req.body) throw new HttpException(400, 'Invalid body');
             const application = await ApplicationServices.handleCreateNewApplication(userId, req.body);
-            return res.status(201).json({message: 'Create new application successfully', data: application});
+            return respondSuccess(res, 'Create new application successfully', application, 201);
         } catch (error) {
             next(error);
         }
@@ -38,7 +39,7 @@ export default class ApplicationController {
         try {
             const { userId } = req.user;
             const applications = await ApplicationServices.handleGetApplicationsbyEmployer(userId, req.query);
-            return res.status(200).json({message: 'get applications by employer successfully', data: applications});
+            return respondSuccess(res, 'get applications by employer successfully', applications);
         } catch (error) {
             next(error);
         }
@@ -48,7 +49,7 @@ export default class ApplicationController {
         try {
             const { userId } = req.user;
             const applications = await ApplicationServices.handleGetLengthOfApplicationsbyEmployer(userId, req.query);
-            return res.status(200).json({message: 'get length of applications by employer successfully', data: applications});
+            return respondSuccess(res, 'get length of applications by employer successfully', applications);
         } catch (error) {
             next(error);
         }
@@ -60,7 +61,7 @@ export default class ApplicationController {
             const { id } = req.params;
             if (!id) throw new HttpException(400, 'Invalid id');
             const application = await ApplicationServices.handleGetApplicationbyEmployer(userId, id);
-            return res.status(200).json({message: 'get application by employer successfully', data: application});
+            return respondSuccess(res, 'get application by employer successfully', application);
         } catch (error) {
             next(error);
         }
@@ -73,7 +74,7 @@ export default class ApplicationController {
             if (!id) throw new HttpException(400, 'Invalid id');
             if (!req.body) throw new HttpException(400, 'Invalid body');
             const application = await ApplicationServices.handleUpdateApplicationbyEmployer(userId, id, req.body);
-            return res.status(200).json({message: 'update application by employer successfully', data: application});
+            return respondSuccess(res, 'update application by employer successfully', application);
         } catch (error) {
             next(error);
         }
@@ -82,7 +83,7 @@ export default class ApplicationController {
     static getAllApplications = async (req, res, next) => {
         try {
             const applications = await ApplicationServices.handleGetAllApplications();
-            return res.status(200).json({message: 'get applications by admin successfully', data: applications});
+            return respondSuccess(res, 'get applications by admin successfully', applications);
         } catch (error) {
             next(error);
         }

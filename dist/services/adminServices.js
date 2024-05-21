@@ -4,19 +4,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-const JobPosting_1 = require("../entity/JobPosting");
-const connectDB_1 = require("../config/connectDB");
-const enum_1 = require("../utils/enum");
-const Users_1 = require("../entity/Users");
-const OnlineProfile_1 = require("../entity/OnlineProfile");
-const AttachedDocument_1 = require("../entity/AttachedDocument");
-const utilsFunction_1 = require("../utils/utilsFunction");
 const typeorm_1 = require("typeorm");
+const connectDB_1 = require("../config/connectDB");
+const entity_1 = require("../entity");
+const enum_1 = require("../utils/enum");
+const utilsFunction_1 = require("../utils/utilsFunction");
 const mailServices_1 = __importDefault(require("./mailServices"));
-const jobPostingRepository = connectDB_1.myDataSource.getRepository(JobPosting_1.JobPosting);
-const userRepository = connectDB_1.myDataSource.getRepository(Users_1.User);
-const online_profileRepository = connectDB_1.myDataSource.getRepository(OnlineProfile_1.OnlineProfile);
-const attachedDocumentRepository = connectDB_1.myDataSource.getRepository(AttachedDocument_1.AttachedDocument);
+const jobPostingRepository = connectDB_1.myDataSource.getRepository(entity_1.JobPosting);
+const userRepository = connectDB_1.myDataSource.getRepository(entity_1.User);
+const online_profileRepository = connectDB_1.myDataSource.getRepository(entity_1.OnlineProfile);
+const attachedDocumentRepository = connectDB_1.myDataSource.getRepository(entity_1.AttachedDocument);
 class AdminServices {
 }
 _a = AdminServices;

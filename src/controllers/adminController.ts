@@ -1,6 +1,5 @@
 import AdminServices from "../services/adminServices";
 
-
 export default class AdminController {
     static jobPostingsReport = async (req, res, next) => {
         try {
