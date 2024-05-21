@@ -32,7 +32,7 @@ export default class AuthController {
     static logOut = async (req, res, next) => {
         try {
             await AuthServices.handleLogout(req);
-          
+
             res.clearCookie('jwt');
             const data = req.user;
             req.user = null;
@@ -50,7 +50,7 @@ export default class AuthController {
             if (!email || !password || !newPassword || !confirmNewPassword) {
                 throw new HttpException(400, 'Invalid input');
             }
-            
+
             const userData = await AuthServices.handleChangePassword(email, password, newPassword, confirmNewPassword);
             return respondSuccess(res, 'Change password successfully', userData);
 
@@ -62,7 +62,7 @@ export default class AuthController {
     static requestPasswordReset = async (req, res, next) => {
         try {
             const { email } = req.body;
-            if (!email ) throw new HttpException(400, 'Email is required');
+            if (!email) throw new HttpException(400, 'Email is required');
 
             await AuthServices.hanldeRequestPasswordReset(email);
             return respondSuccess(res, 'Password reset instructions have been sent to your email');
@@ -70,13 +70,13 @@ export default class AuthController {
             next(error);
         }
     }
-    
+
     static resetPassword = async (req, res, next) => {
         try {
             const { email, token, newPassword } = req.body;
             if (!email || !token || !newPassword) {
                 throw new HttpException(400, 'email, token and new password are required');
-            } 
+            }
             const userData = await AuthServices.handleResetPassword(email, token, newPassword);
             return respondSuccess(res, 'Password reset successfully.', userData);
         } catch (error) {

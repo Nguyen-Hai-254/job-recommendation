@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne,  CreateDateColumn, JoinColumn } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from "typeorm"
 import { Employee } from "./Employee"
 import { JobPosting } from "./JobPosting"
 import { applicationType, approvalStatus } from "../utils/enum"
@@ -47,14 +47,14 @@ export class Application extends BaseEntity {
     status: approvalStatus
 
     @ManyToOne(() => Employee, (employee) => employee.applications, {
-        onDelete: 'CASCADE', 
-        onUpdate: 'CASCADE' 
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
     })
     employee: Employee
 
     @ManyToOne(() => JobPosting, (jobPosting) => jobPosting.applications, {
-        onDelete: 'CASCADE', 
-        onUpdate: 'CASCADE' 
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
     })
     jobPosting: JobPosting
 }
