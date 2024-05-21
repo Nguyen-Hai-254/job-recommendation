@@ -31,11 +31,7 @@ export default class AdminServices {
             return { name: `${monthAbbreviation}`, value: result.count };
         });
 
-        return ({
-            message: 'OK',
-            status: 200,
-            data: formattedResults
-        })
+        return formattedResults ? formattedResults : [];
     }
 
     static handleCandidateStatistics = async () => {
@@ -66,11 +62,7 @@ export default class AdminServices {
 
         const top5AndOther = [...top5, { "name": "Khác", value: otherSum }];
 
-        return ({
-            message: 'OK',
-            status: 200,
-            data: top5AndOther
-        })
+        return top5AndOther ? top5AndOther : [];
     }
 
     static handleGetAllUser = async (req) => {
@@ -91,11 +83,7 @@ export default class AdminServices {
 
         const findAllUser = await query.getMany();
 
-        return ({
-            message: 'OK',
-            status: 200,
-            data: findAllUser
-        })
+        return findAllUser ? findAllUser: [];
     }
 
     static handleGetTotalUser = async (req) => {
@@ -108,20 +96,12 @@ export default class AdminServices {
 
         const findAllUser = await query.getCount();
 
-        return ({
-            message: 'OK',
-            status: 200,
-            data: findAllUser
-        })
+        return findAllUser ? findAllUser: [];
     }
 
     static handleSendEmail = async (emails, subject, html) => {
         const info = await MailServices.sendEmailForUsers(emails, subject, html);
-        return ({
-            message: 'OK',
-            status: 200,
-            data: { accepted: info.accepted, rejected: info.rejected }
-        })
+        return { accepted: info.accepted, rejected: info.rejected }
     }
 
     static handleSearchEmailOrName = async (keyword) => {
@@ -138,11 +118,7 @@ export default class AdminServices {
             take: 6
         })
 
-        return ({
-            message: 'OK',
-            status: 200,
-            data: findUser
-        })
+        return findUser;
     }
 
     static handleGetJobPostingsReportByQuery = async (year, month) => {
@@ -154,11 +130,7 @@ export default class AdminServices {
                 .orderBy('job-postings.createAt')
                 .getRawMany();
 
-            return ({
-                message: 'OK',
-                status: 200,
-                data: getReport
-            })
+            return getReport;
         } else {
             const getReport = await jobPostingRepository.createQueryBuilder('job-postings')
                 .select('DATE_FORMAT(job-postings.createAt, "%e") AS time, COUNT(*) AS value')
@@ -172,11 +144,7 @@ export default class AdminServices {
                 daysInMonth[day.time - 1].value = day.value
             })
 
-            return ({
-                message: 'OK',
-                status: 200,
-                data: daysInMonth
-            })
+            return daysInMonth;
         }
     }
 
@@ -199,12 +167,9 @@ export default class AdminServices {
         let getAllOnlineProfile = await queryAllOnlineProfile.getRawMany()
         let getAllAttachedDocument = await queryAllAttachedDocument.getRawMany()
 
-        if (getAllOnlineProfile.length === 0 && getAllAttachedDocument.length === 0)
-            return ({
-                message: 'OK',
-                status: 200,
-                data: []
-            })
+        if (getAllOnlineProfile.length === 0 && getAllAttachedDocument.length === 0) {
+            return []
+        }
 
         const resultOnlineProlife = countCandidatesbyProfession(getAllOnlineProfile);
         const resultAttachedDocument = countCandidatesbyProfession(getAllAttachedDocument);
@@ -223,10 +188,6 @@ export default class AdminServices {
 
         const top5AndOther = [...top5, { "name": "Khác", value: otherSum }];
 
-        return ({
-            message: 'OK',
-            status: 200,
-            data: top5AndOther
-        })
+        return top5AndOther ? top5AndOther : [];
     }
 }

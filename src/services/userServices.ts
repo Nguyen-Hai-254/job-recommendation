@@ -1,13 +1,13 @@
 import moment from "moment"
 import { myDataSource } from "../config/connectDB"
-import { User, Employee, Employer, Notification, OnlineProfile, AttachedDocument } from "../entity"
-import { approvalStatus, sex, userRole } from "../utils/enum"
+import { User, Employee, Employer, OnlineProfile, AttachedDocument } from "../entity"
+import { approvalStatus, sex } from "../utils/enum"
+import NotificationServices from "./notificationServices"
 import { HttpException } from "../exceptions/httpException"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
 const employeeRepository = myDataSource.getRepository(Employee);
-const notificationRepository = myDataSource.getRepository(Notification);
 const online_profileRepository = myDataSource.getRepository(OnlineProfile);
 const attached_documentRepository = myDataSource.getRepository(AttachedDocument);
 
@@ -18,18 +18,9 @@ export default class UserServices {
             relations: ['employee']
         })
 
-        if (!getUserProfile) {
-            return ({
-                message: `This account isn't registered`,
-                status: 404,
-                data: null
-            })
-        }
+        if (!getUserProfile) throw new HttpException(404, `This account isn't registered`);
 
-        return ({
-            message: 'OK!',
-            status: 200,
-            data: {
+        return  {
                 userId: getUserProfile.userId,
                 email: getUserProfile.email,
                 name: getUserProfile.name,
@@ -41,7 +32,6 @@ export default class UserServices {
                 avatar: getUserProfile.avatar,
                 isMarried: getUserProfile.employee?.isMarried ? getUserProfile.employee.isMarried : null
             }
-        })
     }
 
     static handleEditProfile = async (user, body) => {
@@ -50,13 +40,8 @@ export default class UserServices {
             relations: ['employee']
         })
 
-        if (!findUser) {
-            return ({
-                message: `This account isn't registered`,
-                status: 404,
-                data: null
-            })
-        }
+        if (!findUser) throw new HttpException(404, `This account isn't registered`);
+
 
         findUser.name = body.name ? body.name : null;
         findUser.dob = new Date(moment(body.dob, "DD-MM-YYYY").format("MM-DD-YYYY"));
@@ -80,16 +65,9 @@ export default class UserServices {
 
         await userRepository.save(findUser);
 
-        const createNotification = notificationRepository.create({
-            content: 'Bạn đã cập nhật thông tin cá nhân',
-            user: findUser
-        })
-        await notificationRepository.save(createNotification);
+        await NotificationServices.handleCreateNewNotification(findUser.userId, 'Bạn đã cập nhật thông tin cá nhân');
 
-        return ({
-            message: 'Update your profile successful!',
-            status: 200,
-            data: {
+        return  {
                 userId: findUser.userId,
                 email: findUser.email,
                 name: findUser.name,
@@ -99,7 +77,6 @@ export default class UserServices {
                 sex: findUser.sex,
                 isMarried: findUser.employee?.isMarried ? findUser.employee.isMarried : null
             }
-        })
     }
 
     static handleGetInformationCompany = async (user) => {
@@ -108,26 +85,9 @@ export default class UserServices {
             relations: ['employer']
         })
 
-        if (!getEmployer) {
-            return ({
-                message: `This account isn't registered`,
-                status: 404,
-                data: null
-            })
-        }
+        if (!getEmployer) throw new HttpException(404, `user not found`);
 
-        if (getEmployer.role !== userRole.Employer) {
-            return ({
-                message: `You are not a employer`,
-                status: 403,
-                data: null
-            })
-        }
-
-        return ({
-            message: `OK!`,
-            status: 200,
-            data: {
+        return  {
                 userId: getEmployer.userId,
                 email: getEmployer.email,
                 name: getEmployer.name,
@@ -140,7 +100,6 @@ export default class UserServices {
                 banner: getEmployer.employer.banner,
                 description: getEmployer.employer.description
             }
-        })
     }
 
     static handleEditInformationCompany = async (user, body) => {
@@ -149,32 +108,20 @@ export default class UserServices {
             relations: ['employer']
         })
 
-        if (!findEmployer) {
-            return ({
-                message: `This account isn't registered`,
-                status: 404,
-                data: null
-            })
-        }
+        if (!findEmployer) throw new HttpException(404, `user not found`);
 
-        findEmployer.employer.taxCode = body.taxCode;
-        findEmployer.employer.companyName = body.companyName;
-        findEmployer.employer.companyLocation = body.companyLocation;
-        findEmployer.employer.careerField = body.careerField;
-        findEmployer.employer.description = body.description;
+
+        if (body.taxCode) findEmployer.employer.taxCode = body.taxCode;
+        if (body.companyName) findEmployer.employer.companyName = body.companyName;
+        if(body.companyLocation) findEmployer.employer.companyLocation = body.companyLocation;
+        if (body.careerField) findEmployer.employer.careerField = body.careerField;
+        if (body.description) findEmployer.employer.description = body.description;
 
         await employerRepository.save(findEmployer.employer);
 
-        const createNotification = notificationRepository.create({
-            content: 'Bạn đã cập nhật thông tin công ty của bạn',
-            user: findEmployer
-        })
-        await notificationRepository.save(createNotification);
+        await NotificationServices.handleCreateNewNotification(findEmployer.userId, 'Bạn đã cập nhật thông tin công ty của bạn');
 
-        return ({
-            message: `Edit your company successful!`,
-            status: 200,
-            data: {
+        return  {
                 userId: findEmployer.userId,
                 email: findEmployer.email,
                 name: findEmployer.name,
@@ -185,7 +132,6 @@ export default class UserServices {
                 careerField: findEmployer.employer.careerField,
                 description: findEmployer.employer.description
             }
-        })
     }
 
     static handleUploadAvatar = async (user, avatar) => {
@@ -193,32 +139,19 @@ export default class UserServices {
             where: { userId: user.userId }
         })
 
-        if (!findUser) {
-            return ({
-                message: `This account isn't registered`,
-                status: 404,
-                data: null
-            })
-        }
+        if (!findUser) throw new HttpException(404, `user not found`);
 
         findUser.avatar = avatar;
         await userRepository.save(findUser);
-        const notification = notificationRepository.create({
-            content: 'Bạn đã cập nhật ảnh đại diện',
-            user: findUser
-        })
-        await notificationRepository.save(notification);
 
-        return ({
-            message: `Cập nhật ảnh đại diện thành công`,
-            status: 200,
-            data: {
+        await NotificationServices.handleCreateNewNotification(findUser.userId, 'Bạn đã cập nhật ảnh đại diện');
+
+        return {
                 userId: findUser.userId,
                 email: findUser.email,
                 avatar: findUser.avatar,
                 role: findUser.role
             }
-        })
     }
 
     static handleUploadLogo = async (user, logo) => {
@@ -226,31 +159,19 @@ export default class UserServices {
             where: { userId: user.userId }
         })
 
-        if (!findEmployer) {
-            return ({
-                message: `This account isn't registered`,
-                status: 404,
-                data: null
-            })
-        }
+        if (!findEmployer) throw new HttpException(404, `user not found`);
+
 
         findEmployer.logo = logo;
         await employerRepository.save(findEmployer);
-        const notification = notificationRepository.create({
-            content: 'Bạn đã cập nhật logo của công ty',
-            user: findEmployer
-        })
-        await notificationRepository.save(notification);
+      
+        await NotificationServices.handleCreateNewNotification(findEmployer.userId, 'Bạn đã cập nhật logo của công ty');
 
-        return ({
-            message: `Cập nhật logo công ty thành công`,
-            status: 200,
-            data: {
+        return  {
                 userId: findEmployer.userId,
                 companyName: findEmployer.companyName,
                 avatar: findEmployer.logo
             }
-        })
     }
 
     static handleUploadBanner = async (user, banner) => {
@@ -258,31 +179,18 @@ export default class UserServices {
             where: { userId: user.userId }
         })
 
-        if (!findEmployer) {
-            return ({
-                message: `This account isn't registered`,
-                status: 404,
-                data: null
-            })
-        }
+        if (!findEmployer) throw new HttpException(404, `user not found`);
 
         findEmployer.banner = banner;
         await employerRepository.save(findEmployer);
-        const notification = notificationRepository.create({
-            content: 'Bạn đã cập nhật banner của công ty',
-            user: findEmployer
-        })
-        await notificationRepository.save(notification);
+      
+        await NotificationServices.handleCreateNewNotification(findEmployer.userId, 'Bạn đã cập nhật banner của công ty');
 
-        return ({
-            message: `Cập nhật banner công ty thành công`,
-            status: 200,
-            data: {
+        return  {
                 userId: findEmployer.userId,
                 companyName: findEmployer.companyName,
                 banner: findEmployer.banner
             }
-        })
     }
 
     static handleGetInformationCompanyByUser = async (id) => {
@@ -294,18 +202,9 @@ export default class UserServices {
             .where('user.userId = :id', {id})
             .getOne();
 
-        if (!getEmployer) {
-            return ({
-                message: `Công ty không tồn tại`,
-                status: 404,
-                data: null
-            })
-        }
+        if (!getEmployer) throw new HttpException(404, `company not found`);
 
-        return ({
-            message: `OK!`,
-            status: 200,
-            data: {
+        return  {
                 userId: getEmployer.userId,
                 email: getEmployer.email,
                 name: getEmployer.name,
@@ -319,7 +218,6 @@ export default class UserServices {
                 description: getEmployer.employer.description,
                 list_job_postings: getEmployer.employer?.jobPostings
             }
-        })
     }
 
     static handleGetAllCompanyByUser = async (num, page) => {
@@ -329,59 +227,27 @@ export default class UserServices {
         const getEmployer = await employerRepository.find({ skip: skip, take: take })
         const totalCompany = await employerRepository.count({})
 
-        return ({
-            message: `OK!`,
-            status: 200,
-            data: {
+        return  {
                 companyList: getEmployer,
                 totalCompany
             }
-        })
     }
 
-    static handleDeleteUser = async (req) => {
-        // Check parameters
-        if (!req?.params.id) {
-            return ({
-                message: 'id of user is required',
-                status: 400,
-                data: null
-            })
-        }
-        // Check education information exists?
-        const user = await userRepository.findOne({
-            where: { userId: req.params.id },
-        })
-        if (!user) {
-            return ({
-                message: `user has id: ${req.params.id} not found`,
-                status: 400,
-                data: null
-            })
-        }
+    static handleDeleteUser = async (id) => {
+        const user = await userRepository.findOneBy({ userId: id });
+        if (!user) throw new HttpException(404, "User not found");
 
-        await userRepository.delete(user.userId)
-
-        return ({
-            message: `Delete user has id: ${user.userId}  successfully`,
-            status: 200,
-            data: user
-        })
+        await userRepository.remove(user);
+        return user;
 
     }
 
     static handleGetOnlineProfileByUser = async (userId) => {
         const online_profile = await online_profileRepository.findOne({
-            where: { employee: { userId: userId }, isHidden: false },
+            where: { employee: { userId: userId }, isHidden: false},
             relations: ['employee.user', 'another_degrees', 'education_informations', 'work_experiences']
         })
-        if (!online_profile) {
-            return ({
-                message: 'No online profile found',
-                status: 400,
-                data: null
-            })
-        }
+        if (!online_profile) throw new HttpException(404, "Online profile not found");
 
         await online_profileRepository.createQueryBuilder('onl')
             .update()
@@ -404,11 +270,7 @@ export default class UserServices {
 
         let { employee, ...newData } = data
 
-        return ({
-            message: 'Find online profile success',
-            status: 200,
-            data: newData
-        })
+        return newData;
     }
 
     static handleGetAttachedDocumentByUser = async (userId) => {
@@ -416,13 +278,8 @@ export default class UserServices {
             where: { employee: { userId: userId }, isHidden: false },
             relations: ['employee.user']
         })
-        if (!attached_document) {
-            return ({
-                message: 'No attached document found',
-                status: 400,
-                data: null
-            })
-        }
+
+        if (!attached_document) throw new HttpException(404, "Attached document not found");
 
         await attached_documentRepository.createQueryBuilder('att')
             .update()
@@ -445,11 +302,7 @@ export default class UserServices {
 
         let { employee, ...newData } = data
 
-        return ({
-            message: 'Find attached document success',
-            status: 200,
-            data: newData
-        })
+        return newData;
     }
     static getUserIdByEmail = async (email) => {
         const findUser = await userRepository.findOneBy({ email: email });

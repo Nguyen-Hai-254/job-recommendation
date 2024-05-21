@@ -8,11 +8,11 @@ const moment_1 = __importDefault(require("moment"));
 const connectDB_1 = require("../config/connectDB");
 const entity_1 = require("../entity");
 const enum_1 = require("../utils/enum");
+const notificationServices_1 = __importDefault(require("./notificationServices"));
 const httpException_1 = require("../exceptions/httpException");
 const userRepository = connectDB_1.myDataSource.getRepository(entity_1.User);
 const employerRepository = connectDB_1.myDataSource.getRepository(entity_1.Employer);
 const employeeRepository = connectDB_1.myDataSource.getRepository(entity_1.Employee);
-const notificationRepository = connectDB_1.myDataSource.getRepository(entity_1.Notification);
 const online_profileRepository = connectDB_1.myDataSource.getRepository(entity_1.OnlineProfile);
 const attached_documentRepository = connectDB_1.myDataSource.getRepository(entity_1.AttachedDocument);
 class UserServices {
@@ -24,29 +24,20 @@ UserServices.handleGetProfile = async (user) => {
         where: { userId: user.userId },
         relations: ['employee']
     });
-    if (!getUserProfile) {
-        return ({
-            message: `This account isn't registered`,
-            status: 404,
-            data: null
-        });
-    }
-    return ({
-        message: 'OK!',
-        status: 200,
-        data: {
-            userId: getUserProfile.userId,
-            email: getUserProfile.email,
-            name: getUserProfile.name,
-            role: getUserProfile.role,
-            dob: (0, moment_1.default)(getUserProfile.dob).format("DD-MM-YYYY"),
-            address: getUserProfile.address,
-            phone: getUserProfile.phone,
-            sex: getUserProfile.sex,
-            avatar: getUserProfile.avatar,
-            isMarried: ((_b = getUserProfile.employee) === null || _b === void 0 ? void 0 : _b.isMarried) ? getUserProfile.employee.isMarried : null
-        }
-    });
+    if (!getUserProfile)
+        throw new httpException_1.HttpException(404, `This account isn't registered`);
+    return {
+        userId: getUserProfile.userId,
+        email: getUserProfile.email,
+        name: getUserProfile.name,
+        role: getUserProfile.role,
+        dob: (0, moment_1.default)(getUserProfile.dob).format("DD-MM-YYYY"),
+        address: getUserProfile.address,
+        phone: getUserProfile.phone,
+        sex: getUserProfile.sex,
+        avatar: getUserProfile.avatar,
+        isMarried: ((_b = getUserProfile.employee) === null || _b === void 0 ? void 0 : _b.isMarried) ? getUserProfile.employee.isMarried : null
+    };
 };
 UserServices.handleEditProfile = async (user, body) => {
     var _b;
@@ -54,13 +45,8 @@ UserServices.handleEditProfile = async (user, body) => {
         where: { userId: user.userId },
         relations: ['employee']
     });
-    if (!findUser) {
-        return ({
-            message: `This account isn't registered`,
-            status: 404,
-            data: null
-        });
-    }
+    if (!findUser)
+        throw new httpException_1.HttpException(404, `This account isn't registered`);
     findUser.name = body.name ? body.name : null;
     findUser.dob = new Date((0, moment_1.default)(body.dob, "DD-MM-YYYY").format("MM-DD-YYYY"));
     findUser.address = body.address ? body.address : null;
@@ -79,186 +65,115 @@ UserServices.handleEditProfile = async (user, body) => {
         await employeeRepository.save(findUser.employee);
     }
     await userRepository.save(findUser);
-    const createNotification = notificationRepository.create({
-        content: 'Bạn đã cập nhật thông tin cá nhân',
-        user: findUser
-    });
-    await notificationRepository.save(createNotification);
-    return ({
-        message: 'Update your profile successful!',
-        status: 200,
-        data: {
-            userId: findUser.userId,
-            email: findUser.email,
-            name: findUser.name,
-            dob: (0, moment_1.default)(findUser.dob).format("DD-MM-YYYY"),
-            address: findUser.address,
-            phone: findUser.phone,
-            sex: findUser.sex,
-            isMarried: ((_b = findUser.employee) === null || _b === void 0 ? void 0 : _b.isMarried) ? findUser.employee.isMarried : null
-        }
-    });
+    await notificationServices_1.default.handleCreateNewNotification(findUser.userId, 'Bạn đã cập nhật thông tin cá nhân');
+    return {
+        userId: findUser.userId,
+        email: findUser.email,
+        name: findUser.name,
+        dob: (0, moment_1.default)(findUser.dob).format("DD-MM-YYYY"),
+        address: findUser.address,
+        phone: findUser.phone,
+        sex: findUser.sex,
+        isMarried: ((_b = findUser.employee) === null || _b === void 0 ? void 0 : _b.isMarried) ? findUser.employee.isMarried : null
+    };
 };
 UserServices.handleGetInformationCompany = async (user) => {
     const getEmployer = await userRepository.findOne({
         where: { userId: user.userId },
         relations: ['employer']
     });
-    if (!getEmployer) {
-        return ({
-            message: `This account isn't registered`,
-            status: 404,
-            data: null
-        });
-    }
-    if (getEmployer.role !== enum_1.userRole.Employer) {
-        return ({
-            message: `You are not a employer`,
-            status: 403,
-            data: null
-        });
-    }
-    return ({
-        message: `OK!`,
-        status: 200,
-        data: {
-            userId: getEmployer.userId,
-            email: getEmployer.email,
-            name: getEmployer.name,
-            role: getEmployer.role,
-            taxCode: getEmployer.employer.taxCode,
-            companyName: getEmployer.employer.companyName,
-            companyLocation: getEmployer.employer.companyLocation,
-            careerField: getEmployer.employer.careerField,
-            logo: getEmployer.employer.logo,
-            banner: getEmployer.employer.banner,
-            description: getEmployer.employer.description
-        }
-    });
+    if (!getEmployer)
+        throw new httpException_1.HttpException(404, `user not found`);
+    return {
+        userId: getEmployer.userId,
+        email: getEmployer.email,
+        name: getEmployer.name,
+        role: getEmployer.role,
+        taxCode: getEmployer.employer.taxCode,
+        companyName: getEmployer.employer.companyName,
+        companyLocation: getEmployer.employer.companyLocation,
+        careerField: getEmployer.employer.careerField,
+        logo: getEmployer.employer.logo,
+        banner: getEmployer.employer.banner,
+        description: getEmployer.employer.description
+    };
 };
 UserServices.handleEditInformationCompany = async (user, body) => {
     let findEmployer = await userRepository.findOne({
         where: { userId: user.userId },
         relations: ['employer']
     });
-    if (!findEmployer) {
-        return ({
-            message: `This account isn't registered`,
-            status: 404,
-            data: null
-        });
-    }
-    findEmployer.employer.taxCode = body.taxCode;
-    findEmployer.employer.companyName = body.companyName;
-    findEmployer.employer.companyLocation = body.companyLocation;
-    findEmployer.employer.careerField = body.careerField;
-    findEmployer.employer.description = body.description;
+    if (!findEmployer)
+        throw new httpException_1.HttpException(404, `user not found`);
+    if (body.taxCode)
+        findEmployer.employer.taxCode = body.taxCode;
+    if (body.companyName)
+        findEmployer.employer.companyName = body.companyName;
+    if (body.companyLocation)
+        findEmployer.employer.companyLocation = body.companyLocation;
+    if (body.careerField)
+        findEmployer.employer.careerField = body.careerField;
+    if (body.description)
+        findEmployer.employer.description = body.description;
     await employerRepository.save(findEmployer.employer);
-    const createNotification = notificationRepository.create({
-        content: 'Bạn đã cập nhật thông tin công ty của bạn',
-        user: findEmployer
-    });
-    await notificationRepository.save(createNotification);
-    return ({
-        message: `Edit your company successful!`,
-        status: 200,
-        data: {
-            userId: findEmployer.userId,
-            email: findEmployer.email,
-            name: findEmployer.name,
-            role: findEmployer.role,
-            taxCode: findEmployer.employer.taxCode,
-            companyName: findEmployer.employer.companyName,
-            companyLocation: findEmployer.employer.companyLocation,
-            careerField: findEmployer.employer.careerField,
-            description: findEmployer.employer.description
-        }
-    });
+    await notificationServices_1.default.handleCreateNewNotification(findEmployer.userId, 'Bạn đã cập nhật thông tin công ty của bạn');
+    return {
+        userId: findEmployer.userId,
+        email: findEmployer.email,
+        name: findEmployer.name,
+        role: findEmployer.role,
+        taxCode: findEmployer.employer.taxCode,
+        companyName: findEmployer.employer.companyName,
+        companyLocation: findEmployer.employer.companyLocation,
+        careerField: findEmployer.employer.careerField,
+        description: findEmployer.employer.description
+    };
 };
 UserServices.handleUploadAvatar = async (user, avatar) => {
     let findUser = await userRepository.findOne({
         where: { userId: user.userId }
     });
-    if (!findUser) {
-        return ({
-            message: `This account isn't registered`,
-            status: 404,
-            data: null
-        });
-    }
+    if (!findUser)
+        throw new httpException_1.HttpException(404, `user not found`);
     findUser.avatar = avatar;
     await userRepository.save(findUser);
-    const notification = notificationRepository.create({
-        content: 'Bạn đã cập nhật ảnh đại diện',
-        user: findUser
-    });
-    await notificationRepository.save(notification);
-    return ({
-        message: `Cập nhật ảnh đại diện thành công`,
-        status: 200,
-        data: {
-            userId: findUser.userId,
-            email: findUser.email,
-            avatar: findUser.avatar,
-            role: findUser.role
-        }
-    });
+    await notificationServices_1.default.handleCreateNewNotification(findUser.userId, 'Bạn đã cập nhật ảnh đại diện');
+    return {
+        userId: findUser.userId,
+        email: findUser.email,
+        avatar: findUser.avatar,
+        role: findUser.role
+    };
 };
 UserServices.handleUploadLogo = async (user, logo) => {
     let findEmployer = await employerRepository.findOne({
         where: { userId: user.userId }
     });
-    if (!findEmployer) {
-        return ({
-            message: `This account isn't registered`,
-            status: 404,
-            data: null
-        });
-    }
+    if (!findEmployer)
+        throw new httpException_1.HttpException(404, `user not found`);
     findEmployer.logo = logo;
     await employerRepository.save(findEmployer);
-    const notification = notificationRepository.create({
-        content: 'Bạn đã cập nhật logo của công ty',
-        user: findEmployer
-    });
-    await notificationRepository.save(notification);
-    return ({
-        message: `Cập nhật logo công ty thành công`,
-        status: 200,
-        data: {
-            userId: findEmployer.userId,
-            companyName: findEmployer.companyName,
-            avatar: findEmployer.logo
-        }
-    });
+    await notificationServices_1.default.handleCreateNewNotification(findEmployer.userId, 'Bạn đã cập nhật logo của công ty');
+    return {
+        userId: findEmployer.userId,
+        companyName: findEmployer.companyName,
+        avatar: findEmployer.logo
+    };
 };
 UserServices.handleUploadBanner = async (user, banner) => {
     let findEmployer = await employerRepository.findOne({
         where: { userId: user.userId }
     });
-    if (!findEmployer) {
-        return ({
-            message: `This account isn't registered`,
-            status: 404,
-            data: null
-        });
-    }
+    if (!findEmployer)
+        throw new httpException_1.HttpException(404, `user not found`);
     findEmployer.banner = banner;
     await employerRepository.save(findEmployer);
-    const notification = notificationRepository.create({
-        content: 'Bạn đã cập nhật banner của công ty',
-        user: findEmployer
-    });
-    await notificationRepository.save(notification);
-    return ({
-        message: `Cập nhật banner công ty thành công`,
-        status: 200,
-        data: {
-            userId: findEmployer.userId,
-            companyName: findEmployer.companyName,
-            banner: findEmployer.banner
-        }
-    });
+    await notificationServices_1.default.handleCreateNewNotification(findEmployer.userId, 'Bạn đã cập nhật banner của công ty');
+    return {
+        userId: findEmployer.userId,
+        companyName: findEmployer.companyName,
+        banner: findEmployer.banner
+    };
 };
 UserServices.handleGetInformationCompanyByUser = async (id) => {
     var _b;
@@ -269,85 +184,47 @@ UserServices.handleGetInformationCompanyByUser = async (id) => {
         .leftJoinAndSelect('employer.jobPostings', 'jobPosting', 'jobPosting.status = :status', { status: enum_1.approvalStatus.approved })
         .where('user.userId = :id', { id })
         .getOne();
-    if (!getEmployer) {
-        return ({
-            message: `Công ty không tồn tại`,
-            status: 404,
-            data: null
-        });
-    }
-    return ({
-        message: `OK!`,
-        status: 200,
-        data: {
-            userId: getEmployer.userId,
-            email: getEmployer.email,
-            name: getEmployer.name,
-            role: getEmployer.role,
-            taxCode: getEmployer.employer.taxCode,
-            companyName: getEmployer.employer.companyName,
-            companyLocation: getEmployer.employer.companyLocation,
-            careerField: getEmployer.employer.careerField,
-            logo: getEmployer.employer.logo,
-            banner: getEmployer.employer.banner,
-            description: getEmployer.employer.description,
-            list_job_postings: (_b = getEmployer.employer) === null || _b === void 0 ? void 0 : _b.jobPostings
-        }
-    });
+    if (!getEmployer)
+        throw new httpException_1.HttpException(404, `company not found`);
+    return {
+        userId: getEmployer.userId,
+        email: getEmployer.email,
+        name: getEmployer.name,
+        role: getEmployer.role,
+        taxCode: getEmployer.employer.taxCode,
+        companyName: getEmployer.employer.companyName,
+        companyLocation: getEmployer.employer.companyLocation,
+        careerField: getEmployer.employer.careerField,
+        logo: getEmployer.employer.logo,
+        banner: getEmployer.employer.banner,
+        description: getEmployer.employer.description,
+        list_job_postings: (_b = getEmployer.employer) === null || _b === void 0 ? void 0 : _b.jobPostings
+    };
 };
 UserServices.handleGetAllCompanyByUser = async (num, page) => {
     const skip = (parseInt(page) - 1) * parseInt(num);
     const take = parseInt(num);
     const getEmployer = await employerRepository.find({ skip: skip, take: take });
     const totalCompany = await employerRepository.count({});
-    return ({
-        message: `OK!`,
-        status: 200,
-        data: {
-            companyList: getEmployer,
-            totalCompany
-        }
-    });
+    return {
+        companyList: getEmployer,
+        totalCompany
+    };
 };
-UserServices.handleDeleteUser = async (req) => {
-    // Check parameters
-    if (!(req === null || req === void 0 ? void 0 : req.params.id)) {
-        return ({
-            message: 'id of user is required',
-            status: 400,
-            data: null
-        });
-    }
-    // Check education information exists?
-    const user = await userRepository.findOne({
-        where: { userId: req.params.id },
-    });
-    if (!user) {
-        return ({
-            message: `user has id: ${req.params.id} not found`,
-            status: 400,
-            data: null
-        });
-    }
-    await userRepository.delete(user.userId);
-    return ({
-        message: `Delete user has id: ${user.userId}  successfully`,
-        status: 200,
-        data: user
-    });
+UserServices.handleDeleteUser = async (id) => {
+    const user = await userRepository.findOneBy({ userId: id });
+    if (!user)
+        throw new httpException_1.HttpException(404, "User not found");
+    await userRepository.remove(user);
+    return user;
 };
 UserServices.handleGetOnlineProfileByUser = async (userId) => {
     const online_profile = await online_profileRepository.findOne({
         where: { employee: { userId: userId }, isHidden: false },
         relations: ['employee.user', 'another_degrees', 'education_informations', 'work_experiences']
     });
-    if (!online_profile) {
-        return ({
-            message: 'No online profile found',
-            status: 400,
-            data: null
-        });
-    }
+    if (!online_profile)
+        throw new httpException_1.HttpException(404, "Online profile not found");
     await online_profileRepository.createQueryBuilder('onl')
         .update()
         .set({
@@ -366,24 +243,15 @@ UserServices.handleGetOnlineProfileByUser = async (userId) => {
         ...online_profile
     };
     let { employee, ...newData } = data;
-    return ({
-        message: 'Find online profile success',
-        status: 200,
-        data: newData
-    });
+    return newData;
 };
 UserServices.handleGetAttachedDocumentByUser = async (userId) => {
     const attached_document = await attached_documentRepository.findOne({
         where: { employee: { userId: userId }, isHidden: false },
         relations: ['employee.user']
     });
-    if (!attached_document) {
-        return ({
-            message: 'No attached document found',
-            status: 400,
-            data: null
-        });
-    }
+    if (!attached_document)
+        throw new httpException_1.HttpException(404, "Attached document not found");
     await attached_documentRepository.createQueryBuilder('att')
         .update()
         .set({
@@ -402,11 +270,7 @@ UserServices.handleGetAttachedDocumentByUser = async (userId) => {
         ...attached_document
     };
     let { employee, ...newData } = data;
-    return ({
-        message: 'Find attached document success',
-        status: 200,
-        data: newData
-    });
+    return newData;
 };
 UserServices.getUserIdByEmail = async (email) => {
     const findUser = await userRepository.findOneBy({ email: email });

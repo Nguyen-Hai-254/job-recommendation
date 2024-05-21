@@ -9,7 +9,7 @@ route.get('/api/v1/get-information-company-by-user', UserController.getInformati
 route.get('/api/v1/get-all-company-by-user', UserController.getAllCompanyByUser);
 route.get('/api/v1/get-profile', verifyToken, UserController.getProfile);
 route.post('/api/v1/edit-profile', verifyToken, UserController.editProfile);
-route.get('/api/v1/get-information-company', verifyToken, UserController.getInformationCompany);
+route.get('/api/v1/get-information-company', verifyToken,verifyRole(userRole.Employer), UserController.getInformationCompany);
 route.post('/api/v1/edit-information-company', verifyToken, verifyRole(userRole.Employer), UserController.editInformationCompany);
 route.post('/api/v1/user/upload-avatar', verifyToken, UserController.uploadAvatar);
 route.post('/api/v1/user/upload-logo', verifyToken, verifyRole(userRole.Employer), UserController.uploadLogo);

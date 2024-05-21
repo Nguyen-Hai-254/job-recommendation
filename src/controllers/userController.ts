@@ -1,15 +1,12 @@
 import { HttpException } from "../exceptions/httpException";
 import UserServices from "../services/userServices";
+import respondSuccess from "../utils/respondSuccess";
 
 export default class UserController {
     static getProfile = async (req, res, next) => {
         try {
             const getUser = await UserServices.handleGetProfile(req.user);
-            return res.status(getUser.status).json({
-                message: getUser.message,
-                status: getUser.status,
-                data: getUser.data ? getUser.data : []
-            });
+            return respondSuccess(res, 'OK', getUser);
         } catch (error) {
             next(error);
         }
@@ -18,11 +15,7 @@ export default class UserController {
     static editProfile = async (req, res, next) => {
         try {
             const editUser = await UserServices.handleEditProfile(req.user, req.body)
-            return res.status(editUser.status).json({
-                message: editUser.message,
-                status: editUser.status,
-                data: editUser.data ? editUser.data : []
-            });
+            return respondSuccess(res, 'update your profile successfully', editUser);
         } catch (error) {
             next(error);
         }
@@ -31,11 +24,7 @@ export default class UserController {
     static getInformationCompany = async (req, res, next) => {
         try {
             const getCompany = await UserServices.handleGetInformationCompany(req.user);
-            return res.status(getCompany.status).json({
-                message: getCompany.message,
-                status: getCompany.status,
-                data: getCompany.data ? getCompany.data : []
-            });
+            return respondSuccess(res, 'OK', getCompany);
         } catch (error) {
             next(error);
         }
@@ -44,11 +33,7 @@ export default class UserController {
     static editInformationCompany = async (req, res, next) => {
         try {
             const editCompany = await UserServices.handleEditInformationCompany(req.user, req.body);
-            return res.status(editCompany.status).json({
-                message: editCompany.message,
-                status: editCompany.status,
-                data: editCompany.data ? editCompany.data : []
-            });
+            return respondSuccess(res, 'Edit your company successful!', editCompany);
         } catch (error) {
             next(error);
         }
@@ -56,15 +41,10 @@ export default class UserController {
 
     static uploadAvatar = async (req, res, next) => {
         try {
-            if (!req.body.avatar) {
-                return res.status(500).json({
-                    message: "Missing input parameter!",
-                    status: 500,
-                    error: 'Internal Server Error',
-                });
-            }
+            if (!req.body.avatar) throw new HttpException(400, 'Invalid avatar');
+
             const avatar = await UserServices.handleUploadAvatar(req.user, req.body.avatar);
-            return res.status(avatar.status).json(avatar);
+            return respondSuccess(res, 'Cập nhật ảnh đại diện thành công!', avatar);
         } catch (error) {
             next(error);
         }
@@ -72,15 +52,10 @@ export default class UserController {
 
     static uploadLogo = async (req, res, next) => {
         try {
-            if (!req.body.logo) {
-                return res.status(500).json({
-                    message: "Missing input parameter!",
-                    status: 500,
-                    error: 'Internal Server Error',
-                });
-            }
+            if (!req.body.logo) throw new HttpException(400, 'Invalid logo');
+            
             const logo = await UserServices.handleUploadLogo(req.user, req.body.logo);
-            return res.status(logo.status).json(logo);
+            return respondSuccess(res, 'Cập nhật logo công ty thành công', logo);
         } catch (error) {
             next(error);
         }
@@ -88,15 +63,10 @@ export default class UserController {
 
     static uploadBanner = async (req, res, next) => {
         try {
-            if (!req.body.banner) {
-                return res.status(500).json({
-                    message: "Missing input parameter!",
-                    status: 500,
-                    error: 'Internal Server Error',
-                });
-            }
+            if (!req.body.banner) throw new HttpException(400, 'Invalid banner');
+            
             const banner = await UserServices.handleUploadBanner(req.user, req.body.banner);
-            return res.status(banner.status).json(banner);
+            return respondSuccess(res, 'Cập nhật banner công ty thành công', banner);
         } catch (error) {
             next(error);
         }
@@ -104,15 +74,10 @@ export default class UserController {
 
     static getInformationCompanyByUser = async (req, res, next) => {
         try {
-            if (!req.query.employerId) {
-                return res.status(500).json({
-                    message: "Missing input parameter!",
-                    status: 500,
-                    error: 'Internal Server Error',
-                });
-            }
+            if (!req.query.employerId) throw new HttpException(400, 'Invalid cemployerId');
+
             const company = await UserServices.handleGetInformationCompanyByUser(req.query.employerId);
-            return res.status(company.status).json(company);
+            return respondSuccess(res, 'OK', company);
         } catch (error) {
             next(error);
         }
@@ -120,16 +85,12 @@ export default class UserController {
 
     static getAllCompanyByUser = async (req, res, next) => {
         try {
-            if (!req.query.num || !req.query.page) {
-                return res.status(500).json({
-                    message: "Missing input parameter!",
-                    status: 500,
-                    error: 'Internal Server Error',
-                });
-            }
+            const { num, page } = req.query;
+            if (!page) req.query.page = 1;
+            if (!num) req.query.num = 10; 
 
             const companyList = await UserServices.handleGetAllCompanyByUser(req.query.num, req.query.page);
-            return res.status(companyList.status).json(companyList);
+            return respondSuccess(res, 'OK', companyList);
         } catch (error) {
             next(error);
         }
@@ -137,12 +98,11 @@ export default class UserController {
 
     static deleteUser = async (req, res, next) => {
         try {
-            const user = await UserServices.handleDeleteUser(req);
-            return res.status(user.status).json({
-                message: user.message,
-                status: user.status,
-                data: user.data
-            });
+            const { id } = req.params;
+            if (!id) throw new HttpException(400, 'id is required');
+
+            const user = await UserServices.handleDeleteUser(id);
+            return respondSuccess(res, `Delete user has id: ${id}  successfully`, user);
         } catch (error) {
             next(error);
         }
@@ -150,19 +110,10 @@ export default class UserController {
 
     static getOnlineProfileByUser = async (req, res, next) => {
         try {
-            if (!req.query.userId) {
-                return res.status(500).json({
-                    message: "Missing input parameter!",
-                    status: 500,
-                    error: 'Internal Server Error',
-                });
-            }
-            const user = await UserServices.handleGetOnlineProfileByUser(req.query.userId);
-            return res.status(user.status).json({
-                message: user.message,
-                status: user.status,
-                data: user.data
-            });
+            if (!req.query.userId) throw new HttpException(400, 'query userId is required');
+              
+            const user = await UserServices.handleGetOnlineProfileByUser(req.query.userId);  
+            return respondSuccess(res, `'Find online profile successfully'`, user);
         } catch (error) {
             next(error);
         }
@@ -170,19 +121,10 @@ export default class UserController {
 
     static getAttachedDocumentByUser = async (req, res, next) => {
         try {
-            if (!req.query.userId) {
-                return res.status(500).json({
-                    message: "Missing input parameter!",
-                    status: 500,
-                    error: 'Internal Server Error',
-                });
-            }
+            if (!req.query.userId) throw new HttpException(400, 'query userId is required');
+
             const user = await UserServices.handleGetAttachedDocumentByUser(req.query.userId);
-            return res.status(user.status).json({
-                message: user.message,
-                status: user.status,
-                data: user.data
-            });
+            return respondSuccess(res, `'Find attached document successfully'`, user);
         } catch (error) {
             next(error);
         }
