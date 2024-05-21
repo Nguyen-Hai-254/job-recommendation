@@ -10,6 +10,7 @@ const connectDB_1 = require("../config/connectDB");
 const entity_1 = require("../entity");
 const enum_1 = require("../utils/enum");
 const enumAction_1 = require("../utils/enumAction");
+const utilsFunction_1 = require("../utils/utilsFunction");
 const notificationServices_1 = __importDefault(require("./notificationServices"));
 const httpException_1 = require("../exceptions/httpException");
 const jobPostingRepository = connectDB_1.myDataSource.getRepository(entity_1.JobPosting);
@@ -41,7 +42,9 @@ JobPostingServices.handleGetAllJobPostings = async (reqQuery) => {
         query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
     }
     if (profession) {
-        const professionArray = profession.split(',');
+        const professionArray = (0, utilsFunction_1.getValidSubstrings)(profession);
+        if (professionArray.length === 0)
+            throw new httpException_1.HttpException(400, 'Invalid profession');
         query = query.andWhere(`(${professionArray.map((keyword) => `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
     }
     if (employmentType) {
@@ -69,7 +72,9 @@ JobPostingServices.handleGetAllJobPostings = async (reqQuery) => {
     }
     // query by keywords
     if (keywords) {
-        const keywordArray = keywords.split(',');
+        const keywordArray = (0, utilsFunction_1.getValidSubstrings)(keywords, 2);
+        if (keywordArray.length === 0)
+            throw new httpException_1.HttpException(400, 'Invalid keywords');
         const conditions = keywordArray.map((keyword, index) => {
             query.setParameter(`keyword${index}`, `%${keyword}%`);
             return `job-postings.keywords LIKE :keyword${index}`;
@@ -108,7 +113,9 @@ JobPostingServices.handleGetLengthOfAllJobPostings = async (reqQuery) => {
         query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
     }
     if (profession) {
-        const professionArray = profession.split(',');
+        const professionArray = (0, utilsFunction_1.getValidSubstrings)(profession);
+        if (professionArray.length === 0)
+            throw new httpException_1.HttpException(400, 'Invalid profession');
         query = query.andWhere(`(${professionArray.map((keyword) => `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
     }
     if (employmentType) {
@@ -136,7 +143,9 @@ JobPostingServices.handleGetLengthOfAllJobPostings = async (reqQuery) => {
     }
     // query by keywords
     if (keywords) {
-        const keywordArray = keywords.split(',');
+        const keywordArray = (0, utilsFunction_1.getValidSubstrings)(keywords, 2);
+        if (keywordArray.length === 0)
+            throw new httpException_1.HttpException(400, 'Invalid keywords');
         const conditions = keywordArray.map((keyword, index) => {
             query.setParameter(`keyword${index}`, `%${keyword}%`);
             return `job-postings.keywords LIKE :keyword${index}`;
@@ -168,7 +177,9 @@ JobPostingServices.handleGetAllJobPostingsByAdmin = async (reqQuery) => {
         query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
     }
     if (profession) {
-        const professionArray = profession.split(',');
+        const professionArray = (0, utilsFunction_1.getValidSubstrings)(profession);
+        if (professionArray.length === 0)
+            throw new httpException_1.HttpException(400, 'Invalid profession');
         query = query.andWhere(`(${professionArray.map((keyword) => `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
     }
     if (employmentType) {
@@ -223,7 +234,9 @@ JobPostingServices.handleGetLengthOfAllJobPostingsByAdmin = async (reqQuery) => 
         query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
     }
     if (profession) {
-        const professionArray = profession.split(',');
+        const professionArray = (0, utilsFunction_1.getValidSubstrings)(profession);
+        if (professionArray.length === 0)
+            throw new httpException_1.HttpException(400, 'Invalid profession');
         query = query.andWhere(`(${professionArray.map((keyword) => `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
     }
     if (employmentType) {
@@ -257,13 +270,13 @@ JobPostingServices.handleGetTotalResultsOfProfession = async (reqQuery) => {
     const posts = await query.getRawMany();
     const professionCount = {};
     for (const post of posts) {
-        const professions = post.profession.split(',');
+        const professions = (0, utilsFunction_1.getValidSubstrings)(post.profession);
         for (const profession of professions) {
-            if (professionCount[profession.trim()]) {
-                professionCount[profession.trim()] += 1;
+            if (professionCount[profession]) {
+                professionCount[profession] += 1;
             }
             else {
-                professionCount[profession.trim()] = 1;
+                professionCount[profession] = 1;
             }
         }
     }

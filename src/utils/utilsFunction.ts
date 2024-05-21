@@ -39,3 +39,9 @@ export const createArrayForDate = (month, year) => {
     else
         return Array.from({ length: 28 }, (_, i) => ({ time: i + 1, value: '0' }));
 }
+
+export const getValidSubstrings = (str, minLength = 3) => {
+    return str?.split(',')
+      .map(substring => substring.trim())
+      .filter(substring => substring.length >= minLength);
+}

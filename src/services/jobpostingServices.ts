@@ -4,6 +4,7 @@ import { myDataSource } from "../config/connectDB"
 import { JobPosting } from "../entity"
 import { MySQLErrorCode, approvalStatus } from "../utils/enum"
 import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex, EnumApprovalStatus } from "../utils/enumAction"
+import { getValidSubstrings } from "../utils/utilsFunction"
 import NotificationServices from "./notificationServices"
 import { HttpException } from "../exceptions/httpException"
 
@@ -37,7 +38,9 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            const professionArray = profession.split(',');
+            const professionArray = getValidSubstrings(profession);
+            if (professionArray.length === 0) throw new HttpException(400, 'Invalid profession');
+
             query = query.andWhere(`(${professionArray.map((keyword) =>  `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
         }
         if (employmentType) {
@@ -69,7 +72,8 @@ export default class JobPostingServices {
         }
         // query by keywords
         if (keywords) {
-            const keywordArray = keywords.split(',');
+            const keywordArray = getValidSubstrings(keywords, 2);
+            if (keywordArray.length === 0) throw new HttpException(400, 'Invalid keywords');
 
             const conditions = keywordArray.map((keyword, index) => {
                 query.setParameter(`keyword${index}`, `%${keyword}%`);
@@ -117,7 +121,9 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            const professionArray = profession.split(',');
+            const professionArray = getValidSubstrings(profession);
+            if (professionArray.length === 0) throw new HttpException(400, 'Invalid profession');
+
             query = query.andWhere(`(${professionArray.map((keyword) =>  `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
         }
         if (employmentType) {
@@ -149,7 +155,8 @@ export default class JobPostingServices {
         }
         // query by keywords
         if (keywords) {
-            const keywordArray = keywords.split(',');
+            const keywordArray = getValidSubstrings(keywords, 2);
+            if (keywordArray.length === 0) throw new HttpException(400, 'Invalid keywords');
 
             const conditions = keywordArray.map((keyword, index) => {
                 query.setParameter(`keyword${index}`, `%${keyword}%`);
@@ -186,7 +193,9 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            const professionArray = profession.split(',');
+            const professionArray = getValidSubstrings(profession);
+            if (professionArray.length === 0) throw new HttpException(400, 'Invalid profession');
+
             query = query.andWhere(`(${professionArray.map((keyword) =>  `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
         }
         if (employmentType) {
@@ -252,7 +261,9 @@ export default class JobPostingServices {
             query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            const professionArray = profession.split(',');
+            const professionArray = getValidSubstrings(profession);
+            if (professionArray.length === 0) throw new HttpException(400, 'Invalid profession');
+
             query = query.andWhere(`(${professionArray.map((keyword) =>  `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
         }
         if (employmentType) {
@@ -295,13 +306,13 @@ export default class JobPostingServices {
         const professionCount = {};
 
         for (const post of posts) {
-            const professions = post.profession.split(',');
+            const professions = getValidSubstrings(post.profession);
           
             for (const profession of professions) {
-              if (professionCount[profession.trim()]) {
-                professionCount[profession.trim()] += 1;
+              if (professionCount[profession]) {
+                professionCount[profession] += 1;
               } else {
-                professionCount[profession.trim()] = 1;
+                professionCount[profession] = 1;
               }
             }
         }

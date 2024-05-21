@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createArrayForDate = exports.mergerTwoObject = exports.countCandidatesbyProfession = void 0;
+exports.getValidSubstrings = exports.createArrayForDate = exports.mergerTwoObject = exports.countCandidatesbyProfession = void 0;
 const countCandidatesbyProfession = (professionCountList) => {
     // Mảng các nghề nghiệp (có giá trị trùng lặp)
     const professionsList = professionCountList.map(item => item.profession.split(', ')).flat();
@@ -40,4 +40,8 @@ const createArrayForDate = (month, year) => {
         return Array.from({ length: 28 }, (_, i) => ({ time: i + 1, value: '0' }));
 };
 exports.createArrayForDate = createArrayForDate;
+const getValidSubstrings = (str, minLength = 3) => {
+    return str === null || str === void 0 ? void 0 : str.split(',').map(substring => substring.trim()).filter(substring => substring.length >= minLength);
+};
+exports.getValidSubstrings = getValidSubstrings;
 //# sourceMappingURL=utilsFunction.js.map

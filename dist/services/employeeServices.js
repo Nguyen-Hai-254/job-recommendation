@@ -10,6 +10,7 @@ const connectDB_1 = require("../config/connectDB");
 const entity_1 = require("../entity");
 const enum_1 = require("../utils/enum");
 const enumAction_1 = require("../utils/enumAction");
+const utilsFunction_1 = require("../utils/utilsFunction");
 const notificationServices_1 = __importDefault(require("./notificationServices"));
 const httpException_1 = require("../exceptions/httpException");
 const employeeRepository = connectDB_1.myDataSource.getRepository(entity_1.Employee);
@@ -472,7 +473,9 @@ EmployeeServices.handleGetEmployeesByEmployer = async (reqQuery) => {
         queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
     }
     if (profession) {
-        const professionArray = profession.split(',');
+        const professionArray = (0, utilsFunction_1.getValidSubstrings)(profession);
+        if (professionArray.length === 0)
+            throw new httpException_1.HttpException(400, 'Invalid profession');
         queryforOnlineProfile = queryforOnlineProfile.andWhere(`(${professionArray.map((keyword) => `online_profile.profession LIKE '%${keyword}%'`).join(' OR ')})`);
         queryforAttachedDocument = queryforAttachedDocument.andWhere(`(${professionArray.map((keyword) => `attached_document.profession LIKE '%${keyword}%'`).join(' OR ')})`);
     }
@@ -554,7 +557,9 @@ EmployeeServices.handleGetLengthOfEmployeesByEmployer = async (reqQuery) => {
         queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
     }
     if (profession) {
-        const professionArray = profession.split(',');
+        const professionArray = (0, utilsFunction_1.getValidSubstrings)(profession);
+        if (professionArray.length === 0)
+            throw new httpException_1.HttpException(400, 'Invalid profession');
         queryforOnlineProfile = queryforOnlineProfile.andWhere(`(${professionArray.map((keyword) => `online_profile.profession LIKE '%${keyword}%'`).join(' OR ')})`);
         queryforAttachedDocument = queryforAttachedDocument.andWhere(`(${professionArray.map((keyword) => `attached_document.profession LIKE '%${keyword}%'`).join(' OR ')})`);
     }
@@ -715,12 +720,16 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
     }
     // TODO: profession is a array.    
     if (profession) {
-        const professionArray = profession.split(',');
+        const professionArray = (0, utilsFunction_1.getValidSubstrings)(profession);
+        if (professionArray.length === 0)
+            throw new httpException_1.HttpException(400, 'Invalid profession');
         queryforOnlineProfile += ` AND (${professionArray.map((keyword) => `online_profile.profession LIKE '%${keyword}%'`).join(' OR ')})`;
         queryforAttachedDocument += ` AND (${professionArray.map((keyword) => `attached_document.profession LIKE '%${keyword}%'`).join(' OR ')})`;
     }
     // TODO : default query
-    const keywordArray = keywords.split(',');
+    const keywordArray = (0, utilsFunction_1.getValidSubstrings)(keywords, 2);
+    if (keywordArray.length === 0)
+        throw new httpException_1.HttpException(400, 'Invalid keywords');
     const onlineProfileQuery = `
         SELECT 
             online_profile.userId AS userId, 

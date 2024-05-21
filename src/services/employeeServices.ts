@@ -4,6 +4,7 @@ import { myDataSource } from "../config/connectDB"
 import { Employee, Application, AttachedDocument, OnlineProfile, AnotherDegree, EducationInformation, WorkExperience } from "../entity"
 import { MySQLErrorCode, applicationType} from "../utils/enum"
 import { EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } from "../utils/enumAction"
+import { getValidSubstrings } from "../utils/utilsFunction"
 import NotificationServices from "./notificationServices"
 import { HttpException } from "../exceptions/httpException"
 
@@ -481,7 +482,8 @@ export default class EmployeeServices {
             queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            const professionArray = profession.split(',');
+            const professionArray = getValidSubstrings(profession);
+            if (professionArray.length === 0) throw new HttpException(400, 'Invalid profession');
 
             queryforOnlineProfile = queryforOnlineProfile.andWhere(`(${professionArray.map((keyword) =>  `online_profile.profession LIKE '%${keyword}%'`).join(' OR ')})`);
             queryforAttachedDocument = queryforAttachedDocument.andWhere(`(${professionArray.map((keyword) =>  `attached_document.profession LIKE '%${keyword}%'`).join(' OR ')})`);
@@ -577,7 +579,8 @@ export default class EmployeeServices {
             queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
         }
         if (profession) {
-            const professionArray = profession.split(',');
+            const professionArray = getValidSubstrings(profession);
+            if (professionArray.length === 0) throw new HttpException(400, 'Invalid profession');
 
             queryforOnlineProfile = queryforOnlineProfile.andWhere(`(${professionArray.map((keyword) =>  `online_profile.profession LIKE '%${keyword}%'`).join(' OR ')})`);
             queryforAttachedDocument = queryforAttachedDocument.andWhere(`(${professionArray.map((keyword) =>  `attached_document.profession LIKE '%${keyword}%'`).join(' OR ')})`);
@@ -759,13 +762,15 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
     }
     // TODO: profession is a array.    
     if (profession) {
-        const professionArray = profession.split(',');
+        const professionArray = getValidSubstrings(profession);
+        if (professionArray.length === 0) throw new HttpException(400, 'Invalid profession');
 
         queryforOnlineProfile += ` AND (${professionArray.map((keyword) =>  `online_profile.profession LIKE '%${keyword}%'`).join(' OR ')})`;
         queryforAttachedDocument += ` AND (${professionArray.map((keyword) =>  `attached_document.profession LIKE '%${keyword}%'`).join(' OR ')})`;
     }
     // TODO : default query
-    const keywordArray = keywords.split(',');
+    const keywordArray = getValidSubstrings(keywords, 2);
+    if (keywordArray.length === 0) throw new HttpException(400, 'Invalid keywords');
     
     const onlineProfileQuery = `
         SELECT 
