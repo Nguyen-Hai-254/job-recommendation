@@ -1,7 +1,7 @@
 import express from "express"
-import { verifyToken } from "../middleware/auth";
+import { verifyToken } from "../middlewares/auth";
+import { verifyRole } from "../middlewares/verifyRole";
 import ApplicationController from "../controllers/applicationController";
-import { verifyRole } from "../middleware/verifyRole";
 import { userRole } from "../utils/enum";
 const route = express.Router()
 

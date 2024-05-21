@@ -5,7 +5,7 @@ import bodyParser from "body-parser"
 import cookieParser from "cookie-parser"
 import cors from "cors"
 import { connectDB } from "./config/connectDB"
-import { errorMiddleware } from "./middleware/error";
+import { errorMiddleware } from "./middlewares/error";
 
 const cronJob =  require('./cron/updateExpiredJobStatusCron')
 const routes = require('./routes/web')

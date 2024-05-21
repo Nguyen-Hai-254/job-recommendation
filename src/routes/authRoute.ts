@@ -1,5 +1,5 @@
 import express from "express"
-import { verifyToken } from "../middleware/auth";
+import { verifyToken } from "../middlewares/auth";
 import AuthController from "../controllers/authController";
 const route = express.Router()
 

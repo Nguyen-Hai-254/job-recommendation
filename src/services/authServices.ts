@@ -6,7 +6,7 @@ import { MySQLErrorCode } from "../utils/enum"
 import RedisServices from "./redisServices"
 import MailServices from "./mailServices"
 import UserServices from "./userServices"
-import { tokenFromCookie, tokenFromHeader } from "../middleware/auth"
+import { tokenFromCookie, tokenFromHeader } from "../middlewares/auth"
 import { HttpException } from "../exceptions/httpException"
 
 const userRepository = myDataSource.getRepository(User);

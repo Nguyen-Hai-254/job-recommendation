@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const auth_1 = require("../middleware/auth");
-const verifyRole_1 = require("../middleware/verifyRole");
+const auth_1 = require("../middlewares/auth");
+const verifyRole_1 = require("../middlewares/verifyRole");
 const enum_1 = require("../utils/enum");
 const followController_1 = __importDefault(require("../controllers/followController"));
 const route = express_1.default.Router();
