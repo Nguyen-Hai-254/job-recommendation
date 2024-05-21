@@ -33,7 +33,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 connectDB;
-app.use('/', routes)
+app.use('/api/v1', routes) // set default prefix
 app.use("*", (req, res) => {
     return res.status(404).json({
         success: false,

@@ -5,7 +5,7 @@ const route = express.Router()
 
 
 // Get All option of Provinces
-route.get('/api/v1/get-provinces', (req, res) => {
+route.get('/get-provinces', (req, res) => {
     try {
         let data = readProvinces();
         return res.status(200).json(data);
@@ -15,7 +15,7 @@ route.get('/api/v1/get-provinces', (req, res) => {
 });
 
 // Get all option of profession
-route.get('/api/v1/get-profession', (req, res) => {
+route.get('/get-profession', (req, res) => {
     try {
         let data = readProfession();
         return res.status(200).json(data);

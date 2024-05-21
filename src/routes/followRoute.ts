@@ -6,14 +6,14 @@ import FollowController from "../controllers/followController";
 
 const route = express.Router()
 
-route.post('/api/v1/employee/follow-company', verifyToken, verifyRole(userRole.Employee), FollowController.followCompany);
-route.get('/api/v1/employee/follow-company', verifyToken, verifyRole(userRole.Employee), FollowController.getFollowByEmployee);
+route.post('/employee/follow-company', verifyToken, verifyRole(userRole.Employee), FollowController.followCompany);
+route.get('/employee/follow-company', verifyToken, verifyRole(userRole.Employee), FollowController.getFollowByEmployee);
 
-route.post('/api/v1/employer/save-employee', verifyToken, verifyRole(userRole.Employer), FollowController.saveEmployee);
-route.get('/api/v1/employer/save-employee', verifyToken, verifyRole(userRole.Employer), FollowController.getSaveEmployeeByEmployer);
+route.post('/employer/save-employee', verifyToken, verifyRole(userRole.Employer), FollowController.saveEmployee);
+route.get('/employer/save-employee', verifyToken, verifyRole(userRole.Employer), FollowController.getSaveEmployeeByEmployer);
 
-route.post('/api/v1/employee/follow-job', verifyToken, verifyRole(userRole.Employee), FollowController.followJobPosting);
-route.get('/api/v1/employee/follow-job', verifyToken, verifyRole(userRole.Employee), FollowController.getFollowJobPosting);
+route.post('/employee/follow-job', verifyToken, verifyRole(userRole.Employee), FollowController.followJobPosting);
+route.get('/employee/follow-job', verifyToken, verifyRole(userRole.Employee), FollowController.getFollowJobPosting);
 
 
 export default route

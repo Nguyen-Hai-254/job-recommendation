@@ -5,7 +5,7 @@ import { verifyRole } from "../middleware/verifyRole";
 import { userRole } from "../utils/enum";
 const route = express.Router()
 
-route.get('/api/v1/job-postings', JobPostingController.getAllJobPostings);
+route.get('/job-postings', JobPostingController.getAllJobPostings);
 route.get('/api/v1/job-postings/totalResults', JobPostingController.getLengthOfAllJobPostings);
 route.get('/api/v1/job-postings/totalResultsOfProfession', JobPostingController.getTotalResultsOfProfession);
 route.get('/api/v1/admin/job-postings/totalResultsOfProfession', verifyToken, verifyRole(userRole.Admin), JobPostingController.getTotalResultsOfProfessionByAdmin);

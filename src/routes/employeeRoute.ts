@@ -5,32 +5,32 @@ import EmployeeController from "../controllers/employeeController";
 import { userRole } from "../utils/enum";
 const route = express.Router()
 
-route.get('/api/v1/employee/attached-document', verifyToken, verifyRole(userRole.Employee), EmployeeController.getAttachedDocument);
-route.post('/api/v1/employee/attached-document', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewAttachedDocument);
-route.put('/api/v1/employee/attached-document', verifyToken, verifyRole(userRole.Employee), EmployeeController.updateAttachedDocument);
-route.delete('/api/v1/admin/attached-document/:id', verifyToken, verifyRole(userRole.Admin), EmployeeController.deleteAttachedDocument);
+route.get('/employee/attached-document', verifyToken, verifyRole(userRole.Employee), EmployeeController.getAttachedDocument);
+route.post('/employee/attached-document', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewAttachedDocument);
+route.put('/employee/attached-document', verifyToken, verifyRole(userRole.Employee), EmployeeController.updateAttachedDocument);
+route.delete('/admin/attached-document/:id', verifyToken, verifyRole(userRole.Admin), EmployeeController.deleteAttachedDocument);
 
-route.get('/api/v1/employee/online-profile', verifyToken, verifyRole(userRole.Employee), EmployeeController.getOnlineProfile);
-route.post('/api/v1/employee/online-profile', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewOnlineProfile);
-route.put('/api/v1/employee/online-profile', verifyToken, verifyRole(userRole.Employee), EmployeeController.updateOnlineProfile);
-route.delete('/api/v1/admin/online-profile/:id', verifyToken, verifyRole(userRole.Admin), EmployeeController.deleteOnlineProfile);
+route.get('/employee/online-profile', verifyToken, verifyRole(userRole.Employee), EmployeeController.getOnlineProfile);
+route.post('/employee/online-profile', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewOnlineProfile);
+route.put('/employee/online-profile', verifyToken, verifyRole(userRole.Employee), EmployeeController.updateOnlineProfile);
+route.delete('/admin/online-profile/:id', verifyToken, verifyRole(userRole.Admin), EmployeeController.deleteOnlineProfile);
 
-route.post('/api/v1/employee/online-profile/another-degree', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewAnotherDegree);
-route.put('/api/v1/employee/online-profile/another-degree/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.updateAnotherDegree);
-route.delete('/api/v1/employee/online-profile/another-degree/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.deleteAnotherDegree);
+route.post('/employee/online-profile/another-degree', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewAnotherDegree);
+route.put('/employee/online-profile/another-degree/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.updateAnotherDegree);
+route.delete('/employee/online-profile/another-degree/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.deleteAnotherDegree);
 
-route.post('/api/v1/employee/online-profile/education-information', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewEducationInformation);
-route.put('/api/v1/employee/online-profile/education-information/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.updateEducationInformation);
-route.delete('/api/v1/employee/online-profile/education-information/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.deleteEducationInformation);
+route.post('/employee/online-profile/education-information', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewEducationInformation);
+route.put('/employee/online-profile/education-information/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.updateEducationInformation);
+route.delete('/employee/online-profile/education-information/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.deleteEducationInformation);
 
-route.post('/api/v1/employee/online-profile/work-experience', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewWorkExperience);
-route.put('/api/v1/employee/online-profile/work-experience/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.updateWorkExperience);
-route.delete('/api/v1/employee/online-profile/work-experience/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.deleteWorkExperience);
+route.post('/employee/online-profile/work-experience', verifyToken, verifyRole(userRole.Employee), EmployeeController.createNewWorkExperience);
+route.put('/employee/online-profile/work-experience/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.updateWorkExperience);
+route.delete('/employee/online-profile/work-experience/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.deleteWorkExperience);
 
-route.get('/api/v1/admin/employees', verifyToken, verifyRole(userRole.Admin), EmployeeController.getEmployeesByAdmin);
-route.get('/api/v1/admin/employees/totalResults', verifyToken, verifyRole(userRole.Admin), EmployeeController.getLengthOfEmployeesByAdmin);
-route.get('/api/v1/employer/employees', verifyToken, verifyRole(userRole.Employer), EmployeeController.getEmployeesByEmployer);
-route.get('/api/v1/employer/employees/totalResults', verifyToken, verifyRole(userRole.Employer), EmployeeController.getLengthOfEmployeesByEmployer);
-route.get('/api/v1/employer/employees/sortbykeywords', verifyToken, verifyRole(userRole.Employer), EmployeeController.getEmployeesByEmployerSortByKeywords);
+route.get('/admin/employees', verifyToken, verifyRole(userRole.Admin), EmployeeController.getEmployeesByAdmin);
+route.get('/admin/employees/totalResults', verifyToken, verifyRole(userRole.Admin), EmployeeController.getLengthOfEmployeesByAdmin);
+route.get('/employer/employees', verifyToken, verifyRole(userRole.Employer), EmployeeController.getEmployeesByEmployer);
+route.get('/employer/employees/totalResults', verifyToken, verifyRole(userRole.Employer), EmployeeController.getLengthOfEmployeesByEmployer);
+route.get('/employer/employees/sortbykeywords', verifyToken, verifyRole(userRole.Employer), EmployeeController.getEmployeesByEmployerSortByKeywords);
 
 export default route
