@@ -5,24 +5,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createToken = void 0;
-const httpException_1 = require("../exceptions/httpException");
-const connectDB_1 = require("../config/connectDB");
-const Users_1 = require("../entity/Users");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const connectDB_1 = require("../config/connectDB");
+const entity_1 = require("../entity");
 const enum_1 = require("../utils/enum");
-const Employee_1 = require("../entity/Employee");
-const Employer_1 = require("../entity/Employer");
 const redisServices_1 = __importDefault(require("./redisServices"));
-const mailServices_1 = __importDefault(require("../services/mailServices"));
-const userServices_1 = __importDefault(require("../services/userServices"));
+const mailServices_1 = __importDefault(require("./mailServices"));
+const userServices_1 = __importDefault(require("./userServices"));
+const auth_1 = require("../middleware/auth");
+const httpException_1 = require("../exceptions/httpException");
+const userRepository = connectDB_1.myDataSource.getRepository(entity_1.User);
+const employeeRepository = connectDB_1.myDataSource.getRepository(entity_1.Employee);
+const employerRepository = connectDB_1.myDataSource.getRepository(entity_1.Employer);
 const createToken = (payload) => {
     return jsonwebtoken_1.default.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
 };
 exports.createToken = createToken;
-const userRepository = connectDB_1.myDataSource.getRepository(Users_1.User);
-const employeeRepository = connectDB_1.myDataSource.getRepository(Employee_1.Employee);
-const employerRepository = connectDB_1.myDataSource.getRepository(Employer_1.Employer);
 class AuthServices {
 }
 _a = AuthServices;
@@ -85,14 +84,13 @@ AuthServices.handleLogin = async (email, password) => {
         userData: payload,
     };
 };
-AuthServices.handleLogout = async (jwt1, jwt2) => {
+AuthServices.handleLogout = async (req) => {
+    const jwt1 = await (0, auth_1.tokenFromHeader)(req);
+    const jwt2 = await (0, auth_1.tokenFromCookie)(req);
     if (jwt1)
         await redisServices_1.default.setBlockedToken(jwt1);
-    if (jwt2)
-        await redisServices_1.default.setBlockedToken(jwt1);
-    if (jwt1 === null && jwt2 === null) {
-        throw new httpException_1.HttpException(401, "You have already logged out before.");
-    }
+    if (jwt2 && jwt1 !== jwt2)
+        await redisServices_1.default.setBlockedToken(jwt2);
     return;
 };
 AuthServices.handleChangePassword = async (email, password, newPassword, confirmNewPassword) => {

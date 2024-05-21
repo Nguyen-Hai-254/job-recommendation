@@ -8,63 +8,6 @@ const userServices_1 = __importDefault(require("../services/userServices"));
 class UserController {
 }
 _a = UserController;
-UserController.register = async (req, res, next) => {
-    try {
-        if (!req.body.email || !req.body.password || !req.body.confirmPassword) {
-            return res.status(500).json({
-                message: "Missing input parameter!",
-                status: 500,
-                error: 'Internal Server Error',
-            });
-        }
-        const { email, password, confirmPassword, role } = req.body;
-        const data = await userServices_1.default.handleRegister(email, password, confirmPassword, role);
-        return res.status(data.status).json({
-            status: data.status,
-            message: data.message,
-            // userData: data.data ? data.data : []
-        });
-    }
-    catch (error) {
-        next(error);
-    }
-};
-UserController.login = async (req, res, next) => {
-    var _b;
-    try {
-        if (!req.body.email || !req.body.password) {
-            return res.status(500).json({
-                message: "Missing input parameter!",
-                status: 500,
-                error: 'Internal Server Error',
-            });
-        }
-        const userData = await userServices_1.default.handleLogin(req.body.email, req.body.password);
-        res.cookie("jwt", (_b = userData.data) === null || _b === void 0 ? void 0 : _b.access_token, { httpOnly: true });
-        return res.status(userData.status).json({
-            status: userData.status,
-            message: userData.message,
-            data: userData.data ? userData.data : []
-        });
-    }
-    catch (error) {
-        next(error);
-    }
-};
-UserController.logOut = async (req, res, next) => {
-    try {
-        res.clearCookie("jwt");
-        if (req.user)
-            req.user = null;
-        return res.status(200).json({
-            message: 'Logged out!',
-            status: 200
-        });
-    }
-    catch (error) {
-        next(error);
-    }
-};
 UserController.getProfile = async (req, res, next) => {
     try {
         const getUser = await userServices_1.default.handleGetProfile(req.user);

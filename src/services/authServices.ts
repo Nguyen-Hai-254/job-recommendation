@@ -1,23 +1,21 @@
-import { HttpException } from "../exceptions/httpException"
-import { myDataSource } from "../config/connectDB"
-import { User } from "../entity/Users"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
+import { myDataSource } from "../config/connectDB"
+import { User, Employee, Employer } from "../entity"
 import { MySQLErrorCode } from "../utils/enum"
-import { Employee } from "../entity/Employee"
-import { Employer } from "../entity/Employer"
-import RedisServices from "./redisServices";
-import MailServices from "../services/mailServices";
-import UserServices from "../services/userServices";
-
-export const createToken = (payload) => {
-    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
-}
+import RedisServices from "./redisServices"
+import MailServices from "./mailServices"
+import UserServices from "./userServices"
+import { tokenFromCookie, tokenFromHeader } from "../middleware/auth"
+import { HttpException } from "../exceptions/httpException"
 
 const userRepository = myDataSource.getRepository(User);
 const employeeRepository = myDataSource.getRepository(Employee);
 const employerRepository = myDataSource.getRepository(Employer);
 
+export const createToken = (payload) => {
+    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
+}
 export default class AuthServices {
     static handleRegister = async (email, password, confirmPassword, role) => {
         if (password != confirmPassword) throw new HttpException(400, 'Password does not match confirm password');
@@ -81,13 +79,11 @@ export default class AuthServices {
         }
     }
 
-    static handleLogout = async (jwt1, jwt2) => {
+    static handleLogout = async (req) => {
+        const jwt1 = await tokenFromHeader(req);
+        const jwt2 = await tokenFromCookie(req);   
         if (jwt1) await RedisServices.setBlockedToken(jwt1);
-        if (jwt2) await RedisServices.setBlockedToken(jwt1);
-        
-        if(jwt1===null && jwt2===null) {
-            throw new HttpException(401, "You have already logged out before.");
-        }
+        if (jwt2 && jwt1!==jwt2) await RedisServices.setBlockedToken(jwt2);
         return;
     }
 

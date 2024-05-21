@@ -1,11 +1,11 @@
-import { myDataSource } from "../config/connectDB"
-import { MySQLErrorCode, approvalStatus } from "../utils/enum"
-import { JobPosting } from "../entity/JobPosting"
-import moment from "moment"
-import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex, EnumApprovalStatus } from "../utils/enumAction"
 import { Brackets } from "typeorm"
-import { HttpException } from "../exceptions/httpException"
+import moment from "moment"
+import { myDataSource } from "../config/connectDB"
+import { JobPosting } from "../entity"
+import { MySQLErrorCode, approvalStatus } from "../utils/enum"
+import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex, EnumApprovalStatus } from "../utils/enumAction"
 import NotificationServices from "./notificationServices"
+import { HttpException } from "../exceptions/httpException"
 
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
 

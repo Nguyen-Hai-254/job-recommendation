@@ -1,11 +1,7 @@
-import { HttpException } from "../exceptions/httpException";
 import { myDataSource } from "../config/connectDB";
-import { Employee } from "../entity/Employee";
-import { Employer } from "../entity/Employer";
-import { JobPosting } from "../entity/JobPosting";
-import { Follow } from "../entity/follow";
-import { Save } from "../entity/save";
+import { Employee, Employer, JobPosting, Follow, Save} from "../entity";
 import { approvalStatus } from "../utils/enum";
+import { HttpException } from "../exceptions/httpException";
 
 const employeeRepository = myDataSource.getRepository(Employee);
 const employerRepository = myDataSource.getRepository(Employer);

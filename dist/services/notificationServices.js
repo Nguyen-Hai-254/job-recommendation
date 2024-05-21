@@ -1,11 +1,11 @@
 "use strict";
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-const enum_1 = require("../utils/enum");
 const connectDB_1 = require("../config/connectDB");
-const Notification_1 = require("../entity/Notification");
+const entity_1 = require("../entity");
+const enum_1 = require("../utils/enum");
 const httpException_1 = require("../exceptions/httpException");
-const notificationRepository = connectDB_1.myDataSource.getRepository(Notification_1.Notification);
+const notificationRepository = connectDB_1.myDataSource.getRepository(entity_1.Notification);
 class NotificationServices {
 }
 _a = NotificationServices;

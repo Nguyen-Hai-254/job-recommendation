@@ -1,6 +1,6 @@
-import { MySQLErrorCode } from "../utils/enum";
 import { myDataSource } from "../config/connectDB"
-import { Notification } from "../entity/Notification"
+import { Notification } from "../entity"
+import { MySQLErrorCode } from "../utils/enum";
 import { HttpException } from "../exceptions/httpException";
 
 const notificationRepository = myDataSource.getRepository(Notification);

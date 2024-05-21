@@ -4,122 +4,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-const httpException_1 = require("../exceptions/httpException");
-const connectDB_1 = require("../config/connectDB");
-const AttachedDocument_1 = require("../entity/AttachedDocument");
-const Employee_1 = require("../entity/Employee");
-const Employer_1 = require("../entity/Employer");
-const Notification_1 = require("../entity/Notification");
-const OnlineProfile_1 = require("../entity/OnlineProfile");
-const Users_1 = require("../entity/Users");
-const enum_1 = require("../utils/enum");
-const JWTAction_1 = require("../utils/JWTAction");
-const bcrypt_1 = __importDefault(require("bcrypt"));
 const moment_1 = __importDefault(require("moment"));
-const userRepository = connectDB_1.myDataSource.getRepository(Users_1.User);
-const employerRepository = connectDB_1.myDataSource.getRepository(Employer_1.Employer);
-const employeeRepository = connectDB_1.myDataSource.getRepository(Employee_1.Employee);
-const notificationRepository = connectDB_1.myDataSource.getRepository(Notification_1.Notification);
-const online_profileRepository = connectDB_1.myDataSource.getRepository(OnlineProfile_1.OnlineProfile);
-const attached_documentRepository = connectDB_1.myDataSource.getRepository(AttachedDocument_1.AttachedDocument);
+const connectDB_1 = require("../config/connectDB");
+const entity_1 = require("../entity");
+const enum_1 = require("../utils/enum");
+const httpException_1 = require("../exceptions/httpException");
+const userRepository = connectDB_1.myDataSource.getRepository(entity_1.User);
+const employerRepository = connectDB_1.myDataSource.getRepository(entity_1.Employer);
+const employeeRepository = connectDB_1.myDataSource.getRepository(entity_1.Employee);
+const notificationRepository = connectDB_1.myDataSource.getRepository(entity_1.Notification);
+const online_profileRepository = connectDB_1.myDataSource.getRepository(entity_1.OnlineProfile);
+const attached_documentRepository = connectDB_1.myDataSource.getRepository(entity_1.AttachedDocument);
 class UserServices {
 }
 _a = UserServices;
-UserServices.handleRegister = async (email, password, confirmPassword, role) => {
-    var _b;
-    const checkEmail = await userRepository.findOne({
-        where: { email: email },
-        relations: ['employer']
-    });
-    if (checkEmail) {
-        if ((_b = checkEmail.employer) === null || _b === void 0 ? void 0 : _b.userId) {
-            return ({
-                message: 'This email is registered as an employer',
-                status: 409,
-                data: null
-            });
-        }
-        return ({
-            message: 'Email already exists!',
-            status: 409,
-            data: null
-        });
-    }
-    if (password != confirmPassword) {
-        return ({
-            message: 'Password does not match confirm password',
-            status: 400,
-            data: null
-        });
-    }
-    const salt = await bcrypt_1.default.genSalt(10);
-    const hashPassWord = await bcrypt_1.default.hash(password, salt);
-    const createUser = await userRepository.create({
-        email: email,
-        password: hashPassWord,
-        role: role
-    });
-    const userData = await userRepository.save(createUser);
-    if (role === 'employer' || role === 'EMPLOYER' || role === 'Employer') {
-        const createEmployer = await employerRepository.create({
-            userId: userData.userId
-        });
-        await employerRepository.save(createEmployer);
-    }
-    else if (role === 'admin') {
-    }
-    else {
-        const createEmployee = await employeeRepository.create({
-            userId: userData.userId
-        });
-        await employeeRepository.save(createEmployee);
-    }
-    return ({
-        message: 'Create user successful!',
-        status: 200,
-    });
-};
-UserServices.handleLogin = async (email, password) => {
-    const findUser = await userRepository
-        .createQueryBuilder('user')
-        .select("user")
-        .addSelect("user.password")
-        .where('user.email = :email', { email })
-        .getOne();
-    if (!findUser) {
-        return ({
-            message: `Your's email is't exist`,
-            status: 404,
-            data: null
-        });
-    }
-    const checkUserPassword = await bcrypt_1.default.compare(password, findUser.password);
-    if (!checkUserPassword) {
-        return ({
-            message: 'Wrong password!',
-            status: 401,
-            data: null
-        });
-    }
-    let payload = {
-        userId: findUser.userId,
-        email: findUser.email,
-        role: findUser.role,
-    };
-    let token = (0, JWTAction_1.createToken)(payload);
-    return ({
-        message: 'Login successful!',
-        status: 200,
-        data: {
-            access_token: token,
-            userData: {
-                userId: findUser.userId,
-                email: findUser.email,
-                role: findUser.role
-            }
-        }
-    });
-};
 UserServices.handleGetProfile = async (user) => {
     var _b;
     const getUserProfile = await userRepository.findOne({
@@ -364,17 +262,6 @@ UserServices.handleUploadBanner = async (user, banner) => {
 };
 UserServices.handleGetInformationCompanyByUser = async (id) => {
     var _b;
-    // const getEmployer = await userRepository.findOne({
-    //     where: {
-    //         userId: id,
-    //         employer: {
-    //             jobPostings: {
-    //                 status: approvalStatus.approved
-    //             }
-    //         }
-    //     },
-    //     relations: ['employer.jobPostings']
-    // })
     const getEmployer = await userRepository
         .createQueryBuilder('user')
         .select(['user'])

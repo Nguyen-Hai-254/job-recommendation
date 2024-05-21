@@ -1,12 +1,9 @@
-import { JobPosting } from "../entity/JobPosting"
-import { myDataSource } from "../config/connectDB";
-import { approvalStatus, monthMap, userRole } from "../utils/enum";
-import { User } from "../entity/Users";
-import { OnlineProfile } from "../entity/OnlineProfile";
-import { AttachedDocument } from "../entity/AttachedDocument";
-import { countCandidatesbyProfession, createArrayForDate, mergerTwoObject } from "../utils/utilsFunction";
-import { ILike } from "typeorm";
-import MailServices from "./mailServices";
+import { ILike } from "typeorm"
+import { myDataSource } from "../config/connectDB"
+import { User, JobPosting, OnlineProfile, AttachedDocument } from "../entity"
+import { approvalStatus, monthMap} from "../utils/enum"
+import { countCandidatesbyProfession, createArrayForDate, mergerTwoObject } from "../utils/utilsFunction"
+import MailServices from "./mailServices"
 
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
 const userRepository = myDataSource.getRepository(User);

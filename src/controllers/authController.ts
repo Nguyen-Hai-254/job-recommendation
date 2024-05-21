@@ -1,8 +1,6 @@
-import { tokenFromCookie, tokenFromHeader } from "../middleware/auth";
 import { HttpException } from "../exceptions/httpException";
 import AuthServices from "../services/authServices";
 import respondSuccess from "../utils/respondSuccess";
-
 
 export default class AuthController {
     static register = async (req, res, next) => {
@@ -33,14 +31,13 @@ export default class AuthController {
 
     static logOut = async (req, res, next) => {
         try {
-            const jwt1 = await tokenFromHeader(req);
-            const jwt2 = await tokenFromCookie(req);   
+            await AuthServices.handleLogout(req);
+          
             res.clearCookie('jwt');
             const data = req.user;
-            if (req.user) req.user = null;
+            req.user = null;
 
-            await AuthServices.handleLogout(jwt1, jwt2);
-            return respondSuccess(res, "You've been logged out!", data.email);
+            return respondSuccess(res, "You've been logged out!", data?.email);
         } catch (error) {
             next(error);
         }

@@ -1,15 +1,8 @@
-import { HttpException } from "../exceptions/httpException"
-import { myDataSource } from "../config/connectDB"
-import { AttachedDocument } from "../entity/AttachedDocument"
-import { Employee } from "../entity/Employee"
-import { Employer } from "../entity/Employer"
-import { Notification } from "../entity/Notification"
-import { OnlineProfile } from "../entity/OnlineProfile"
-import { User } from "../entity/Users"
-import { approvalStatus, sex, userRole } from "../utils/enum"
-import { createToken } from "../utils/JWTAction"
-import bcrypt from "bcrypt"
 import moment from "moment"
+import { myDataSource } from "../config/connectDB"
+import { User, Employee, Employer, Notification, OnlineProfile, AttachedDocument } from "../entity"
+import { approvalStatus, sex, userRole } from "../utils/enum"
+import { HttpException } from "../exceptions/httpException"
 
 const userRepository = myDataSource.getRepository(User);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -19,115 +12,6 @@ const online_profileRepository = myDataSource.getRepository(OnlineProfile);
 const attached_documentRepository = myDataSource.getRepository(AttachedDocument);
 
 export default class UserServices {
-    static handleRegister = async (email, password, confirmPassword, role) => {
-        const checkEmail = await userRepository.findOne({
-            where: { email: email },
-            relations: ['employer']
-        })
-
-        if (checkEmail) {
-            if (checkEmail.employer?.userId) {
-                return ({
-                    message: 'This email is registered as an employer',
-                    status: 409,
-                    data: null
-                })
-            }
-
-            return ({
-                message: 'Email already exists!',
-                status: 409,
-                data: null
-            })
-        }
-
-        if (password != confirmPassword) {
-            return ({
-                message: 'Password does not match confirm password',
-                status: 400,
-                data: null
-            })
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashPassWord = await bcrypt.hash(password, salt);
-
-        const createUser = await userRepository.create({
-            email: email,
-            password: hashPassWord,
-            role: role
-        })
-        const userData = await userRepository.save(createUser)
-
-        if (role === 'employer' || role === 'EMPLOYER' || role === 'Employer') {
-            const createEmployer = await employerRepository.create({
-                userId: userData.userId
-            });
-            await employerRepository.save(createEmployer);
-        }
-        else if (role === 'admin') {
-
-        }
-        else {
-            const createEmployee = await employeeRepository.create({
-                userId: userData.userId
-            });
-            await employeeRepository.save(createEmployee);
-        }
-
-        return ({
-            message: 'Create user successful!',
-            status: 200,
-        })
-    }
-
-    static handleLogin = async (email, password) => {
-        const findUser = await userRepository
-            .createQueryBuilder('user')
-            .select("user")
-            .addSelect("user.password")
-            .where('user.email = :email', { email })
-            .getOne()
-
-        if (!findUser) {
-            return ({
-                message: `Your's email is't exist`,
-                status: 404,
-                data: null
-            })
-        }
-
-        const checkUserPassword = await bcrypt.compare(password, findUser.password);
-
-        if (!checkUserPassword) {
-            return ({
-                message: 'Wrong password!',
-                status: 401,
-                data: null
-            })
-        }
-
-        let payload = {
-            userId: findUser.userId,
-            email: findUser.email,
-            role: findUser.role,
-        }
-        let token = createToken(payload)
-
-        return ({
-            message: 'Login successful!',
-            status: 200,
-            data: {
-                access_token: token,
-                userData: {
-                    userId: findUser.userId,
-                    email: findUser.email,
-                    role: findUser.role
-                }
-            }
-        })
-    }
-
     static handleGetProfile = async (user) => {
         const getUserProfile = await userRepository.findOne({
             where: { userId: user.userId },
@@ -402,17 +286,6 @@ export default class UserServices {
     }
 
     static handleGetInformationCompanyByUser = async (id) => {
-        // const getEmployer = await userRepository.findOne({
-        //     where: {
-        //         userId: id,
-        //         employer: {
-        //             jobPostings: {
-        //                 status: approvalStatus.approved
-        //             }
-        //         }
-        //     },
-        //     relations: ['employer.jobPostings']
-        // })
         const getEmployer = await userRepository
             .createQueryBuilder('user')
             .select(['user'])

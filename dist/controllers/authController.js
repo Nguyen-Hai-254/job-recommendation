@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-const auth_1 = require("../middleware/auth");
 const httpException_1 = require("../exceptions/httpException");
 const authServices_1 = __importDefault(require("../services/authServices"));
 const respondSuccess_1 = __importDefault(require("../utils/respondSuccess"));
@@ -38,14 +37,11 @@ AuthController.login = async (req, res, next) => {
 };
 AuthController.logOut = async (req, res, next) => {
     try {
-        const jwt1 = await (0, auth_1.tokenFromHeader)(req);
-        const jwt2 = await (0, auth_1.tokenFromCookie)(req);
+        await authServices_1.default.handleLogout(req);
         res.clearCookie('jwt');
         const data = req.user;
-        if (req.user)
-            req.user = null;
-        await authServices_1.default.handleLogout(jwt1, jwt2);
-        return (0, respondSuccess_1.default)(res, "You've been logged out!", data.email);
+        req.user = null;
+        return (0, respondSuccess_1.default)(res, "You've been logged out!", data === null || data === void 0 ? void 0 : data.email);
     }
     catch (error) {
         next(error);
