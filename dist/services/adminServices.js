@@ -6,14 +6,14 @@ var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const connectDB_1 = require("../config/connectDB");
-const entity_1 = require("../entity");
+const entities_1 = require("../entities");
 const enum_1 = require("../utils/enum");
 const utilsFunction_1 = require("../utils/utilsFunction");
 const mailServices_1 = __importDefault(require("./mailServices"));
-const jobPostingRepository = connectDB_1.myDataSource.getRepository(entity_1.JobPosting);
-const userRepository = connectDB_1.myDataSource.getRepository(entity_1.User);
-const online_profileRepository = connectDB_1.myDataSource.getRepository(entity_1.OnlineProfile);
-const attachedDocumentRepository = connectDB_1.myDataSource.getRepository(entity_1.AttachedDocument);
+const jobPostingRepository = connectDB_1.myDataSource.getRepository(entities_1.JobPosting);
+const userRepository = connectDB_1.myDataSource.getRepository(entities_1.User);
+const online_profileRepository = connectDB_1.myDataSource.getRepository(entities_1.OnlineProfile);
+const attachedDocumentRepository = connectDB_1.myDataSource.getRepository(entities_1.AttachedDocument);
 class AdminServices {
 }
 _a = AdminServices;

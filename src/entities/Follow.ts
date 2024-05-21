@@ -1,7 +1,5 @@
 import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
-import { Employer } from "./Employer";
-import { Employee } from "./Employee";
-
+import { Employer, Employee } from "./";
 
 @Entity()
 export class Follow extends BaseEntity {

@@ -1,17 +1,11 @@
 import { BaseEntity, Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
-import { User } from "./Users";
-import { Application } from "./Application";
-import { OnlineProfile } from "./OnlineProfile";
-import { AttachedDocument } from "./AttachedDocument";
-import { Follow } from "./follow";
-import { JobPosting } from "./JobPosting";
+import { User, Application, OnlineProfile, AttachedDocument, Follow, JobPosting } from "./";
 
 @Entity()
 export class Employee extends BaseEntity {
     @PrimaryColumn()
     userId: number;
 
-    // Da ket hon chua
     @Column({ nullable: true })
     isMarried: boolean
 

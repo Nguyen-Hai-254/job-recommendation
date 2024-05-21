@@ -2,16 +2,16 @@
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const connectDB_1 = require("../config/connectDB");
-const entity_1 = require("../entity");
+const entities_1 = require("../entities");
 const enum_1 = require("../utils/enum");
 const enumAction_1 = require("../utils/enumAction");
 const httpException_1 = require("../exceptions/httpException");
-const userRepository = connectDB_1.myDataSource.getRepository(entity_1.User);
-const employeeRepository = connectDB_1.myDataSource.getRepository(entity_1.Employee);
-const applicationRepository = connectDB_1.myDataSource.getRepository(entity_1.Application);
-const jobpostingRepository = connectDB_1.myDataSource.getRepository(entity_1.JobPosting);
-const attached_documentRepository = connectDB_1.myDataSource.getRepository(entity_1.AttachedDocument);
-const online_profileRepository = connectDB_1.myDataSource.getRepository(entity_1.OnlineProfile);
+const userRepository = connectDB_1.myDataSource.getRepository(entities_1.User);
+const employeeRepository = connectDB_1.myDataSource.getRepository(entities_1.Employee);
+const applicationRepository = connectDB_1.myDataSource.getRepository(entities_1.Application);
+const jobpostingRepository = connectDB_1.myDataSource.getRepository(entities_1.JobPosting);
+const attached_documentRepository = connectDB_1.myDataSource.getRepository(entities_1.AttachedDocument);
+const online_profileRepository = connectDB_1.myDataSource.getRepository(entities_1.OnlineProfile);
 class ApplicationServices {
 }
 _a = ApplicationServices;

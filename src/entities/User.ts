@@ -1,8 +1,6 @@
 import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne, OneToMany, CreateDateColumn } from "typeorm"
-import { Employer } from "./Employer"
-import { Employee } from "./Employee"
+import { Employer, Employee, Notification } from "./"
 import { sex, userRole } from "../utils/enum"
-import { Notification } from "./Notification"
 
 @Entity()
 export class User extends BaseEntity {

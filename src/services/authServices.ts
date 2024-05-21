@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import { myDataSource } from "../config/connectDB"
-import { User, Employee, Employer } from "../entity"
+import { User, Employee, Employer } from "../entities"
 import { MySQLErrorCode } from "../utils/enum"
 import RedisServices from "./redisServices"
 import MailServices from "./mailServices"

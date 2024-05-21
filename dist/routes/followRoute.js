@@ -9,11 +9,11 @@ const verifyRole_1 = require("../middleware/verifyRole");
 const enum_1 = require("../utils/enum");
 const followController_1 = __importDefault(require("../controllers/followController"));
 const route = express_1.default.Router();
-route.post('/api/v1/employee/follow-company', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), followController_1.default.followCompany);
-route.get('/api/v1/employee/follow-company', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), followController_1.default.getFollowByEmployee);
-route.post('/api/v1/employer/save-employee', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), followController_1.default.saveEmployee);
-route.get('/api/v1/employer/save-employee', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), followController_1.default.getSaveEmployeeByEmployer);
-route.post('/api/v1/employee/follow-job', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), followController_1.default.followJobPosting);
-route.get('/api/v1/employee/follow-job', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), followController_1.default.getFollowJobPosting);
+route.post('/employee/follow-company', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), followController_1.default.followCompany);
+route.get('/employee/follow-company', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), followController_1.default.getFollowByEmployee);
+route.post('/employer/save-employee', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), followController_1.default.saveEmployee);
+route.get('/employer/save-employee', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), followController_1.default.getSaveEmployeeByEmployer);
+route.post('/employee/follow-job', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), followController_1.default.followJobPosting);
+route.get('/employee/follow-job', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), followController_1.default.getFollowJobPosting);
 exports.default = route;
 //# sourceMappingURL=followRoute.js.map

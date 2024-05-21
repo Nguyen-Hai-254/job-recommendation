@@ -1,6 +1,6 @@
 import { ILike } from "typeorm"
 import { myDataSource } from "../config/connectDB"
-import { User, JobPosting, OnlineProfile, AttachedDocument } from "../entity"
+import { User, JobPosting, OnlineProfile, AttachedDocument } from "../entities"
 import { approvalStatus, monthMap} from "../utils/enum"
 import { countCandidatesbyProfession, createArrayForDate, mergerTwoObject } from "../utils/utilsFunction"
 import MailServices from "./mailServices"

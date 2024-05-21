@@ -2,10 +2,10 @@
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const connectDB_1 = require("../config/connectDB");
-const entity_1 = require("../entity");
+const entities_1 = require("../entities");
 const enum_1 = require("../utils/enum");
 const httpException_1 = require("../exceptions/httpException");
-const notificationRepository = connectDB_1.myDataSource.getRepository(entity_1.Notification);
+const notificationRepository = connectDB_1.myDataSource.getRepository(entities_1.Notification);
 class NotificationServices {
 }
 _a = NotificationServices;

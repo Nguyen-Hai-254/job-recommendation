@@ -1,7 +1,7 @@
 import { Brackets, EntityManager } from "typeorm"
 import moment from "moment"
 import { myDataSource } from "../config/connectDB"
-import { Employee, Application, AttachedDocument, OnlineProfile, AnotherDegree, EducationInformation, WorkExperience } from "../entity"
+import { Employee, Application, AttachedDocument, OnlineProfile, AnotherDegree, EducationInformation, WorkExperience } from "../entities"
 import { MySQLErrorCode, applicationType} from "../utils/enum"
 import { EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } from "../utils/enumAction"
 import { getValidSubstrings } from "../utils/utilsFunction"

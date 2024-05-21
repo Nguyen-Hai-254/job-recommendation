@@ -1,5 +1,5 @@
 import { myDataSource } from "../config/connectDB"
-import { Notification } from "../entity"
+import { Notification } from "../entities"
 import { MySQLErrorCode } from "../utils/enum";
 import { HttpException } from "../exceptions/httpException";
 

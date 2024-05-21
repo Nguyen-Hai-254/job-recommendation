@@ -9,7 +9,7 @@ exports.myDataSource = new typeorm_1.DataSource({
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    entities: [__dirname + '/../entity/*.{js,ts}'],
+    entities: [__dirname + '/../entities/*.{js,ts}'],
     logging: false,
     synchronize: true,
 });

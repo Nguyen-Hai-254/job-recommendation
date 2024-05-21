@@ -1,6 +1,6 @@
 import moment from "moment"
 import { myDataSource } from "../config/connectDB"
-import { User, Employee, Employer, OnlineProfile, AttachedDocument } from "../entity"
+import { User, Employee, Employer, OnlineProfile, AttachedDocument } from "../entities"
 import { approvalStatus, sex } from "../utils/enum"
 import NotificationServices from "./notificationServices"
 import { HttpException } from "../exceptions/httpException"

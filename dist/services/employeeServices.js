@@ -7,19 +7,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const moment_1 = __importDefault(require("moment"));
 const connectDB_1 = require("../config/connectDB");
-const entity_1 = require("../entity");
+const entities_1 = require("../entities");
 const enum_1 = require("../utils/enum");
 const enumAction_1 = require("../utils/enumAction");
 const utilsFunction_1 = require("../utils/utilsFunction");
 const notificationServices_1 = __importDefault(require("./notificationServices"));
 const httpException_1 = require("../exceptions/httpException");
-const employeeRepository = connectDB_1.myDataSource.getRepository(entity_1.Employee);
-const applicationRepository = connectDB_1.myDataSource.getRepository(entity_1.Application);
-const attached_documentRepository = connectDB_1.myDataSource.getRepository(entity_1.AttachedDocument);
-const online_profileRepository = connectDB_1.myDataSource.getRepository(entity_1.OnlineProfile);
-const another_degreeRepository = connectDB_1.myDataSource.getRepository(entity_1.AnotherDegree);
-const education_informationRepository = connectDB_1.myDataSource.getRepository(entity_1.EducationInformation);
-const work_experienceRepository = connectDB_1.myDataSource.getRepository(entity_1.WorkExperience);
+const employeeRepository = connectDB_1.myDataSource.getRepository(entities_1.Employee);
+const applicationRepository = connectDB_1.myDataSource.getRepository(entities_1.Application);
+const attached_documentRepository = connectDB_1.myDataSource.getRepository(entities_1.AttachedDocument);
+const online_profileRepository = connectDB_1.myDataSource.getRepository(entities_1.OnlineProfile);
+const another_degreeRepository = connectDB_1.myDataSource.getRepository(entities_1.AnotherDegree);
+const education_informationRepository = connectDB_1.myDataSource.getRepository(entities_1.EducationInformation);
+const work_experienceRepository = connectDB_1.myDataSource.getRepository(entities_1.WorkExperience);
 class EmployeeServices {
 }
 _a = EmployeeServices;

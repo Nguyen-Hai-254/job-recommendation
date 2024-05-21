@@ -5,15 +5,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const connectDB_1 = require("../config/connectDB");
 const enum_1 = require("../utils/enum");
-const JobPosting_1 = require("../entity/JobPosting");
+const entities_1 = require("../entities");
 const moment_1 = __importDefault(require("moment"));
 const cron = require('node-cron');
-const jobPostingRepository = connectDB_1.myDataSource.getRepository(JobPosting_1.JobPosting);
+const jobPostingRepository = connectDB_1.myDataSource.getRepository(entities_1.JobPosting);
 const jobCron = cron.schedule('0 0 * * *', async () => {
     try {
         const result = await jobPostingRepository
             .createQueryBuilder()
-            .update(JobPosting_1.JobPosting)
+            .update(entities_1.JobPosting)
             .set({
             status: enum_1.approvalStatus.expired
         })

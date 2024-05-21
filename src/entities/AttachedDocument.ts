@@ -1,14 +1,12 @@
 import { Entity, BaseEntity, PrimaryColumn, Column, OneToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
-import { Employee } from "./Employee"
+import { Employee } from "./"
 import { degree, employmentType, experience, positionLevel } from "../utils/enum"
-
 
 @Entity()
 export class AttachedDocument extends BaseEntity {
     @PrimaryColumn()
     userId: number;
 
-    // general information ------------------------
     @Column({ nullable: true })
     jobTitle: string
 
@@ -62,7 +60,6 @@ export class AttachedDocument extends BaseEntity {
     @Column({ nullable: true })
     skills: string
 
-    // Other information ------------------------
     @Column({ nullable: true })
     CV: string
 
@@ -82,7 +79,6 @@ export class AttachedDocument extends BaseEntity {
     @Column({ type: 'longtext', nullable: true })
     keywords: string
 
-    // Relationship ------------------------
     @OneToOne(() => Employee, {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'

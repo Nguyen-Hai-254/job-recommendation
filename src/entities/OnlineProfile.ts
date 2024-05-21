@@ -1,10 +1,6 @@
 import { Entity, BaseEntity, PrimaryColumn, Column, OneToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm"
-import { Employee } from "./Employee"
+import { Employee, WorkExperience, EducationInformation, AnotherDegree } from "./"
 import { degree, employmentType, experience, positionLevel } from "../utils/enum"
-import { WorkExperience } from "./WorkExperience";
-import { EducationInformation } from "./EducationInformation";
-import { AnotherDegree } from "./AnotherDegree";
-
 
 @Entity()
 export class OnlineProfile extends BaseEntity {
@@ -64,7 +60,6 @@ export class OnlineProfile extends BaseEntity {
     @Column({ nullable: true })
     skills: string
 
-    // Other information ------------------------
     @Column({ nullable: true })
     view: number
 
@@ -81,7 +76,6 @@ export class OnlineProfile extends BaseEntity {
     @Column({ type: 'longtext', nullable: true })
     keywords: string
 
-    // Relations ------------------------
     @OneToOne(() => Employee, {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'

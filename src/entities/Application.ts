@@ -1,9 +1,6 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from "typeorm"
-import { Employee } from "./Employee"
-import { JobPosting } from "./JobPosting"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from "typeorm"
+import { Employee, JobPosting } from "./"
 import { applicationType, approvalStatus } from "../utils/enum"
-
-
 
 @Entity()
 export class Application extends BaseEntity {

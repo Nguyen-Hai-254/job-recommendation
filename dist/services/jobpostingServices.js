@@ -7,13 +7,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const moment_1 = __importDefault(require("moment"));
 const connectDB_1 = require("../config/connectDB");
-const entity_1 = require("../entity");
+const entities_1 = require("../entities");
 const enum_1 = require("../utils/enum");
 const enumAction_1 = require("../utils/enumAction");
 const utilsFunction_1 = require("../utils/utilsFunction");
 const notificationServices_1 = __importDefault(require("./notificationServices"));
 const httpException_1 = require("../exceptions/httpException");
-const jobPostingRepository = connectDB_1.myDataSource.getRepository(entity_1.JobPosting);
+const jobPostingRepository = connectDB_1.myDataSource.getRepository(entities_1.JobPosting);
 class JobPostingServices {
 }
 _a = JobPostingServices;

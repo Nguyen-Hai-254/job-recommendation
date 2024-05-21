@@ -1,6 +1,6 @@
 import { myDataSource } from "../config/connectDB"
 import { approvalStatus } from "../utils/enum"
-import { JobPosting } from "../entity/JobPosting"
+import { JobPosting } from "../entities"
 import moment from "moment"
 const cron = require('node-cron');
 

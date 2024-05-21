@@ -6,15 +6,15 @@ var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const moment_1 = __importDefault(require("moment"));
 const connectDB_1 = require("../config/connectDB");
-const entity_1 = require("../entity");
+const entities_1 = require("../entities");
 const enum_1 = require("../utils/enum");
 const notificationServices_1 = __importDefault(require("./notificationServices"));
 const httpException_1 = require("../exceptions/httpException");
-const userRepository = connectDB_1.myDataSource.getRepository(entity_1.User);
-const employerRepository = connectDB_1.myDataSource.getRepository(entity_1.Employer);
-const employeeRepository = connectDB_1.myDataSource.getRepository(entity_1.Employee);
-const online_profileRepository = connectDB_1.myDataSource.getRepository(entity_1.OnlineProfile);
-const attached_documentRepository = connectDB_1.myDataSource.getRepository(entity_1.AttachedDocument);
+const userRepository = connectDB_1.myDataSource.getRepository(entities_1.User);
+const employerRepository = connectDB_1.myDataSource.getRepository(entities_1.Employer);
+const employeeRepository = connectDB_1.myDataSource.getRepository(entities_1.Employee);
+const online_profileRepository = connectDB_1.myDataSource.getRepository(entities_1.OnlineProfile);
+const attached_documentRepository = connectDB_1.myDataSource.getRepository(entities_1.AttachedDocument);
 class UserServices {
 }
 _a = UserServices;

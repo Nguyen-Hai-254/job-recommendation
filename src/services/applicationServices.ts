@@ -1,5 +1,5 @@
 import { myDataSource } from "../config/connectDB"
-import { User, Employee, Application, JobPosting, AttachedDocument, OnlineProfile } from "../entity"
+import { User, Employee, Application, JobPosting, AttachedDocument, OnlineProfile } from "../entities"
 import { MySQLErrorCode, applicationType } from "../utils/enum"
 import { EnumApplicationType, EnumApprovalStatus } from "../utils/enumAction"
 import { HttpException } from "../exceptions/httpException"

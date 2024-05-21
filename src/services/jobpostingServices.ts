@@ -1,7 +1,7 @@
 import { Brackets } from "typeorm"
 import moment from "moment"
 import { myDataSource } from "../config/connectDB"
-import { JobPosting } from "../entity"
+import { JobPosting } from "../entities"
 import { MySQLErrorCode, approvalStatus } from "../utils/enum"
 import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex, EnumApprovalStatus } from "../utils/enumAction"
 import { getValidSubstrings } from "../utils/utilsFunction"

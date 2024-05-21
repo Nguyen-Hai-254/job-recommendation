@@ -1,6 +1,5 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm"
-import { OnlineProfile } from "./OnlineProfile"
-
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm"
+import { OnlineProfile } from "./"
 
 @Entity()
 export class AnotherDegree extends BaseEntity {

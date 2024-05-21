@@ -1,8 +1,5 @@
-import { BaseEntity, Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
-import { User } from "./Users";
-import { JobPosting } from "./JobPosting";
-import { Employee } from "./Employee";
-import { Save } from "./save";
+import { BaseEntity, Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryColumn } from "typeorm";
+import { User, JobPosting, Save } from "./";
 
 @Entity()
 export class Employer extends BaseEntity {

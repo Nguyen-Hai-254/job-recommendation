@@ -29,7 +29,7 @@ app.use((0, cookie_parser_1.default)());
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 connectDB_1.connectDB;
-app.use('/', routes);
+app.use('/api/v1', routes); // set default prefix
 app.use("*", (req, res) => {
     return res.status(404).json({
         success: false,

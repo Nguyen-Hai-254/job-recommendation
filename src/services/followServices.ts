@@ -1,5 +1,5 @@
 import { myDataSource } from "../config/connectDB";
-import { Employee, Employer, JobPosting, Follow, Save} from "../entity";
+import { Employee, Employer, JobPosting, Follow, Save} from "../entities";
 import { approvalStatus } from "../utils/enum";
 import { HttpException } from "../exceptions/httpException";
 

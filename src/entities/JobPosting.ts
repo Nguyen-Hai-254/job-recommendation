@@ -1,9 +1,6 @@
 import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, ManyToMany, UpdateDateColumn } from "typeorm"
-import { Employer } from "./Employer"
+import { Employer, Employee, Application } from "./"
 import { degree, sex, employmentType, experience, positionLevel, approvalStatus } from "../utils/enum"
-import { Application } from "./Application"
-import { Employee } from "./Employee"
-
 
 @Entity()
 export class JobPosting extends BaseEntity {
