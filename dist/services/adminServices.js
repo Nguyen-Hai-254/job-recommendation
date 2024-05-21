@@ -34,11 +34,7 @@ AdminServices.handleGetJobPostingsReport = async () => {
         const monthAbbreviation = enum_1.monthMap[month];
         return { name: `${monthAbbreviation}`, value: result.count };
     });
-    return ({
-        message: 'OK',
-        status: 200,
-        data: formattedResults
-    });
+    return formattedResults ? formattedResults : [];
 };
 AdminServices.handleCandidateStatistics = async () => {
     const getAllOnlineProfile = await online_profileRepository.createQueryBuilder('profile')
@@ -61,11 +57,7 @@ AdminServices.handleCandidateStatistics = async () => {
     const top5 = sortedData.slice(0, 5);
     const otherSum = sortedData.reduce((sum, currenItem) => sum + currenItem.value, 0) - top5.reduce((sum, currenItem) => sum + currenItem.value, 0);
     const top5AndOther = [...top5, { "name": "Khác", value: otherSum }];
-    return ({
-        message: 'OK',
-        status: 200,
-        data: top5AndOther
-    });
+    return top5AndOther ? top5AndOther : [];
 };
 AdminServices.handleGetAllUser = async (req) => {
     const { page, num, role } = req.query;
@@ -80,11 +72,7 @@ AdminServices.handleGetAllUser = async (req) => {
         query = query.skip(skip).take(take);
     }
     const findAllUser = await query.getMany();
-    return ({
-        message: 'OK',
-        status: 200,
-        data: findAllUser
-    });
+    return findAllUser ? findAllUser : [];
 };
 AdminServices.handleGetTotalUser = async (req) => {
     const { role } = req.query;
@@ -93,19 +81,11 @@ AdminServices.handleGetTotalUser = async (req) => {
         query = query.where('user.role = :role', { role });
     }
     const findAllUser = await query.getCount();
-    return ({
-        message: 'OK',
-        status: 200,
-        data: findAllUser
-    });
+    return findAllUser ? findAllUser : [];
 };
 AdminServices.handleSendEmail = async (emails, subject, html) => {
     const info = await mailServices_1.default.sendEmailForUsers(emails, subject, html);
-    return ({
-        message: 'OK',
-        status: 200,
-        data: { accepted: info.accepted, rejected: info.rejected }
-    });
+    return { accepted: info.accepted, rejected: info.rejected };
 };
 AdminServices.handleSearchEmailOrName = async (keyword) => {
     const findUser = await userRepository.find({
@@ -120,11 +100,7 @@ AdminServices.handleSearchEmailOrName = async (keyword) => {
         select: ['userId', 'email', 'name', 'role'],
         take: 6
     });
-    return ({
-        message: 'OK',
-        status: 200,
-        data: findUser
-    });
+    return findUser;
 };
 AdminServices.handleGetJobPostingsReportByQuery = async (year, month) => {
     if (!month) {
@@ -134,11 +110,7 @@ AdminServices.handleGetJobPostingsReportByQuery = async (year, month) => {
             .groupBy('time')
             .orderBy('job-postings.createAt')
             .getRawMany();
-        return ({
-            message: 'OK',
-            status: 200,
-            data: getReport
-        });
+        return getReport;
     }
     else {
         const getReport = await jobPostingRepository.createQueryBuilder('job-postings')
@@ -151,11 +123,7 @@ AdminServices.handleGetJobPostingsReportByQuery = async (year, month) => {
         getReport.map(day => {
             daysInMonth[day.time - 1].value = day.value;
         });
-        return ({
-            message: 'OK',
-            status: 200,
-            data: daysInMonth
-        });
+        return daysInMonth;
     }
 };
 AdminServices.handleCandidateStatisticsByQuery = async (year, month) => {
@@ -173,12 +141,9 @@ AdminServices.handleCandidateStatisticsByQuery = async (year, month) => {
     }
     let getAllOnlineProfile = await queryAllOnlineProfile.getRawMany();
     let getAllAttachedDocument = await queryAllAttachedDocument.getRawMany();
-    if (getAllOnlineProfile.length === 0 && getAllAttachedDocument.length === 0)
-        return ({
-            message: 'OK',
-            status: 200,
-            data: []
-        });
+    if (getAllOnlineProfile.length === 0 && getAllAttachedDocument.length === 0) {
+        return [];
+    }
     const resultOnlineProlife = (0, utilsFunction_1.countCandidatesbyProfession)(getAllOnlineProfile);
     const resultAttachedDocument = (0, utilsFunction_1.countCandidatesbyProfession)(getAllAttachedDocument);
     const totalResult = (0, utilsFunction_1.mergerTwoObject)(resultOnlineProlife, resultAttachedDocument);
@@ -191,11 +156,7 @@ AdminServices.handleCandidateStatisticsByQuery = async (year, month) => {
     const top5 = sortedData.slice(0, 5);
     const otherSum = sortedData.reduce((sum, currenItem) => sum + currenItem.value, 0) - top5.reduce((sum, currenItem) => sum + currenItem.value, 0);
     const top5AndOther = [...top5, { "name": "Khác", value: otherSum }];
-    return ({
-        message: 'OK',
-        status: 200,
-        data: top5AndOther
-    });
+    return top5AndOther ? top5AndOther : [];
 };
 exports.default = AdminServices;
 //# sourceMappingURL=adminServices.js.map

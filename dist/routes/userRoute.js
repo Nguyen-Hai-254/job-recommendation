@@ -13,7 +13,7 @@ route.get('/api/v1/get-information-company-by-user', userController_1.default.ge
 route.get('/api/v1/get-all-company-by-user', userController_1.default.getAllCompanyByUser);
 route.get('/api/v1/get-profile', auth_1.verifyToken, userController_1.default.getProfile);
 route.post('/api/v1/edit-profile', auth_1.verifyToken, userController_1.default.editProfile);
-route.get('/api/v1/get-information-company', auth_1.verifyToken, userController_1.default.getInformationCompany);
+route.get('/api/v1/get-information-company', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), userController_1.default.getInformationCompany);
 route.post('/api/v1/edit-information-company', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), userController_1.default.editInformationCompany);
 route.post('/api/v1/user/upload-avatar', auth_1.verifyToken, userController_1.default.uploadAvatar);
 route.post('/api/v1/user/upload-logo', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), userController_1.default.uploadLogo);
