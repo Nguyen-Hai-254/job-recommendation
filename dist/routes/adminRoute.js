@@ -8,7 +8,6 @@ const auth_1 = require("../middleware/auth");
 const verifyRole_1 = require("../middleware/verifyRole");
 const enum_1 = require("../utils/enum");
 const adminController_1 = __importDefault(require("../controllers/adminController"));
-``;
 const route = express_1.default.Router();
 route.get('/api/v1/admin/get-job-postings-report', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Admin), adminController_1.default.jobPostingsReport);
 route.get('/api/v1/admin/get-job-postings-report-by-query', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Admin), adminController_1.default.getJobPostingsReportByQuery);
