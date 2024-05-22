@@ -13,12 +13,14 @@ exports.myDataSource = new typeorm_1.DataSource({
     logging: false,
     synchronize: true,
 });
-exports.connectDB = exports.myDataSource
-    .initialize()
-    .then(() => {
-    console.log("Data Source has been initialized!");
-})
-    .catch((err) => {
-    console.error("Error during Data Source initialization:", err);
-});
+const connectDB = async () => {
+    exports.myDataSource.initialize()
+        .then(() => {
+        console.log("Data Source has been initialized!");
+    })
+        .catch((err) => {
+        console.error("Error during Data Source initialization:", err);
+    });
+};
+exports.connectDB = connectDB;
 //# sourceMappingURL=connectDB.js.map

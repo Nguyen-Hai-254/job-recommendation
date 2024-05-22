@@ -12,11 +12,12 @@ export const myDataSource = new DataSource({
     synchronize: true,
 })
 
-export let connectDB = myDataSource
-    .initialize()
-    .then(() => {
-        console.log("Data Source has been initialized!")
-    })
-    .catch((err) => {
-        console.error("Error during Data Source initialization:", err)
-    })
+export const connectDB = async () => {
+    myDataSource.initialize()
+        .then(() => {
+            console.log("Data Source has been initialized!")
+        })
+        .catch((err) => {
+            console.error("Error during Data Source initialization:", err)
+        })
+}
