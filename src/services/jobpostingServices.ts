@@ -88,92 +88,24 @@ export default class JobPostingServices {
             query.orderBy(`(${orderByConditions.join(' + ')})`, 'DESC');
         }
 
-        // Pagination
-        if (num && page) {
-            const skip = (parseInt(page) - 1) * parseInt(num);
-            const take = parseInt(num);
-
-            query = query.skip(skip).take(take);
-        }
-        else {
-            query = query.skip(0).take(10);
-        }
-
         query = query.orderBy('job-postings.updateAt', 'DESC')
 
-        const jobPostings = await query.getMany();
+        // Pagination
+        query = query.skip((Number(page)-1) * Number(num)).take(Number(num));
 
-        return jobPostings ? jobPostings : [];
-    }
+        const [items, totalItems] = await query.getManyAndCount();
+        const totalPages = Math.ceil(totalItems / num);
 
-    static handleGetLengthOfAllJobPostings = async (reqQuery) => {
-        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, employerId, keywords } = reqQuery;
-        let query = jobPostingRepository.createQueryBuilder('job-postings');
-        // jobposting for employee, employer, unknown
-        query = query.leftJoinAndSelect("job-postings.employer", "employer")
-            .where('job-postings.status = :status', { status: approvalStatus.approved })
-
-        // Public
-        if (workAddress) {
-            query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
+        return  {
+            items: items,
+            meta: {
+                totalItems,
+                itemCount: items.length,
+                itemsPerPage: num,
+                totalPages,
+                currentPage: page
+            }
         }
-        if (jobTitle) {
-            query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
-        }
-        if (profession) {
-            const professionArray = getValidSubstrings(profession);
-            if (professionArray.length === 0) throw new HttpException(400, 'Invalid profession');
-
-            query = query.andWhere(`(${professionArray.map((keyword) =>  `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
-        }
-        if (employmentType) {
-            query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
-        }
-        if (degree) {
-            query = query.andWhere('job-postings.degree = :degree', { degree });
-        }
-        if (experience) {
-            query = query.andWhere('job-postings.experience = :experience', { experience });
-        }
-        if (positionLevel) {
-            query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel });
-        }
-        if (sex) {
-            query = query.andWhere(
-                new Brackets(qb =>
-                    qb.where('job-postings.sex = :sex', { sex })
-                        .orWhere('job-postings.sex IS NULL')
-                )
-            );
-        }
-        if (salary) {
-            query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
-        }
-        // query by employerId
-        if (employerId) {
-            query = query.andWhere('job-postings.employer.userId = :employerId', { employerId });
-        }
-        // query by keywords
-        if (keywords) {
-            const keywordArray = getValidSubstrings(keywords, 2);
-            if (keywordArray.length === 0) throw new HttpException(400, 'Invalid keywords');
-
-            const conditions = keywordArray.map((keyword, index) => {
-                query.setParameter(`keyword${index}`, `%${keyword}%`);
-                return `job-postings.keywords LIKE :keyword${index}`;
-            });
-            query.andWhere(`(${conditions.join(' OR ')})`);
-
-            const orderByConditions = keywordArray.map((keyword, index) => {
-                query.setParameter(`keyword${index}`, `%${keyword}%`);
-                return `IF(job-postings.keywords LIKE :keyword${index}, 1, 0)`;
-            });
-            query.orderBy(`(${orderByConditions.join(' + ')})`, 'DESC');
-        }
-
-        const totalResults = await query.getCount();
-
-        return { totalResults: totalResults };
     }
 
     static handleGetAllJobPostingsByAdmin = async (reqQuery) => {
@@ -222,79 +154,32 @@ export default class JobPostingServices {
             query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
         }
 
-        // Pagination
-        if (num && page) {
-            const skip = (parseInt(page) - 1) * parseInt(num);
-            const take = parseInt(num);
-
-            query = query.skip(skip).take(take);
-        }
-        else {
-            query = query.skip(0).take(10);
-        }
-
         query = query.orderBy('job-postings.updateAt', 'DESC')
 
-        const jobPostings = await query.getMany();
+        // Pagination
+        query = query.skip((Number(page)-1) * Number(num)).take(Number(num));
 
-        const data = jobPostings.map(job => ({
-                ...job,
-                submissionCount: job.applications.length
+        const [items, totalItems] = await query.getManyAndCount();
+        const totalPages = Math.ceil(totalItems / num);
+ 
+        // Todo: Handle items
+        items.map(job => ({
+            ...job,
+            submissionCount: job.applications.length
         }));
-        return data ? data : [];
+
+        return  {
+            items: items,
+            meta: {
+                totalItems,
+                itemCount: items.length,
+                itemsPerPage: num,
+                totalPages,
+                currentPage: page
+            }
+        }
     }
-
-    static handleGetLengthOfAllJobPostingsByAdmin = async (reqQuery) => {
-       
-        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, status } = reqQuery;
-        let query = jobPostingRepository.createQueryBuilder('job-postings');
-        // all jobposting for admin
-        query = query.leftJoinAndSelect("job-postings.employer", "employer");
-        if (status) {
-            query = query.where('job-postings.status = :status', { status });
-        }
-        // Public
-        if (workAddress) {
-            query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
-        }
-        if (jobTitle) {
-            query = query.andWhere('job-postings.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
-        }
-        if (profession) {
-            const professionArray = getValidSubstrings(profession);
-            if (professionArray.length === 0) throw new HttpException(400, 'Invalid profession');
-
-            query = query.andWhere(`(${professionArray.map((keyword) =>  `job-postings.profession LIKE '%${keyword}%'`).join(' OR ')})`);
-        }
-        if (employmentType) {
-            query = query.andWhere('job-postings.employmentType = :employmentType', { employmentType });
-        }
-        if (degree) {
-            query = query.andWhere('job-postings.degree = :degree', { degree });
-        }
-        if (experience) {
-            query = query.andWhere('job-postings.experience = :experience', { experience });
-        }
-        if (positionLevel) {
-            query = query.andWhere('job-postings.positionLevel = :positionLevel', { positionLevel });
-        }
-        if (sex) {
-            query = query.andWhere(
-                new Brackets(qb =>
-                    qb.where('job-postings.sex = :sex', { sex })
-                        .orWhere('job-postings.sex IS NULL')
-                )
-            );
-        }
-        if (salary) {
-            query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
-        }
-        const totalResults = await query.getCount();
-
-        return { totalResults: totalResults };
-        
-    }
-
+ 
     static handleGetTotalResultsOfProfession = async (reqQuery) => {
         const { status } = reqQuery;
 
@@ -338,32 +223,30 @@ export default class JobPostingServices {
             query = query.andWhere('jobPosting.status = :status', { status });
         }
 
-        const totalResults = await query.getCount();
-
-        // Pagination
-        if (num && page) {
-            const skip = (parseInt(page) - 1) * parseInt(num);
-            const take = parseInt(num);
-
-            query = query.skip(skip).take(take);
-        }
-        else {
-            query = query.skip(0).take(10);
-        }
-
         query = query.orderBy('jobPosting.updateAt', 'DESC')
 
-        const jobPostings = await query.getMany();
+        // Pagination
+        query = query.skip((Number(page)-1) * Number(num)).take(Number(num));
 
-        const data = {
-                totalResults: totalResults,
-                result: jobPostings.map(job => ({
-                    ...job,
-                    submissionCount: job.applications.length
-                }))
-            }
-
-        return data ? data : [];
+        const [items, totalItems] = await query.getManyAndCount();
+        const totalPages = Math.ceil(totalItems / num);
+  
+        // Todo: Handle items
+        items.map(job => ({
+            ...job,
+            submissionCount: job.applications.length
+        }));
+ 
+        return  {
+            items: items,
+            meta: {
+                totalItems,
+                itemCount: items.length,
+                itemsPerPage: num,
+                totalPages,
+                currentPage: page
+             }
+         }
     }
 
     static handleGetJobPostingByEmployer = async (employerId, postId) => { 
@@ -511,7 +394,7 @@ export default class JobPostingServices {
         return await jobPostingRepository.remove(jobPosting);
     }
 
-    static handleUpdateApprovalStatus = async (postId, dto) => {
+    static handleUpdateJobPostingByAdmin = async (postId, dto) => {
         const { status, check } = dto;
         const jobPosting = await jobPostingRepository.findOne({
             where: { postId: postId },

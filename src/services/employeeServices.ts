@@ -405,53 +405,23 @@ export default class EmployeeServices {
         }
 
         // Pagination
-        if (num && page) {
-            const skip = (parseInt(page) - 1) * parseInt(num);
-            const take = parseInt(num);
+        query = query.skip((Number(page)-1) * Number(num)).take(Number(num));
 
-            query = query.skip(skip).take(take);
+        const [items, totalItems] = await query.getManyAndCount();
+        const totalPages = Math.ceil(totalItems / num);
+
+        return  {
+            items: items,
+            meta: {
+                totalItems,
+                itemCount: items.length,
+                itemsPerPage: num,
+                totalPages,
+                currentPage: page
+            }
         }
-        else {
-            query = query.skip(0).take(10);
-        }
-
-        const employees = await query.getMany();
-
-        return employees;
     }
 
-    static handleGetLengthOfEmployeesByAdmin = async (reqQuery) => {
-        const { name, profession } = reqQuery;
-
-        let query = employeeRepository
-            .createQueryBuilder('employee')
-            .select(['employee', 'user', 'attached_document', 'online_profile', 'work_experiences', 'education_informations', 'another_degrees'])
-            .leftJoin('employee.user', 'user')
-            .leftJoin('employee.attached_document', 'attached_document')
-            .leftJoin('employee.online_profile', 'online_profile')
-            .leftJoin('online_profile.work_experiences', 'work_experiences')
-            .leftJoin('online_profile.education_informations', 'education_informations')
-            .leftJoin('online_profile.another_degrees', 'another_degrees');  
-
-        if (profession) {
-            query = query.andWhere(
-                new Brackets(qb =>
-                    qb.where('online_profile.profession LIKE :profession', { profession: `%${profession}%` })
-                        .orWhere('attached_document.profession LIKE :profession', { profession: `%${profession}%` })
-                )
-            );
-        }
-
-        if (name) {
-            query = query.andWhere('user.name LIKE :name', { name: `%${name}%` });
-        }
-
-
-        const totalResults = await query.getCount();
-
-        return { totalResults: totalResults };
-    }
-   
     static handleGetEmployeesByEmployer = async (reqQuery) => {
         const { jobTitle, profession, minSalary, maxSalary, degree, workAddress, experience, employmentType, sex, currentPosition, desiredPosition, num, page } = reqQuery;
 
@@ -523,110 +493,40 @@ export default class EmployeeServices {
             queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.desiredPosition = :desiredPosition', { desiredPosition });
         }
 
-        const lengthOfOnline_profiles = await queryforOnlineProfile.getCount();
+        let hasAttachedDocument = true;
 
-        let numOfAttached_documents = 0;
+        const onlineProfile_take = parseInt(num);
+        const onlineProfile_skip = (parseInt(page) - 1) * parseInt(num);
+        queryforOnlineProfile = queryforOnlineProfile.skip(onlineProfile_skip).take(onlineProfile_take);
+        const [onlineProfile_items, onlineProfile_totalItems] = await queryforOnlineProfile.getManyAndCount();
 
-        // Pagination
-        if (num && page) {
-            // Pagination for Online Profile
-            const skip = (parseInt(page) - 1) * parseInt(num);
-            const take = parseInt(num);
-
-            queryforOnlineProfile = queryforOnlineProfile.skip(skip).take(take);
-
-            // Pagination for Attached Document
-            const numOfOnlineProfile = lengthOfOnline_profiles > skip ? lengthOfOnline_profiles - skip : 0;
-            numOfAttached_documents = take > numOfOnlineProfile ? take - numOfOnlineProfile : 0;
-            let skip1 = skip > lengthOfOnline_profiles ? skip - lengthOfOnline_profiles : 0;
-            queryforAttachedDocument = queryforAttachedDocument.skip(skip1).take(numOfAttached_documents);
+        let attachedDocument_take = num - onlineProfile_items.length;
+        if (attachedDocument_take === 0) {
+            hasAttachedDocument = false;
+            attachedDocument_take = 1;
         }
+        const attachedDocument_skip = Math.max(onlineProfile_skip - onlineProfile_totalItems, 0);
+        queryforAttachedDocument = queryforAttachedDocument.skip(attachedDocument_skip).take(attachedDocument_take);
+        const [attachedDocument_items, attachedDocument_totalItems] = await queryforAttachedDocument.getManyAndCount();
+      
+        const items = hasAttachedDocument ? [...onlineProfile_items, ...attachedDocument_items] : [...onlineProfile_items];
+        const totalItems = attachedDocument_totalItems + onlineProfile_totalItems;
+        const totalPages = Math.ceil(totalItems / num);
 
-        const online_profiles = await queryforOnlineProfile.getMany();
-        const attached_documents = numOfAttached_documents ? await queryforAttachedDocument.getMany() : [];
-
-        const data = [...online_profiles, ...attached_documents];
-        return data;
-    }
-
-    static handleGetLengthOfEmployeesByEmployer = async (reqQuery) => {
-        const { jobTitle, profession, minSalary, maxSalary, degree, workAddress, experience, employmentType, sex, currentPosition, desiredPosition } = reqQuery;
-
-        let queryforOnlineProfile = online_profileRepository
-            .createQueryBuilder('online_profile')
-            .select(['online_profile', 'work_experiences', 'education_informations', 'another_degrees', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar'])
-            .where('online_profile.isHidden = false')
-            .leftJoin('online_profile.work_experiences', 'work_experiences')
-            .leftJoin('online_profile.education_informations', 'education_informations')
-            .leftJoin('online_profile.another_degrees', 'another_degrees')
-            .leftJoin('online_profile.employee', 'employee')
-            .leftJoin('employee.user', 'user')
-
-        let queryforAttachedDocument = attached_documentRepository
-            .createQueryBuilder('attached_document')
-            .select(['attached_document', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar'])
-            .where('attached_document.isHidden = false')
-            .leftJoin('attached_document.employee', 'employee')
-            .leftJoin('employee.user', 'user')
-
-        // Public
-        if (workAddress) {
-            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
-            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
+        return  {
+            items: items,
+            meta: {
+                totalItems,
+                itemCount: items.length,
+                itemsPerPage: num,
+                totalPages,
+                currentPage: page
+            }
         }
-        if (jobTitle) {
-            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
-            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.jobTitle LIKE :jobTitle', { jobTitle: `%${jobTitle}%` });
-        }
-        if (profession) {
-            const professionArray = getValidSubstrings(profession);
-            if (professionArray.length === 0) throw new HttpException(400, 'Invalid profession');
-
-            queryforOnlineProfile = queryforOnlineProfile.andWhere(`(${professionArray.map((keyword) =>  `online_profile.profession LIKE '%${keyword}%'`).join(' OR ')})`);
-            queryforAttachedDocument = queryforAttachedDocument.andWhere(`(${professionArray.map((keyword) =>  `attached_document.profession LIKE '%${keyword}%'`).join(' OR ')})`);
-        }
-        if (employmentType) {
-            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.employmentType = :employmentType', { employmentType });
-            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.employmentType = :employmentType', { employmentType });
-        }
-        if (degree) {
-            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.degree = :degree', { degree });
-            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.degree = :degree', { degree });
-        }
-        if (experience) {
-            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.experience = :experience', { experience });
-            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.experience = :experience', { experience });
-        }
-        if (sex) {
-            queryforOnlineProfile = queryforOnlineProfile.andWhere('user.sex = :sex', { sex });
-            queryforAttachedDocument = queryforAttachedDocument.andWhere('user.sex = :sex', { sex });
-        }
-        if (minSalary) {
-            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.desiredSalary >= :minSalary', { minSalary });
-            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.desiredSalary >= :minSalary', { minSalary });
-        }
-        if (maxSalary) {
-            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.desiredSalary <= :maxSalary', { maxSalary });
-            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.desiredSalary <= :maxSalary', { maxSalary });
-        }
-
-        if (currentPosition) {
-            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.currentPosition = :currentPosition', { currentPosition });
-            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.currentPosition = :currentPosition', { currentPosition });
-        }
-
-        if (desiredPosition) {
-            queryforOnlineProfile = queryforOnlineProfile.andWhere('online_profile.desiredPosition = :desiredPosition', { desiredPosition });
-            queryforAttachedDocument = queryforAttachedDocument.andWhere('attached_document.desiredPosition = :desiredPosition', { desiredPosition });
-        }
-
-        const lengthOfOnline_profiles = await queryforOnlineProfile.getCount();
-        const lengthOfAttached_profiles = await queryforAttachedDocument.getCount();
-
-        return { lengthOfOnline_profiles, lengthOfAttached_profiles };
     }
 
     static handleGetEmployeesByEmployerSortByKeywords = async (reqQuery) => {
+        const { num, page} = reqQuery;
         const sortByKeywords = await sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery);
 
         let queryforOnlineProfile = online_profileRepository
@@ -644,20 +544,30 @@ export default class EmployeeServices {
             .leftJoin('attached_document.employee', 'employee')
             .leftJoin('employee.user', 'user')
 
-        const results: any = [];
+        const items: any = [];
         const lengthOfSortByKeywords = sortByKeywords.result.length;
         for (let i = 0; i < lengthOfSortByKeywords; i++) {
             if (sortByKeywords.result[i].type == '0') {
                 let tmp = await queryforOnlineProfile.andWhere('online_profile.userId = :userId', { userId: sortByKeywords.result[i].userId }).getOne();
-                results.push(tmp);
+                items.push(tmp);
             } else if (sortByKeywords.result[i].type == '1') {
                 let tmp = await queryforAttachedDocument.andWhere('attached_document.userId = :userId', { userId: sortByKeywords.result[i].userId }).getOne();
-                results.push(tmp);
+                items.push(tmp);
             }
         }
+       
+        // Pagination
+        const totalItems = sortByKeywords.totalItems;
+        const totalPages = Math.ceil(totalItems / num);
         return  {
-            totalCount: sortByKeywords.totalCount,
-            result: results
+            items: items,
+            meta: {
+                totalItems,
+                itemCount: items.length,
+                itemsPerPage: num,
+                totalPages,
+                currentPage: page
+            }
         }
         
     }
@@ -809,7 +719,7 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
 
     const onlineProfileCountResult = await entityManager.query(onlineProfileCountQuery);
     const attachedDocumentCountResult = await entityManager.query(attachedDocumentCountQuery);
-    const totalCount = Number(onlineProfileCountResult[0].totalCount) + Number(attachedDocumentCountResult[0].totalCount);
+    const totalItems = Number(onlineProfileCountResult[0].totalCount) + Number(attachedDocumentCountResult[0].totalCount);
     // TODO: Query
     const result = await entityManager.query(
         `
@@ -821,7 +731,7 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
     );
 
     return {
-        totalCount: totalCount,
+        totalItems: totalItems,
         result: result
     };
 }

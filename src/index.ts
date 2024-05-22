@@ -21,7 +21,7 @@ connectDB();
 // 2.1. cors
 var corsOptions = {
     origin: function (origin, callback) {
-      if (origin == process.env.ORIGIN) {
+      if (origin == process.env.ORIGIN || process.env.ORIGIN == '*') {
         callback(null, true)
       } else {
         callback(new Error('Not allowed by CORS'))

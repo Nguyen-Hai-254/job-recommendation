@@ -45,16 +45,6 @@ export default class ApplicationController {
         }
     }
 
-    static getLengthOfApplicationsbyEmployer = async (req, res, next) => {
-        try {
-            const { userId } = req.user;
-            const applications = await ApplicationServices.handleGetLengthOfApplicationsbyEmployer(userId, req.query);
-            return respondSuccess(res, 'get length of applications by employer successfully', applications);
-        } catch (error) {
-            next(error);
-        }
-    }
-
     static getApplicationbyEmployer = async (req, res, next) => {
         try {
             const { userId } = req.user;
@@ -80,9 +70,9 @@ export default class ApplicationController {
         }
     }
 
-    static getAllApplications = async (req, res, next) => {
+    static getApplicationsByAdmin = async (req, res, next) => {
         try {
-            const applications = await ApplicationServices.handleGetAllApplications();
+            const applications = await ApplicationServices.handleGetApplicationsByAdmin(req.query);
             return respondSuccess(res, 'get applications by admin successfully', applications);
         } catch (error) {
             next(error);

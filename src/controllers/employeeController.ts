@@ -211,15 +211,6 @@ export default class EmployeeController {
         }
     }
 
-    static getLengthOfEmployeesByAdmin = async (req, res, next) => {
-        try {
-            const employees = await EmployeeServices.handleGetLengthOfEmployeesByAdmin(req.query);
-            return respondSuccess(res, 'get length of employees by admin successfully', employees);
-        } catch (error) {
-            next(error);
-        }
-    }
-
     static getEmployeesByEmployer = async (req, res, next) => {
         try {
             const employees = await EmployeeServices.handleGetEmployeesByEmployer(req.query);
@@ -229,21 +220,11 @@ export default class EmployeeController {
         }
     }
 
-    static getLengthOfEmployeesByEmployer = async (req, res, next) => {
-        try {
-            const employees = await EmployeeServices.handleGetLengthOfEmployeesByEmployer(req.query);
-            return respondSuccess(res, 'get length of employees by employer successfully', employees);
-        } catch (error) {
-            next(error);
-        }
-    }
-
+   
     static getEmployeesByEmployerSortByKeywords = async (req, res, next) => {
         try {
-            const { keywords, num, page } = req.query;
+            const { keywords } = req.query;
             if (!keywords) throw new HttpException(400, 'Invalid keywords');
-            if (!page) req.query.page = 1;
-            if (!num) req.query.num = 10;
 
             const employees = await EmployeeServices.handleGetEmployeesByEmployerSortByKeywords(req.query);
             return respondSuccess(res, 'get employees by employer sort by keywords successfully', employees)

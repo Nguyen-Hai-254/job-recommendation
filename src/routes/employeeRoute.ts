@@ -1,6 +1,7 @@
 import express from "express"
 import { verifyToken } from "../middlewares/auth";
 import { verifyRole } from "../middlewares/verifyRole";
+import { paginationParser } from "../middlewares/paginationParser";
 import EmployeeController from "../controllers/employeeController";
 import { userRole } from "../utils/enum";
 const route = express.Router()
@@ -27,10 +28,9 @@ route.post('/employee/online-profile/work-experience', verifyToken, verifyRole(u
 route.put('/employee/online-profile/work-experience/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.updateWorkExperience);
 route.delete('/employee/online-profile/work-experience/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.deleteWorkExperience);
 
-route.get('/admin/employees', verifyToken, verifyRole(userRole.Admin), EmployeeController.getEmployeesByAdmin);
-route.get('/admin/employees/totalResults', verifyToken, verifyRole(userRole.Admin), EmployeeController.getLengthOfEmployeesByAdmin);
-route.get('/employer/employees', verifyToken, verifyRole(userRole.Employer), EmployeeController.getEmployeesByEmployer);
-route.get('/employer/employees/totalResults', verifyToken, verifyRole(userRole.Employer), EmployeeController.getLengthOfEmployeesByEmployer);
-route.get('/employer/employees/sortbykeywords', verifyToken, verifyRole(userRole.Employer), EmployeeController.getEmployeesByEmployerSortByKeywords);
+route.get('/employer/employees', verifyToken, verifyRole(userRole.Employer), paginationParser, EmployeeController.getEmployeesByEmployer);
+route.get('/employer/employees/sortbykeywords', verifyToken, verifyRole(userRole.Employer), paginationParser, EmployeeController.getEmployeesByEmployerSortByKeywords);
+
+route.get('/admin/employees', verifyToken, verifyRole(userRole.Admin), paginationParser, EmployeeController.getEmployeesByAdmin);
 
 export default route

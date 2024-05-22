@@ -25,15 +25,6 @@ export default class JobPostingController {
         }
     }
 
-    static getLengthOfAllJobPostings = async (req, res, next) => {
-        try {
-            const jobPostings = await JobPostingServices.handleGetLengthOfAllJobPostings(req.query);
-            return respondSuccess(res, 'get length of jobpostings successfully', jobPostings);
-        } catch (error) {
-            next(error);
-        }
-    }
-
     static getTotalResultsOfProfession = async (req, res, next) => {
         try {
             req.query.status = approvalStatus.approved;
@@ -54,22 +45,13 @@ export default class JobPostingController {
         }
     }
 
-    static getLengthOfAllJobPostingsByAdmin = async (req, res, next) => {
-        try {
-            const jobPostings = await JobPostingServices.handleGetLengthOfAllJobPostingsByAdmin(req.query);
-            return respondSuccess(res, 'get length of jobpostings by admin successfully', jobPostings);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    static updateApprovalStatus = async (req, res, next) => {
+    static UpdateJobPostingByAdmin = async (req, res, next) => {
         try {
             const { postId } = req.params;
             if (!postId) throw new HttpException(400, 'postID is required');
             if (!req.body) throw new HttpException(400, 'req body is required');
 
-            const jobPosting = await JobPostingServices.handleUpdateApprovalStatus(postId, req.body);
+            const jobPosting = await JobPostingServices.handleUpdateJobPostingByAdmin(postId, req.body);
             return respondSuccess(res, `Job posting has postId: ${postId} are updated successfully`, jobPosting);
         } catch (error) {
             next(error);
@@ -135,7 +117,7 @@ export default class JobPostingController {
 
     static deleteJobPosting = async (req, res, next) => {
         try {
-            const { userId} = req.user;
+            const { userId } = req.user;
             const { postId } = req.params;
             if (!postId) throw new HttpException(400, 'postID is required');
             const jobPosting = await JobPostingServices.handleDeleteJobPosting(userId, postId);

@@ -111,48 +111,21 @@ export default class ApplicationServices {
         }
         
         // Pagination
-        if (num && page) {
-            const skip = (parseInt(page) - 1) * parseInt(num);
-            const take = parseInt(num);
-      
-            query = query.skip(skip).take(take);
-        }
-        else {
-            query = query.skip(0).take(10);
-        }
+        query = query.skip((Number(page)-1) * Number(num)).take(Number(num));
 
-        const applications = await query.getMany();
-
-        return applications ? applications : [];
-
-    }
-
-    static handleGetLengthOfApplicationsbyEmployer = async (userId, reqQuery) => {
-        const { applicationType, name, status, postId} = reqQuery;
-        // get list of applications by employer
-        let query = applicationRepository
-            .createQueryBuilder('application')
-            .select(['application', 'employee.userId', 'jobPosting.postId'])
-            .leftJoin('application.employee','employee')
-            .leftJoin('application.jobPosting', 'jobPosting')
-            .leftJoin('jobPosting.employer', 'employer')
-            .where('employer.userId = :userId', { userId: userId });
-        // query by applicationType, name, status, postId
-        if (applicationType) {
-            query = query.andWhere('application.applicationType = :applicationType', { applicationType });
+        const [items, totalItems] = await query.getManyAndCount();
+        const totalPages = Math.ceil(totalItems / num);
+ 
+        return  {
+            items: items,
+            meta: {
+                totalItems,
+                itemCount: items.length,
+                itemsPerPage: num,
+                totalPages,
+                currentPage: page
+            }
         }
-        if (name) {
-            query = query.andWhere('application.name LIKE :name', {name : `%${name}%`});
-        }
-        if (status) {
-            query = query.andWhere('application.status = :status', {status});
-        }
-        if (postId) {
-            query = query.andWhere('application.jobPosting.postId = :postId', {postId});
-        }
-        const totalResults = await query.getCount();
-
-        return {totalResults: totalResults};
 
     }
 
@@ -238,11 +211,46 @@ export default class ApplicationServices {
         return application
     }
 
-    static handleGetAllApplications = async () => {
-        const applications = await applicationRepository.find({
-            relations: ['employee']
-        })
-        return applications;
+    static handleGetApplicationsByAdmin = async (reqQuery) => {
+        const { applicationType, name, status, postId, num, page} = reqQuery;
+        // get list of applications by employer
+        let query = applicationRepository
+            .createQueryBuilder('application')
+            .select(['application', 'employee.userId', 'jobPosting.postId'])
+            .leftJoin('application.employee','employee')
+            .leftJoin('application.jobPosting', 'jobPosting')
+            .leftJoin('jobPosting.employer', 'employer')
+        // query by applicationType, name, status, postId
+        if (applicationType) {
+            query = query.andWhere('application.applicationType = :applicationType', { applicationType });
+        }
+        if (name) {
+            query = query.andWhere('application.name LIKE :name', {name : `%${name}%`});
+        }
+        if (status) {
+            query = query.andWhere('application.status = :status', {status});
+        }
+        if (postId) {
+            query = query.andWhere('application.jobPosting.postId = :postId', {postId});
+        }
+        
+        // Pagination
+        query = query.skip((Number(page)-1) * Number(num)).take(Number(num));
+
+        const [items, totalItems] = await query.getManyAndCount();
+        const totalPages = Math.ceil(totalItems / num);
+ 
+        return  {
+            items: items,
+            meta: {
+                totalItems,
+                itemCount: items.length,
+                itemsPerPage: num,
+                totalPages,
+                currentPage: page
+            }
+        }
+
     }
 }
 
