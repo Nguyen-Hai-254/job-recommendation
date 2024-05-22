@@ -19,18 +19,18 @@ connectDB();
 
 // 2. initializeMiddlewares
 // 2.1. cors
-const corsOptions = {
-    origin: process.env.ORIGIN,
+var corsOptions = {
+    origin: function (origin, callback) {
+      if (origin == process.env.ORIGIN) {
+        callback(null, true)
+      } else {
+        callback(new Error('Not allowed by CORS'))
+      }
+    },
     credentials: true,
     optionSuccessStatus: 200
 }
 app.use(cors(corsOptions));
-app.use(function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', process.env.ORIGIN);
-    res.header('Access-Control-Allow-Headers', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    next();
-});
 // 2.2.
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
