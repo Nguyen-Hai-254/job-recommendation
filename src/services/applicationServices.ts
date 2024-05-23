@@ -97,11 +97,13 @@ export default class ApplicationServices {
         // get list of applications by employer
         let query = applicationRepository
             .createQueryBuilder('application')
-            .select(['application', 'employee.userId', 'jobPosting.postId'])
-            .leftJoin('application.employee','employee')
+            .leftJoinAndSelect('application.employee','employee')
+            .leftJoinAndSelect('employee.online_profile', 'online_profile', 'application.applicationType = :type1', { type1: 'Nộp trực tuyến' })
+            .leftJoinAndSelect('employee.attached_document', 'attached_document', 'application.applicationType = :type2', { type2: 'CV đính kèm' })
+            .leftJoin('employee.user', 'user')
+            .addSelect(['user.dob','user.address', 'user.sex'])
             .leftJoin('application.jobPosting', 'jobPosting')
-            .leftJoin('jobPosting.employer', 'employer')
-            .where('employer.userId = :userId', { userId: userId });
+            .where('jobPosting.employer_id = :userId', { userId: userId });
         // query by applicationType, name, status, postId
         if (applicationType) {
             query = query.andWhere('application.applicationType = :applicationType', { applicationType });
