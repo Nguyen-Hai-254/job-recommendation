@@ -1,42 +1,48 @@
 import { myDataSource } from "../config/connectDB"
-import { User, Employee, Application, JobPosting, AttachedDocument, OnlineProfile } from "../entities"
+import { User, Application, JobPosting, AttachedDocument, OnlineProfile } from "../entities"
 import { MySQLErrorCode, applicationType } from "../utils/enum"
 import { EnumApplicationType, EnumApprovalStatus } from "../utils/enumAction"
 import { HttpException } from "../exceptions/httpException"
 
 const userRepository = myDataSource.getRepository(User);
-const employeeRepository = myDataSource.getRepository(Employee);
 const applicationRepository = myDataSource.getRepository(Application);
 const jobpostingRepository = myDataSource.getRepository(JobPosting);
 const attached_documentRepository = myDataSource.getRepository(AttachedDocument);
 const online_profileRepository = myDataSource.getRepository(OnlineProfile);
 
 export default class ApplicationServices {
-    static handleGetApplicationsbyEmployee = async (userId) => {
-        const applications = await employeeRepository.findOne({
-            where: { userId: userId },
-            relations: ['applications', 'applications.jobPosting.employer']
-        })
-    
-        let data = applications?.applications.flatMap(application => {
-            return {
-                application_id: application.application_id,
-                applicationType: application.applicationType,
-                createAt: application.createAt,
-                CV: application.CV,
-                name: application.name,
-                email: application.email,
-                phone: application.phone,
-                status: application.status,
-                jobTitle: application.jobPosting.jobTitle,
-                companyName: application.jobPosting.employer.companyName,
-                postId: application.jobPosting.postId,
-                applicationDeadline: application.jobPosting.applicationDeadline
-            }
-        })
+    static handleGetApplicationsbyEmployee = async (userId, reqQuery) => {
+        const { num, page } = reqQuery;
 
-        return data ? data : [];
-      
+        // get list of applications by employee
+        let query = applicationRepository
+            .createQueryBuilder('application')
+            .select([
+                'application.application_id','application.applicationType', 'application.createAt', 'application.CV', 'application.name', 'application.email', 'application.phone', 'application.status', 
+                'jobPosting.jobTitle','jobPosting.postId', 'jobPosting.applicationDeadline',
+                'employer.companyName'
+            ])
+            .leftJoin('application.employee','employee')
+            .leftJoin('application.jobPosting', 'jobPosting')
+            .leftJoin('jobPosting.employer', 'employer')
+            .where('employee.userId = :userId', { userId: userId });
+     
+        // Pagination
+        query = query.skip((Number(page)-1) * Number(num)).take(Number(num));
+
+         const [items, totalItems] = await query.getManyAndCount();
+         const totalPages = Math.ceil(totalItems / num);
+  
+        return  {
+            items: items,
+            meta: {
+                totalItems,
+                itemCount: items.length,
+                itemsPerPage: num,
+                totalPages,
+                currentPage: page
+            }
+        }   
     }
 
     static handleGetApplication = async (id) => {

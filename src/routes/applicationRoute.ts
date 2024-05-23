@@ -6,7 +6,7 @@ import ApplicationController from "../controllers/applicationController";
 import { userRole } from "../utils/enum";
 const route = express.Router()
 
-route.get('/employee/applications', verifyToken, verifyRole(userRole.Employee), ApplicationController.getApplicationsbyEmployee);
+route.get('/employee/applications', verifyToken, verifyRole(userRole.Employee), paginationParser, ApplicationController.getApplicationsbyEmployee);
 route.get('/employee/applications/:id', verifyToken, verifyRole(userRole.Employee), ApplicationController.getApplication);
 route.post('/employee/applications', verifyToken, verifyRole(userRole.Employee), ApplicationController.createNewApplication);
 

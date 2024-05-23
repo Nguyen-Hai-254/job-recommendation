@@ -6,7 +6,7 @@ export default class ApplicationController {
     static getApplicationsbyEmployee = async (req, res, next) => {
         try {
             const { userId } = req.user;
-            const applications = await ApplicationServices.handleGetApplicationsbyEmployee(userId);
+            const applications = await ApplicationServices.handleGetApplicationsbyEmployee(userId, req.query);
             return respondSuccess(res, 'get my applications successfully', applications);
         } catch (error) {
             next(error);
