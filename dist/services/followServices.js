@@ -195,6 +195,7 @@ FollowServices.handleGetFollowJobPosting = async (user, reqQuery) => {
             ON jp.employer_id = employer.userId
             WHERE fj.userId = ${user.userId}
             AND jp.isHidden = false
+            AND jb.status = ${enum_1.approvalStatus.approved}
             LIMIT ${parseInt(num)}
             OFFSET ${(parseInt(page) - 1) * parseInt(num)} 
         `;

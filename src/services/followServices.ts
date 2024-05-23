@@ -211,6 +211,7 @@ export default class FollowServices {
             ON jp.employer_id = employer.userId
             WHERE fj.userId = ${user.userId}
             AND jp.isHidden = false
+            AND jb.status = ${ approvalStatus.approved }
             LIMIT ${ parseInt(num)}
             OFFSET ${(parseInt(page) - 1) * parseInt(num)} 
         `;
