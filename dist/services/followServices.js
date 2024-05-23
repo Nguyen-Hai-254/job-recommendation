@@ -176,7 +176,8 @@ FollowServices.handleFollowJobPosting = async (user, jobId) => {
 };
 FollowServices.handleGetFollowJobPosting = async (user, reqQuery) => {
     const entityManager = connectDB_1.myDataSource.manager;
-    const { num, page } = reqQuery;
+    const { jobIds, num, page } = reqQuery;
+    let queryByJobIds = jobIds ? `AND fj.postId IN (${jobIds})` : ``;
     let query = `
             SELECT 
                 fj.postId,
@@ -194,8 +195,9 @@ FollowServices.handleGetFollowJobPosting = async (user, reqQuery) => {
             INNER JOIN employer
             ON jp.employer_id = employer.userId
             WHERE fj.userId = ${user.userId}
-            AND jp.isHidden = false
-            AND jb.status = ${enum_1.approvalStatus.approved}
+                ${queryByJobIds}
+                AND jp.isHidden = false
+                AND jp.status = '${enum_1.approvalStatus.approved}'
             LIMIT ${parseInt(num)}
             OFFSET ${(parseInt(page) - 1) * parseInt(num)} 
         `;

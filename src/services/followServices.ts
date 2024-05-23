@@ -191,7 +191,9 @@ export default class FollowServices {
     static handleGetFollowJobPosting = async (user, reqQuery) => {
         const entityManager = myDataSource.manager as EntityManager;
 
-        const { num, page } = reqQuery;
+        const { jobIds, num, page } = reqQuery;
+        
+        let queryByJobIds = jobIds ? `AND fj.postId IN (${jobIds})` : ``;
 
         let query = `
             SELECT 
@@ -210,8 +212,9 @@ export default class FollowServices {
             INNER JOIN employer
             ON jp.employer_id = employer.userId
             WHERE fj.userId = ${user.userId}
-            AND jp.isHidden = false
-            AND jp.status = ${ approvalStatus.approved }
+                ${ queryByJobIds }
+                AND jp.isHidden = false
+                AND jp.status = '${approvalStatus.approved}'
             LIMIT ${ parseInt(num)}
             OFFSET ${(parseInt(page) - 1) * parseInt(num)} 
         `;
