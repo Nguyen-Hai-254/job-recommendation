@@ -163,13 +163,13 @@ export default class JobPostingServices {
         const totalPages = Math.ceil(totalItems / num);
  
         // Todo: Handle items
-        items.map(job => ({
+        const transformedItems = items.map(job => ({
             ...job,
             submissionCount: job.applications.length
         }));
 
         return  {
-            items: items,
+            items: transformedItems,
             meta: {
                 totalItems,
                 itemCount: items.length,
@@ -232,13 +232,13 @@ export default class JobPostingServices {
         const totalPages = Math.ceil(totalItems / num);
   
         // Todo: Handle items
-        items.map(job => ({
+        const transformedItems = items.map(job => ({
             ...job,
             submissionCount: job.applications.length
         }));
  
         return  {
-            items: items,
+            items: transformedItems,
             meta: {
                 totalItems,
                 itemCount: items.length,
