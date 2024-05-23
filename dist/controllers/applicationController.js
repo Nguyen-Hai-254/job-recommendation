@@ -13,7 +13,7 @@ _a = ApplicationController;
 ApplicationController.getApplicationsbyEmployee = async (req, res, next) => {
     try {
         const { userId } = req.user;
-        const applications = await applicationServices_1.default.handleGetApplicationsbyEmployee(userId);
+        const applications = await applicationServices_1.default.handleGetApplicationsbyEmployee(userId, req.query);
         return (0, respondSuccess_1.default)(res, 'get my applications successfully', applications);
     }
     catch (error) {
@@ -54,16 +54,6 @@ ApplicationController.getApplicationsbyEmployer = async (req, res, next) => {
         next(error);
     }
 };
-ApplicationController.getLengthOfApplicationsbyEmployer = async (req, res, next) => {
-    try {
-        const { userId } = req.user;
-        const applications = await applicationServices_1.default.handleGetLengthOfApplicationsbyEmployer(userId, req.query);
-        return (0, respondSuccess_1.default)(res, 'get length of applications by employer successfully', applications);
-    }
-    catch (error) {
-        next(error);
-    }
-};
 ApplicationController.getApplicationbyEmployer = async (req, res, next) => {
     try {
         const { userId } = req.user;
@@ -92,9 +82,9 @@ ApplicationController.updateApplicationbyEmployer = async (req, res, next) => {
         next(error);
     }
 };
-ApplicationController.getAllApplications = async (req, res, next) => {
+ApplicationController.getApplicationsByAdmin = async (req, res, next) => {
     try {
-        const applications = await applicationServices_1.default.handleGetAllApplications();
+        const applications = await applicationServices_1.default.handleGetApplicationsByAdmin(req.query);
         return (0, respondSuccess_1.default)(res, 'get applications by admin successfully', applications);
     }
     catch (error) {

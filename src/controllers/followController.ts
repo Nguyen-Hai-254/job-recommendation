@@ -27,7 +27,7 @@ export default class FollowController {
 
     static getFollowByEmployee = async (req, res, next) => {
         try {
-            const data = await FollowServices.handleGetFollowByEmployee(req.user);
+            const data = await FollowServices.handleGetFollowByEmployee(req.user, req.query);
             return respondSuccess(res, "OK", data);
         } catch (error) {
             next(error);
@@ -36,7 +36,7 @@ export default class FollowController {
 
     static getSaveEmployeeByEmployer = async (req, res, next) => {
         try {
-            const data = await FollowServices.handleGetSaveEmployeeByEmployer(req.user);
+            const data = await FollowServices.handleGetSaveEmployeeByEmployer(req.user, req.query);
             return respondSuccess(res, "OK", data);
         } catch (error) {
             next(error);
@@ -56,7 +56,7 @@ export default class FollowController {
 
     static getFollowJobPosting = async (req, res, next) => {
         try {
-            const data = await FollowServices.handleGetFollowJobPosting(req.user)
+            const data = await FollowServices.handleGetFollowJobPosting(req.user, req.query);
             return respondSuccess(res, "OK", data);
         } catch (error) {
             next(error);

@@ -36,7 +36,7 @@ FollowController.saveEmployee = async (req, res, next) => {
 };
 FollowController.getFollowByEmployee = async (req, res, next) => {
     try {
-        const data = await followServices_1.default.handleGetFollowByEmployee(req.user);
+        const data = await followServices_1.default.handleGetFollowByEmployee(req.user, req.query);
         return (0, respondSuccess_1.default)(res, "OK", data);
     }
     catch (error) {
@@ -45,7 +45,7 @@ FollowController.getFollowByEmployee = async (req, res, next) => {
 };
 FollowController.getSaveEmployeeByEmployer = async (req, res, next) => {
     try {
-        const data = await followServices_1.default.handleGetSaveEmployeeByEmployer(req.user);
+        const data = await followServices_1.default.handleGetSaveEmployeeByEmployer(req.user, req.query);
         return (0, respondSuccess_1.default)(res, "OK", data);
     }
     catch (error) {
@@ -66,7 +66,7 @@ FollowController.followJobPosting = async (req, res, next) => {
 };
 FollowController.getFollowJobPosting = async (req, res, next) => {
     try {
-        const data = await followServices_1.default.handleGetFollowJobPosting(req.user);
+        const data = await followServices_1.default.handleGetFollowJobPosting(req.user, req.query);
         return (0, respondSuccess_1.default)(res, "OK", data);
     }
     catch (error) {

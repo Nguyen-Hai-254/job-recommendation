@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, ManyToMany, UpdateDateColumn } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, ManyToMany, UpdateDateColumn, JoinColumn } from "typeorm"
 import { Employer, Employee, Application } from "./"
 import { degree, sex, employmentType, experience, positionLevel, approvalStatus } from "../utils/enum"
 
@@ -132,6 +132,10 @@ export class JobPosting extends BaseEntity {
     @ManyToOne(() => Employer, (employer) => employer.jobPostings, {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
+    })
+    @JoinColumn({
+        name: 'employer_id',
+        referencedColumnName: 'userId'
     })
     employer: Employer
 

@@ -1,7 +1,8 @@
 import { myDataSource } from "../config/connectDB";
-import { Employee, Employer, JobPosting, Follow, Save} from "../entities";
+import { Employee, Employer, JobPosting, Follow, Save } from "../entities";
 import { approvalStatus } from "../utils/enum";
 import { HttpException } from "../exceptions/httpException";
+import { EntityManager } from "typeorm";
 
 const employeeRepository = myDataSource.getRepository(Employee);
 const employerRepository = myDataSource.getRepository(Employer);
@@ -77,50 +78,48 @@ export default class FollowServices {
         };
     }
 
-    static handleGetFollowByEmployee = async (user) => {
-        const findEmployee = await followRepository.find({
+    static handleGetFollowByEmployee = async (user, reqQuery) => {
+        const { num, page } = reqQuery;
+
+        const [items ,totalItems] = await followRepository.findAndCount({
             where: { employeeId: user.userId },
-            relations: ['employer.jobPostings']
+            relations: ['employer'],
+            skip: (Number(page)-1) * Number(num),
+            take: Number(num)
         })
 
-        if (!findEmployee) throw new HttpException(404, 'Employee not found')
-
-        const company = findEmployee.map((follow) => {
-            return ({
-                employerId: follow.employerId,
-                companyName: follow.employer.companyName,
-                companyLocation: follow.employer.companyLocation,
-                logo: follow.employer.logo,
-                numberCurrentlyRecruiting: follow.employer.jobPostings.length,
-                followDate: follow.createAt,
-                careerField: follow.employer.careerField,
-                banner: follow.employer.banner
-            })
-        })
-
+        const totalPages = Math.ceil(totalItems / num);
         return  {
-                employeeId: user.userId,
-                email: user.email,
-                followCompany: company
+            items: items,
+            meta: {
+                totalItems,
+                itemCount: items.length,
+                itemsPerPage: +num,
+                totalPages,
+                currentPage: +page
             }
-        
+        }  
     }
 
-    static handleGetSaveEmployeeByEmployer = async (user) => {
-        const findEmployer = await saveRepository.find({
+    static handleGetSaveEmployeeByEmployer = async (user, reqQuery) => {
+        const { num, page } = reqQuery;
+       
+        const [items ,totalItems] = await saveRepository.findAndCount({
             where: {
                 employerId: user.userId,
             },
-            relations: ['employee.user', 'employee.online_profile', 'employee.attached_document']
+            relations: ['employee.user', 'employee.online_profile', 'employee.attached_document'],
+            order: {
+                createAt: 'DESC'
+            },
+            skip: (Number(page)-1) * Number(num),
+            take: Number(num)
         })
 
-        if (!findEmployer) throw new HttpException(404, 'Employer not found')
-
-        const data = findEmployer.map(save => {
+        const transformedItems =items.map(save => {
             if ((save.isOnlineProfile && save.employee.online_profile && !save.employee.online_profile.isHidden) || (!save.isOnlineProfile && save.employee.attached_document && !save.employee.attached_document.isHidden))
                 return ({
                     userId: save.employee.user.userId,
-                    email: save.employee.user.email,
                     name: save.employee.user.name,
                     createAt: save.createAt,
                     avatar: save.employee.user.avatar,
@@ -135,10 +134,26 @@ export default class FollowServices {
                         skills: save.isOnlineProfile ? save.employee.online_profile?.skills : save.employee.attached_document?.skills,
                     }
                 })
-            else return
+            else return  ({
+                userId: save.employee.user.userId,
+                name: save.employee.user.name,
+                createAt: save.createAt,
+                avatar: save.employee.user.avatar,
+                isOnlineProfile: save.isOnlineProfile,
+                file: null
+            });
         })
-
-        return data.filter(save => save)
+        const totalPages = Math.ceil(totalItems / num);
+        return  {
+            items: transformedItems,
+            meta: {
+                totalItems,
+                itemCount: items.length,
+                itemsPerPage: +num,
+                totalPages,
+                currentPage: +page
+            }
+        }  
     }
 
     static handleFollowJobPosting = async (user, jobId) => {
@@ -173,34 +188,48 @@ export default class FollowServices {
         return findFollow === -1 ? 'Theo dõi đăng tuyển thành công' : 'Đã bỏ theo dõi đăng tuyển';
     }
 
-    static handleGetFollowJobPosting = async (user) => {
-        const findEmployee = await employeeRepository.findOne({
-            where: { userId: user.userId },
-            relations: ['jobs.employer']
-        })
-        if (!findEmployee) throw new HttpException(404, 'Employee not found')
+    static handleGetFollowJobPosting = async (user, reqQuery) => {
+        const entityManager = myDataSource.manager as EntityManager;
 
-        const data = {
-                userId: findEmployee.userId,
-                jobs: findEmployee.jobs.filter((job) => {
-                    return (
-                        job.isHidden === false
-                    )
-                }).map((job) => {
-                    return ({
-                        postId: job.postId,
-                        jobTitle: job.jobTitle,
-                        companyName: job.employer.companyName,
-                        minSalary: job.minSalary,
-                        maxSalary: job.maxSalary,
-                        workAddress: job.workAddress,
-                        createAt: job.createAt,
-                        logo: job.employer.logo
-                    })
-                })
+        const { num, page } = reqQuery;
+
+        let query = `
+            SELECT 
+                fj.postId,
+                jp.jobTitle,
+                jp.minSalary,
+                jp.maxSalary,
+                jp.workAddress,
+                jp.createAt,
+                employer.companyName,
+                employer.logo,
+                COUNT(*) OVER() AS totalItems
+            FROM \`follow-job\` fj 
+            INNER JOIN job_posting jp
+            ON fj.postId = jp.postId
+            INNER JOIN employer
+            ON jp.employer_id = employer.userId
+            WHERE fj.userId = ${user.userId}
+            AND jp.isHidden = false
+            LIMIT ${ parseInt(num)}
+            OFFSET ${(parseInt(page) - 1) * parseInt(num)} 
+        `;
+
+        const result = await entityManager.query(query);
+        const totalItems = result.length ? Number(result[0].totalItems) : 0;
+        const items = result.length ? result.map(({ totalItems, ...rest }) => rest): [];
+    
+        const totalPages = Math.ceil(totalItems / num);
+        return  {
+            items: items,
+            meta: {
+                totalItems,
+                itemCount: items.length,
+                itemsPerPage: +num,
+                totalPages,
+                currentPage: +page
+            }
         }
-
-        return data;
-      
+        
     }
 }

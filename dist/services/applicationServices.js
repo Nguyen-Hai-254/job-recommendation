@@ -7,7 +7,6 @@ const enum_1 = require("../utils/enum");
 const enumAction_1 = require("../utils/enumAction");
 const httpException_1 = require("../exceptions/httpException");
 const userRepository = connectDB_1.myDataSource.getRepository(entities_1.User);
-const employeeRepository = connectDB_1.myDataSource.getRepository(entities_1.Employee);
 const applicationRepository = connectDB_1.myDataSource.getRepository(entities_1.Application);
 const jobpostingRepository = connectDB_1.myDataSource.getRepository(entities_1.JobPosting);
 const attached_documentRepository = connectDB_1.myDataSource.getRepository(entities_1.AttachedDocument);
@@ -15,28 +14,34 @@ const online_profileRepository = connectDB_1.myDataSource.getRepository(entities
 class ApplicationServices {
 }
 _a = ApplicationServices;
-ApplicationServices.handleGetApplicationsbyEmployee = async (userId) => {
-    const applications = await employeeRepository.findOne({
-        where: { userId: userId },
-        relations: ['applications', 'applications.jobPosting.employer']
-    });
-    let data = applications === null || applications === void 0 ? void 0 : applications.applications.flatMap(application => {
-        return {
-            application_id: application.application_id,
-            applicationType: application.applicationType,
-            createAt: application.createAt,
-            CV: application.CV,
-            name: application.name,
-            email: application.email,
-            phone: application.phone,
-            status: application.status,
-            jobTitle: application.jobPosting.jobTitle,
-            companyName: application.jobPosting.employer.companyName,
-            postId: application.jobPosting.postId,
-            applicationDeadline: application.jobPosting.applicationDeadline
-        };
-    });
-    return data ? data : [];
+ApplicationServices.handleGetApplicationsbyEmployee = async (userId, reqQuery) => {
+    const { num, page } = reqQuery;
+    // get list of applications by employee
+    let query = applicationRepository
+        .createQueryBuilder('application')
+        .select([
+        'application.application_id', 'application.applicationType', 'application.createAt', 'application.CV', 'application.name', 'application.email', 'application.phone', 'application.status',
+        'jobPosting.jobTitle', 'jobPosting.postId', 'jobPosting.applicationDeadline',
+        'employer.companyName'
+    ])
+        .leftJoin('application.employee', 'employee')
+        .leftJoin('application.jobPosting', 'jobPosting')
+        .leftJoin('jobPosting.employer', 'employer')
+        .where('employee.userId = :userId', { userId: userId });
+    // Pagination
+    query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
+    const [items, totalItems] = await query.getManyAndCount();
+    const totalPages = Math.ceil(totalItems / num);
+    return {
+        items: items,
+        meta: {
+            totalItems,
+            itemCount: items.length,
+            itemsPerPage: num,
+            totalPages,
+            currentPage: page
+        }
+    };
 };
 ApplicationServices.handleGetApplication = async (id) => {
     const application = await applicationRepository.findOne({
@@ -109,42 +114,19 @@ ApplicationServices.handleGetApplicationsbyEmployer = async (userId, reqQuery) =
         query = query.andWhere('application.jobPosting.postId = :postId', { postId });
     }
     // Pagination
-    if (num && page) {
-        const skip = (parseInt(page) - 1) * parseInt(num);
-        const take = parseInt(num);
-        query = query.skip(skip).take(take);
-    }
-    else {
-        query = query.skip(0).take(10);
-    }
-    const applications = await query.getMany();
-    return applications ? applications : [];
-};
-ApplicationServices.handleGetLengthOfApplicationsbyEmployer = async (userId, reqQuery) => {
-    const { applicationType, name, status, postId } = reqQuery;
-    // get list of applications by employer
-    let query = applicationRepository
-        .createQueryBuilder('application')
-        .select(['application', 'employee.userId', 'jobPosting.postId'])
-        .leftJoin('application.employee', 'employee')
-        .leftJoin('application.jobPosting', 'jobPosting')
-        .leftJoin('jobPosting.employer', 'employer')
-        .where('employer.userId = :userId', { userId: userId });
-    // query by applicationType, name, status, postId
-    if (applicationType) {
-        query = query.andWhere('application.applicationType = :applicationType', { applicationType });
-    }
-    if (name) {
-        query = query.andWhere('application.name LIKE :name', { name: `%${name}%` });
-    }
-    if (status) {
-        query = query.andWhere('application.status = :status', { status });
-    }
-    if (postId) {
-        query = query.andWhere('application.jobPosting.postId = :postId', { postId });
-    }
-    const totalResults = await query.getCount();
-    return { totalResults: totalResults };
+    query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
+    const [items, totalItems] = await query.getManyAndCount();
+    const totalPages = Math.ceil(totalItems / num);
+    return {
+        items: items,
+        meta: {
+            totalItems,
+            itemCount: items.length,
+            itemsPerPage: num,
+            totalPages,
+            currentPage: page
+        }
+    };
 };
 ApplicationServices.handleGetApplicationbyEmployer = async (userId, id) => {
     const application = await applicationRepository.findOne({
@@ -226,11 +208,42 @@ ApplicationServices.handleUpdateApplicationbyEmployer = async (userId, id, dto) 
     await applicationRepository.save(application);
     return application;
 };
-ApplicationServices.handleGetAllApplications = async () => {
-    const applications = await applicationRepository.find({
-        relations: ['employee']
-    });
-    return applications;
+ApplicationServices.handleGetApplicationsByAdmin = async (reqQuery) => {
+    const { applicationType, name, status, postId, num, page } = reqQuery;
+    // get list of applications by employer
+    let query = applicationRepository
+        .createQueryBuilder('application')
+        .select(['application', 'employee.userId', 'jobPosting.postId'])
+        .leftJoin('application.employee', 'employee')
+        .leftJoin('application.jobPosting', 'jobPosting')
+        .leftJoin('jobPosting.employer', 'employer');
+    // query by applicationType, name, status, postId
+    if (applicationType) {
+        query = query.andWhere('application.applicationType = :applicationType', { applicationType });
+    }
+    if (name) {
+        query = query.andWhere('application.name LIKE :name', { name: `%${name}%` });
+    }
+    if (status) {
+        query = query.andWhere('application.status = :status', { status });
+    }
+    if (postId) {
+        query = query.andWhere('application.jobPosting.postId = :postId', { postId });
+    }
+    // Pagination
+    query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
+    const [items, totalItems] = await query.getManyAndCount();
+    const totalPages = Math.ceil(totalItems / num);
+    return {
+        items: items,
+        meta: {
+            totalItems,
+            itemCount: items.length,
+            itemsPerPage: num,
+            totalPages,
+            currentPage: page
+        }
+    };
 };
 exports.default = ApplicationServices;
 //# sourceMappingURL=applicationServices.js.map

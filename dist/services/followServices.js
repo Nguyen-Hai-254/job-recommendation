@@ -72,46 +72,44 @@ FollowServices.handleSaveEmployee = async (user, emloyeeId, isOnlineProfile) => 
     }
     ;
 };
-FollowServices.handleGetFollowByEmployee = async (user) => {
-    const findEmployee = await followRepository.find({
+FollowServices.handleGetFollowByEmployee = async (user, reqQuery) => {
+    const { num, page } = reqQuery;
+    const [items, totalItems] = await followRepository.findAndCount({
         where: { employeeId: user.userId },
-        relations: ['employer.jobPostings']
+        relations: ['employer'],
+        skip: (Number(page) - 1) * Number(num),
+        take: Number(num)
     });
-    if (!findEmployee)
-        throw new httpException_1.HttpException(404, 'Employee not found');
-    const company = findEmployee.map((follow) => {
-        return ({
-            employerId: follow.employerId,
-            companyName: follow.employer.companyName,
-            companyLocation: follow.employer.companyLocation,
-            logo: follow.employer.logo,
-            numberCurrentlyRecruiting: follow.employer.jobPostings.length,
-            followDate: follow.createAt,
-            careerField: follow.employer.careerField,
-            banner: follow.employer.banner
-        });
-    });
+    const totalPages = Math.ceil(totalItems / num);
     return {
-        employeeId: user.userId,
-        email: user.email,
-        followCompany: company
+        items: items,
+        meta: {
+            totalItems,
+            itemCount: items.length,
+            itemsPerPage: +num,
+            totalPages,
+            currentPage: +page
+        }
     };
 };
-FollowServices.handleGetSaveEmployeeByEmployer = async (user) => {
-    const findEmployer = await saveRepository.find({
+FollowServices.handleGetSaveEmployeeByEmployer = async (user, reqQuery) => {
+    const { num, page } = reqQuery;
+    const [items, totalItems] = await saveRepository.findAndCount({
         where: {
             employerId: user.userId,
         },
-        relations: ['employee.user', 'employee.online_profile', 'employee.attached_document']
+        relations: ['employee.user', 'employee.online_profile', 'employee.attached_document'],
+        order: {
+            createAt: 'DESC'
+        },
+        skip: (Number(page) - 1) * Number(num),
+        take: Number(num)
     });
-    if (!findEmployer)
-        throw new httpException_1.HttpException(404, 'Employer not found');
-    const data = findEmployer.map(save => {
+    const transformedItems = items.map(save => {
         var _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
         if ((save.isOnlineProfile && save.employee.online_profile && !save.employee.online_profile.isHidden) || (!save.isOnlineProfile && save.employee.attached_document && !save.employee.attached_document.isHidden))
             return ({
                 userId: save.employee.user.userId,
-                email: save.employee.user.email,
                 name: save.employee.user.name,
                 createAt: save.createAt,
                 avatar: save.employee.user.avatar,
@@ -127,9 +125,26 @@ FollowServices.handleGetSaveEmployeeByEmployer = async (user) => {
                 }
             });
         else
-            return;
+            return ({
+                userId: save.employee.user.userId,
+                name: save.employee.user.name,
+                createAt: save.createAt,
+                avatar: save.employee.user.avatar,
+                isOnlineProfile: save.isOnlineProfile,
+                file: null
+            });
     });
-    return data.filter(save => save);
+    const totalPages = Math.ceil(totalItems / num);
+    return {
+        items: transformedItems,
+        meta: {
+            totalItems,
+            itemCount: items.length,
+            itemsPerPage: +num,
+            totalPages,
+            currentPage: +page
+        }
+    };
 };
 FollowServices.handleFollowJobPosting = async (user, jobId) => {
     const findEmployee = await employeeRepository.findOne({
@@ -159,31 +174,44 @@ FollowServices.handleFollowJobPosting = async (user, jobId) => {
     await employeeRepository.save(findEmployee);
     return findFollow === -1 ? 'Theo dõi đăng tuyển thành công' : 'Đã bỏ theo dõi đăng tuyển';
 };
-FollowServices.handleGetFollowJobPosting = async (user) => {
-    const findEmployee = await employeeRepository.findOne({
-        where: { userId: user.userId },
-        relations: ['jobs.employer']
-    });
-    if (!findEmployee)
-        throw new httpException_1.HttpException(404, 'Employee not found');
-    const data = {
-        userId: findEmployee.userId,
-        jobs: findEmployee.jobs.filter((job) => {
-            return (job.isHidden === false);
-        }).map((job) => {
-            return ({
-                postId: job.postId,
-                jobTitle: job.jobTitle,
-                companyName: job.employer.companyName,
-                minSalary: job.minSalary,
-                maxSalary: job.maxSalary,
-                workAddress: job.workAddress,
-                createAt: job.createAt,
-                logo: job.employer.logo
-            });
-        })
+FollowServices.handleGetFollowJobPosting = async (user, reqQuery) => {
+    const entityManager = connectDB_1.myDataSource.manager;
+    const { num, page } = reqQuery;
+    let query = `
+            SELECT 
+                fj.postId,
+                jp.jobTitle,
+                jp.minSalary,
+                jp.maxSalary,
+                jp.workAddress,
+                jp.createAt,
+                employer.companyName,
+                employer.logo,
+                COUNT(*) OVER() AS totalItems
+            FROM \`follow-job\` fj 
+            INNER JOIN job_posting jp
+            ON fj.postId = jp.postId
+            INNER JOIN employer
+            ON jp.employer_id = employer.userId
+            WHERE fj.userId = ${user.userId}
+            AND jp.isHidden = false
+            LIMIT ${parseInt(num)}
+            OFFSET ${(parseInt(page) - 1) * parseInt(num)} 
+        `;
+    const result = await entityManager.query(query);
+    const totalItems = result.length ? Number(result[0].totalItems) : 0;
+    const items = result.length ? result.map(({ totalItems, ...rest }) => rest) : [];
+    const totalPages = Math.ceil(totalItems / num);
+    return {
+        items: items,
+        meta: {
+            totalItems,
+            itemCount: items.length,
+            itemsPerPage: +num,
+            totalPages,
+            currentPage: +page
+        }
     };
-    return data;
 };
 exports.default = FollowServices;
 //# sourceMappingURL=followServices.js.map

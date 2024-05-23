@@ -180,6 +180,10 @@ __decorate([
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     }),
+    (0, typeorm_1.JoinColumn)({
+        name: 'employer_id',
+        referencedColumnName: 'userId'
+    }),
     __metadata("design:type", _1.Employer)
 ], JobPosting.prototype, "employer", void 0);
 __decorate([

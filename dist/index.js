@@ -19,18 +19,19 @@ const routes = require('./routes/web');
 (0, connectDB_1.connectDB)();
 // 2. initializeMiddlewares
 // 2.1. cors
-const corsOptions = {
-    origin: process.env.ORIGIN,
+var corsOptions = {
+    origin: function (origin, callback) {
+        if (origin == process.env.ORIGIN || process.env.ORIGIN == '*') {
+            callback(null, true);
+        }
+        else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     optionSuccessStatus: 200
 };
 app.use((0, cors_1.default)(corsOptions));
-app.use(function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', process.env.ORIGIN);
-    res.header('Access-Control-Allow-Headers', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    next();
-});
 // 2.2.
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));

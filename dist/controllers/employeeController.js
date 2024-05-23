@@ -237,15 +237,6 @@ EmployeeController.getEmployeesByAdmin = async (req, res, next) => {
         next(error);
     }
 };
-EmployeeController.getLengthOfEmployeesByAdmin = async (req, res, next) => {
-    try {
-        const employees = await employeeServices_1.default.handleGetLengthOfEmployeesByAdmin(req.query);
-        return (0, respondSuccess_1.default)(res, 'get length of employees by admin successfully', employees);
-    }
-    catch (error) {
-        next(error);
-    }
-};
 EmployeeController.getEmployeesByEmployer = async (req, res, next) => {
     try {
         const employees = await employeeServices_1.default.handleGetEmployeesByEmployer(req.query);
@@ -255,24 +246,11 @@ EmployeeController.getEmployeesByEmployer = async (req, res, next) => {
         next(error);
     }
 };
-EmployeeController.getLengthOfEmployeesByEmployer = async (req, res, next) => {
-    try {
-        const employees = await employeeServices_1.default.handleGetLengthOfEmployeesByEmployer(req.query);
-        return (0, respondSuccess_1.default)(res, 'get length of employees by employer successfully', employees);
-    }
-    catch (error) {
-        next(error);
-    }
-};
 EmployeeController.getEmployeesByEmployerSortByKeywords = async (req, res, next) => {
     try {
-        const { keywords, num, page } = req.query;
+        const { keywords } = req.query;
         if (!keywords)
             throw new httpException_1.HttpException(400, 'Invalid keywords');
-        if (!page)
-            req.query.page = 1;
-        if (!num)
-            req.query.num = 10;
         const employees = await employeeServices_1.default.handleGetEmployeesByEmployerSortByKeywords(req.query);
         return (0, respondSuccess_1.default)(res, 'get employees by employer sort by keywords successfully', employees);
     }

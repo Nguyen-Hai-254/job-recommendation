@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const auth_1 = require("../middlewares/auth");
 const verifyRole_1 = require("../middlewares/verifyRole");
+const paginationParser_1 = require("../middlewares/paginationParser");
 const employeeController_1 = __importDefault(require("../controllers/employeeController"));
 const enum_1 = require("../utils/enum");
 const route = express_1.default.Router();
@@ -26,10 +27,8 @@ route.delete('/employee/online-profile/education-information/:id', auth_1.verify
 route.post('/employee/online-profile/work-experience', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.createNewWorkExperience);
 route.put('/employee/online-profile/work-experience/:id', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.updateWorkExperience);
 route.delete('/employee/online-profile/work-experience/:id', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.deleteWorkExperience);
-route.get('/admin/employees', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Admin), employeeController_1.default.getEmployeesByAdmin);
-route.get('/admin/employees/totalResults', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Admin), employeeController_1.default.getLengthOfEmployeesByAdmin);
-route.get('/employer/employees', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), employeeController_1.default.getEmployeesByEmployer);
-route.get('/employer/employees/totalResults', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), employeeController_1.default.getLengthOfEmployeesByEmployer);
-route.get('/employer/employees/sortbykeywords', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), employeeController_1.default.getEmployeesByEmployerSortByKeywords);
+route.get('/employer/employees', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), paginationParser_1.paginationParser, employeeController_1.default.getEmployeesByEmployer);
+route.get('/employer/employees/sortbykeywords', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), paginationParser_1.paginationParser, employeeController_1.default.getEmployeesByEmployerSortByKeywords);
+route.get('/admin/employees', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Admin), paginationParser_1.paginationParser, employeeController_1.default.getEmployeesByAdmin);
 exports.default = route;
 //# sourceMappingURL=employeeRoute.js.map

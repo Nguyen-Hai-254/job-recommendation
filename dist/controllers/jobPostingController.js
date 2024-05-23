@@ -33,15 +33,6 @@ JobPostingController.getAllJobPostings = async (req, res, next) => {
         next(error);
     }
 };
-JobPostingController.getLengthOfAllJobPostings = async (req, res, next) => {
-    try {
-        const jobPostings = await jobpostingServices_1.default.handleGetLengthOfAllJobPostings(req.query);
-        return (0, respondSuccess_1.default)(res, 'get length of jobpostings successfully', jobPostings);
-    }
-    catch (error) {
-        next(error);
-    }
-};
 JobPostingController.getTotalResultsOfProfession = async (req, res, next) => {
     try {
         req.query.status = enum_1.approvalStatus.approved;
@@ -62,23 +53,14 @@ JobPostingController.getAllJobPostingsByAdmin = async (req, res, next) => {
         next(error);
     }
 };
-JobPostingController.getLengthOfAllJobPostingsByAdmin = async (req, res, next) => {
-    try {
-        const jobPostings = await jobpostingServices_1.default.handleGetLengthOfAllJobPostingsByAdmin(req.query);
-        return (0, respondSuccess_1.default)(res, 'get length of jobpostings by admin successfully', jobPostings);
-    }
-    catch (error) {
-        next(error);
-    }
-};
-JobPostingController.updateApprovalStatus = async (req, res, next) => {
+JobPostingController.UpdateJobPostingByAdmin = async (req, res, next) => {
     try {
         const { postId } = req.params;
         if (!postId)
             throw new httpException_1.HttpException(400, 'postID is required');
         if (!req.body)
             throw new httpException_1.HttpException(400, 'req body is required');
-        const jobPosting = await jobpostingServices_1.default.handleUpdateApprovalStatus(postId, req.body);
+        const jobPosting = await jobpostingServices_1.default.handleUpdateJobPostingByAdmin(postId, req.body);
         return (0, respondSuccess_1.default)(res, `Job posting has postId: ${postId} are updated successfully`, jobPosting);
     }
     catch (error) {
