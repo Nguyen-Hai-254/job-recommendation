@@ -101,7 +101,7 @@ export default class ApplicationServices {
             .leftJoinAndSelect('employee.online_profile', 'online_profile', 'application.applicationType = :type1', { type1: 'Nộp trực tuyến' })
             .leftJoinAndSelect('employee.attached_document', 'attached_document', 'application.applicationType = :type2', { type2: 'CV đính kèm' })
             .leftJoin('employee.user', 'user')
-            .addSelect(['user.dob','user.address', 'user.sex'])
+            .addSelect(['user.dob','user.address', 'user.sex', 'user.avatar'])
             .leftJoin('application.jobPosting', 'jobPosting')
             .where('jobPosting.employer_id = :userId', { userId: userId });
         // query by applicationType, name, status, postId
@@ -115,7 +115,7 @@ export default class ApplicationServices {
             query = query.andWhere('application.status = :status', {status});
         }
         if (postId) {
-            query = query.andWhere('application.jobPosting.postId = :postId', {postId});
+            query = query.andWhere('application.postId = :postId', {postId});
         }
         
         // Pagination

@@ -26,6 +26,15 @@ MailServices.sendEmailForUsers = async (emails, subject, html) => {
     });
     return res;
 };
+MailServices.sendEmailForUser = async (email, subject, html) => {
+    const res = await transporter.sendMail({
+        from: process.env.MAILER_FROM,
+        to: email,
+        subject: subject,
+        html: html
+    });
+    return res;
+};
 MailServices.sendTokenForResetPassword = async (email, token) => {
     const html = template_resetPassword(token);
     const res = await transporter.sendMail({
