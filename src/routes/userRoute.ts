@@ -3,10 +3,11 @@ import UserController from "../controllers/userController";
 import { verifyToken } from "../middlewares/auth";
 import { verifyRole } from "../middlewares/verifyRole";
 import { userRole } from "../utils/enum";
+import { paginationParser } from "../middlewares/paginationParser";
 const route = express.Router()
 
 route.get('/get-information-company-by-user', UserController.getInformationCompanyByUser);
-route.get('/get-all-company-by-user', UserController.getAllCompanyByUser);
+route.get('/get-all-company-by-user', paginationParser, UserController.getAllCompanyByUser);
 route.get('/get-profile', verifyToken, UserController.getProfile);
 route.post('/edit-profile', verifyToken, UserController.editProfile);
 route.get('/get-information-company', verifyToken,verifyRole(userRole.Employer), UserController.getInformationCompany);

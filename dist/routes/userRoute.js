@@ -8,9 +8,10 @@ const userController_1 = __importDefault(require("../controllers/userController"
 const auth_1 = require("../middlewares/auth");
 const verifyRole_1 = require("../middlewares/verifyRole");
 const enum_1 = require("../utils/enum");
+const paginationParser_1 = require("../middlewares/paginationParser");
 const route = express_1.default.Router();
 route.get('/get-information-company-by-user', userController_1.default.getInformationCompanyByUser);
-route.get('/get-all-company-by-user', userController_1.default.getAllCompanyByUser);
+route.get('/get-all-company-by-user', paginationParser_1.paginationParser, userController_1.default.getAllCompanyByUser);
 route.get('/get-profile', auth_1.verifyToken, userController_1.default.getProfile);
 route.post('/edit-profile', auth_1.verifyToken, userController_1.default.editProfile);
 route.get('/get-information-company', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), userController_1.default.getInformationCompany);

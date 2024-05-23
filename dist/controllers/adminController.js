@@ -30,17 +30,8 @@ AdminController.candidateStatistics = async (req, res, next) => {
 };
 AdminController.getAllUser = async (req, res, next) => {
     try {
-        const allUser = await adminServices_1.default.handleGetAllUser(req);
+        const allUser = await adminServices_1.default.handleGetAllUser(req.query);
         return (0, respondSuccess_1.default)(res, 'OK', allUser);
-    }
-    catch (error) {
-        next(error);
-    }
-};
-AdminController.getTotalUser = async (req, res, next) => {
-    try {
-        const totalUser = await adminServices_1.default.handleGetTotalUser(req);
-        return (0, respondSuccess_1.default)(res, 'OK', totalUser);
     }
     catch (error) {
         next(error);

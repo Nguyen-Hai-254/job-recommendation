@@ -220,17 +220,27 @@ export default class UserServices {
             }
     }
 
-    static handleGetAllCompanyByUser = async (num, page) => {
-        const skip = (parseInt(page) - 1) * parseInt(num);
-        const take = parseInt(num);
+    static handleGetAllCompanyByUser = async (reqQuery) => {
+        const { num, page } = reqQuery;
+    
+        let query = employerRepository.createQueryBuilder('company')
+        // Pagination
+        query = query.skip((Number(page)-1) * Number(num)).take(Number(num));
 
-        const getEmployer = await employerRepository.find({ skip: skip, take: take })
-        const totalCompany = await employerRepository.count({})
-
+        const [items, totalItems] = await query.getManyAndCount();
+        const totalPages = Math.ceil(totalItems / num);
+  
         return  {
-                companyList: getEmployer,
-                totalCompany
+            items: items,
+            meta: {
+                totalItems,
+                itemCount: items.length,
+                itemsPerPage: num,
+                totalPages,
+                currentPage: page
             }
+        }
+ 
     }
 
     static handleDeleteUser = async (id) => {

@@ -92,12 +92,7 @@ UserController.getInformationCompanyByUser = async (req, res, next) => {
 };
 UserController.getAllCompanyByUser = async (req, res, next) => {
     try {
-        const { num, page } = req.query;
-        if (!page)
-            req.query.page = 1;
-        if (!num)
-            req.query.num = 10;
-        const companyList = await userServices_1.default.handleGetAllCompanyByUser(req.query.num, req.query.page);
+        const companyList = await userServices_1.default.handleGetAllCompanyByUser(req.query);
         return (0, respondSuccess_1.default)(res, 'OK', companyList);
     }
     catch (error) {

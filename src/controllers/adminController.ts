@@ -23,17 +23,8 @@ export default class AdminController {
 
     static getAllUser = async (req, res, next) => {
         try {
-            const allUser = await AdminServices.handleGetAllUser(req);
+            const allUser = await AdminServices.handleGetAllUser(req.query);
             return respondSuccess(res, 'OK', allUser);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    static getTotalUser = async (req, res, next) => {
-        try {
-            const totalUser = await AdminServices.handleGetTotalUser(req);
-            return respondSuccess(res, 'OK', totalUser);
         } catch (error) {
             next(error);
         }

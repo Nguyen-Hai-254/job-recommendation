@@ -85,11 +85,7 @@ export default class UserController {
 
     static getAllCompanyByUser = async (req, res, next) => {
         try {
-            const { num, page } = req.query;
-            if (!page) req.query.page = 1;
-            if (!num) req.query.num = 10; 
-
-            const companyList = await UserServices.handleGetAllCompanyByUser(req.query.num, req.query.page);
+            const companyList = await UserServices.handleGetAllCompanyByUser(req.query);
             return respondSuccess(res, 'OK', companyList);
         } catch (error) {
             next(error);

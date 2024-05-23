@@ -201,14 +201,22 @@ UserServices.handleGetInformationCompanyByUser = async (id) => {
         list_job_postings: (_b = getEmployer.employer) === null || _b === void 0 ? void 0 : _b.jobPostings
     };
 };
-UserServices.handleGetAllCompanyByUser = async (num, page) => {
-    const skip = (parseInt(page) - 1) * parseInt(num);
-    const take = parseInt(num);
-    const getEmployer = await employerRepository.find({ skip: skip, take: take });
-    const totalCompany = await employerRepository.count({});
+UserServices.handleGetAllCompanyByUser = async (reqQuery) => {
+    const { num, page } = reqQuery;
+    let query = employerRepository.createQueryBuilder('company');
+    // Pagination
+    query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
+    const [items, totalItems] = await query.getManyAndCount();
+    const totalPages = Math.ceil(totalItems / num);
     return {
-        companyList: getEmployer,
-        totalCompany
+        items: items,
+        meta: {
+            totalItems,
+            itemCount: items.length,
+            itemsPerPage: num,
+            totalPages,
+            currentPage: page
+        }
     };
 };
 UserServices.handleDeleteUser = async (id) => {

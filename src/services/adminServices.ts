@@ -1,4 +1,4 @@
-import { ILike } from "typeorm"
+import { Brackets, ILike } from "typeorm"
 import { myDataSource } from "../config/connectDB"
 import { User, JobPosting, OnlineProfile, AttachedDocument } from "../entities"
 import { approvalStatus, monthMap} from "../utils/enum"
@@ -65,39 +65,40 @@ export default class AdminServices {
         return top5AndOther ? top5AndOther : [];
     }
 
-    static handleGetAllUser = async (req) => {
-        const { page, num, role } = req.query;
+    static handleGetAllUser = async (reqQuery) => {
+        const { page, num, role, keyword } = reqQuery;
         let query = userRepository.createQueryBuilder('user');
 
         if (role) {
             query = query.where('user.role = :role', { role })
+        }
+
+        if (keyword) {
+            query = query.andWhere(
+                new Brackets(qb =>
+                    qb.where('user.name ILike :keyword', { keyword: `%${keyword}%` })
+                        .orWhere('user.email ILike :keyword', { keyword: `%${keyword}%` })
+                )
+            );
         }
 
         // Pagination
-        if (num && page) {
-            const skip = (parseInt(page) - 1) * parseInt(num);
-            const take = parseInt(num);
+        query = query.skip((Number(page)-1) * Number(num)).take(Number(num));
 
-            query = query.skip(skip).take(take);
+        const [items, totalItems] = await query.getManyAndCount();
+        const totalPages = Math.ceil(totalItems / num);
+  
+        return  {
+            items: items,
+            meta: {
+                totalItems,
+                itemCount: items.length,
+                itemsPerPage: num,
+                totalPages,
+                currentPage: page
+            }
         }
-
-        const findAllUser = await query.getMany();
-
-        return findAllUser ? findAllUser: [];
-    }
-
-    static handleGetTotalUser = async (req) => {
-        const { role } = req.query;
-        let query = userRepository.createQueryBuilder('user');
-
-        if (role) {
-            query = query.where('user.role = :role', { role })
-        }
-
-        const findAllUser = await query.getCount();
-
-        return findAllUser ? findAllUser: [];
-    }
+     }
 
     static handleSendEmail = async (emails, subject, html) => {
         const info = await MailServices.sendEmailForUsers(emails, subject, html);

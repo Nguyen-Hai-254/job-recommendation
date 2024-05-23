@@ -59,29 +59,30 @@ AdminServices.handleCandidateStatistics = async () => {
     const top5AndOther = [...top5, { "name": "Khác", value: otherSum }];
     return top5AndOther ? top5AndOther : [];
 };
-AdminServices.handleGetAllUser = async (req) => {
-    const { page, num, role } = req.query;
+AdminServices.handleGetAllUser = async (reqQuery) => {
+    const { page, num, role, keyword } = reqQuery;
     let query = userRepository.createQueryBuilder('user');
     if (role) {
         query = query.where('user.role = :role', { role });
+    }
+    if (keyword) {
+        query = query.andWhere(new typeorm_1.Brackets(qb => qb.where('user.name ILike :keyword', { keyword: `%${keyword}%` })
+            .orWhere('user.email ILike :keyword', { keyword: `%${keyword}%` })));
     }
     // Pagination
-    if (num && page) {
-        const skip = (parseInt(page) - 1) * parseInt(num);
-        const take = parseInt(num);
-        query = query.skip(skip).take(take);
-    }
-    const findAllUser = await query.getMany();
-    return findAllUser ? findAllUser : [];
-};
-AdminServices.handleGetTotalUser = async (req) => {
-    const { role } = req.query;
-    let query = userRepository.createQueryBuilder('user');
-    if (role) {
-        query = query.where('user.role = :role', { role });
-    }
-    const findAllUser = await query.getCount();
-    return findAllUser ? findAllUser : [];
+    query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
+    const [items, totalItems] = await query.getManyAndCount();
+    const totalPages = Math.ceil(totalItems / num);
+    return {
+        items: items,
+        meta: {
+            totalItems,
+            itemCount: items.length,
+            itemsPerPage: num,
+            totalPages,
+            currentPage: page
+        }
+    };
 };
 AdminServices.handleSendEmail = async (emails, subject, html) => {
     const info = await mailServices_1.default.sendEmailForUsers(emails, subject, html);
