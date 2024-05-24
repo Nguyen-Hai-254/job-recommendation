@@ -198,7 +198,6 @@ export default class UserServices {
             .createQueryBuilder('user')
             .select(['user'])
             .leftJoinAndSelect('user.employer', 'employer')
-            .leftJoinAndSelect('employer.jobPostings', 'jobPosting','jobPosting.status = :status', {status: approvalStatus.approved})
             .where('user.userId = :id', {id})
             .getOne();
 
@@ -216,7 +215,6 @@ export default class UserServices {
                 logo: getEmployer.employer.logo,
                 banner: getEmployer.employer.banner,
                 description: getEmployer.employer.description,
-                list_job_postings: getEmployer.employer?.jobPostings
             }
     }
 
