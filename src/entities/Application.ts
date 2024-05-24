@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn, RelationId } from "typeorm"
 import { Employee, JobPosting } from "./"
 import { applicationType, approvalStatus } from "../utils/enum"
 
@@ -53,9 +53,8 @@ export class Application extends BaseEntity {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     })
-    @JoinColumn({
-        name: 'postId',
-        referencedColumnName: 'postId'
-    })
     jobPosting: JobPosting
+
+    @RelationId((application: Application) => application.jobPosting) // you need to specify target relation
+    postId: number
 }

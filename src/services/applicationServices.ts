@@ -115,7 +115,7 @@ export default class ApplicationServices {
             query = query.andWhere('application.status = :status', {status});
         }
         if (postId) {
-            query = query.andWhere('application.postId = :postId', {postId});
+            query = query.andWhere('application.jobPosting.postId = :postId', {postId});
         }
         
         // Pagination
