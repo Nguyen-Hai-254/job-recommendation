@@ -7,6 +7,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const httpException_1 = require("../exceptions/httpException");
 const userServices_1 = __importDefault(require("../services/userServices"));
 const respondSuccess_1 = __importDefault(require("../utils/respondSuccess"));
+const notificationQueue = require('../queues/notification.queue');
+const connectDB_1 = require("../config/connectDB");
+const entities_1 = require("../entities");
+const notificationRepository = connectDB_1.myDataSource.getRepository(entities_1.Notification);
 class UserController {
 }
 _a = UserController;
@@ -21,8 +25,15 @@ UserController.getProfile = async (req, res, next) => {
 };
 UserController.editProfile = async (req, res, next) => {
     try {
-        const editUser = await userServices_1.default.handleEditProfile(req.user, req.body);
-        return (0, respondSuccess_1.default)(res, 'update your profile successfully', editUser);
+        const data = await userServices_1.default.handleEditProfile(req.user, req.body);
+        const message = 'Bạn đã cập nhật thông tin cá nhân';
+        const notification = notificationRepository.create({
+            user: req.user,
+            title: 'profile',
+            content: message
+        });
+        await notificationQueue.add(notification);
+        return (0, respondSuccess_1.default)(res, message, data);
     }
     catch (error) {
         next(error);
@@ -39,8 +50,15 @@ UserController.getInformationCompany = async (req, res, next) => {
 };
 UserController.editInformationCompany = async (req, res, next) => {
     try {
-        const editCompany = await userServices_1.default.handleEditInformationCompany(req.user, req.body);
-        return (0, respondSuccess_1.default)(res, 'Edit your company successful!', editCompany);
+        const data = await userServices_1.default.handleEditInformationCompany(req.user, req.body);
+        const message = 'Bạn đã cập nhật thông tin công ty của bạn';
+        const notification = notificationRepository.create({
+            user: req.user,
+            title: 'company profile',
+            content: message
+        });
+        await notificationQueue.add(notification);
+        return (0, respondSuccess_1.default)(res, message, data);
     }
     catch (error) {
         next(error);
@@ -50,8 +68,15 @@ UserController.uploadAvatar = async (req, res, next) => {
     try {
         if (!req.body.avatar)
             throw new httpException_1.HttpException(400, 'Invalid avatar');
-        const avatar = await userServices_1.default.handleUploadAvatar(req.user, req.body.avatar);
-        return (0, respondSuccess_1.default)(res, 'Cập nhật ảnh đại diện thành công!', avatar);
+        const data = await userServices_1.default.handleUploadAvatar(req.user, req.body.avatar);
+        const message = 'Cập nhật ảnh đại diện thành công';
+        const notification = notificationRepository.create({
+            user: req.user,
+            title: 'profile',
+            content: message
+        });
+        await notificationQueue.add(notification);
+        return (0, respondSuccess_1.default)(res, message, data);
     }
     catch (error) {
         next(error);
@@ -61,8 +86,15 @@ UserController.uploadLogo = async (req, res, next) => {
     try {
         if (!req.body.logo)
             throw new httpException_1.HttpException(400, 'Invalid logo');
-        const logo = await userServices_1.default.handleUploadLogo(req.user, req.body.logo);
-        return (0, respondSuccess_1.default)(res, 'Cập nhật logo công ty thành công', logo);
+        const data = await userServices_1.default.handleUploadLogo(req.user, req.body.logo);
+        const message = 'Cập nhật logo công ty thành công';
+        const notification = notificationRepository.create({
+            user: req.user,
+            title: 'company profile',
+            content: message
+        });
+        await notificationQueue.add(notification);
+        return (0, respondSuccess_1.default)(res, message, data);
     }
     catch (error) {
         next(error);
@@ -72,8 +104,15 @@ UserController.uploadBanner = async (req, res, next) => {
     try {
         if (!req.body.banner)
             throw new httpException_1.HttpException(400, 'Invalid banner');
-        const banner = await userServices_1.default.handleUploadBanner(req.user, req.body.banner);
-        return (0, respondSuccess_1.default)(res, 'Cập nhật banner công ty thành công', banner);
+        const data = await userServices_1.default.handleUploadBanner(req.user, req.body.banner);
+        const message = 'Cập nhật banner công ty thành công';
+        const notification = notificationRepository.create({
+            user: req.user,
+            title: 'company profile',
+            content: message
+        });
+        await notificationQueue.add(notification);
+        return (0, respondSuccess_1.default)(res, message, data);
     }
     catch (error) {
         next(error);

@@ -5,7 +5,6 @@ import { JobPosting } from "../entities"
 import { MySQLErrorCode, approvalStatus } from "../utils/enum"
 import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex, EnumApprovalStatus } from "../utils/enumAction"
 import { getValidSubstrings } from "../utils/utilsFunction"
-import NotificationServices from "./notificationServices"
 import { HttpException } from "../exceptions/httpException"
 
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
@@ -315,8 +314,6 @@ export default class JobPostingServices {
 
         await jobPostingRepository.save(jobPosting);
 
-        await NotificationServices.handleCreateNewNotification(employerId, `Bạn đã cập nhật tin tuyển dụng  ${jobPosting.jobTitle}`);
-
         return jobPosting;
     }
 
@@ -368,10 +365,7 @@ export default class JobPostingServices {
                 keywords: req.body?.keywords ? req.body?.keywords : null,
                 employer: { userId: employerId}
             })
-            await jobPostingRepository.save(post);
-
-            await NotificationServices.handleCreateNewNotification(employerId, 'Đăng tuyển của bạn đang chờ duyệt');
-          
+            await jobPostingRepository.save(post);          
             return post;
         } catch (err) {
             if (err.code === MySQLErrorCode.INVALID_RELATION_KEY || err.code === MySQLErrorCode.INVALID_RELATION_KEY2) {

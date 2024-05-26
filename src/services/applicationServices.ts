@@ -219,7 +219,7 @@ export default class ApplicationServices {
 
         await applicationRepository.save(application)
 
-        return application
+        return {...application, companyName: post.employer.companyName, jobTitle: post.jobTitle}
     }
 
     static handleGetApplicationsByAdmin = async (reqQuery) => {

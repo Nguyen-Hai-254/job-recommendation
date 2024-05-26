@@ -5,7 +5,6 @@ import { Employee, Application, AttachedDocument, OnlineProfile, AnotherDegree, 
 import { MySQLErrorCode, applicationType} from "../utils/enum"
 import { EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } from "../utils/enumAction"
 import { getValidSubstrings } from "../utils/utilsFunction"
-import NotificationServices from "./notificationServices"
 import { HttpException } from "../exceptions/httpException"
 
 const employeeRepository = myDataSource.getRepository(Employee);
@@ -56,8 +55,6 @@ export default class EmployeeServices {
             })
             await attached_documentRepository.save(attached_document);
 
-            await NotificationServices.handleCreateNewNotification(userId, 'Bạn đã tạo hồ sơ đính kèm');
-
             return attached_document;
         } catch (err) {
             if (err.code === MySQLErrorCode.DUPLICATE) {
@@ -98,10 +95,6 @@ export default class EmployeeServices {
         if (dto.keywords) attached_document.keywords = dto.keywords
 
         await attached_documentRepository.save(attached_document);
-
-        // add a new notification
-        await NotificationServices.handleCreateNewNotification(userId, 'Bạn đã cập nhật hồ sơ đính kèm')
-
         return attached_document;
     }
 
@@ -143,7 +136,6 @@ export default class EmployeeServices {
 
             await online_profileRepository.save(online_profile);
         
-            await NotificationServices.handleCreateNewNotification(userId, 'Bạn đã tạo hồ sơ trực tuyến')
             return online_profile;
         } catch (err) {
             if (err.code === MySQLErrorCode.DUPLICATE) {
@@ -184,9 +176,6 @@ export default class EmployeeServices {
         if (dto.keywords) online_profile.keywords = dto.keywords
 
         await online_profileRepository.save(online_profile);
-        
-        await NotificationServices.handleCreateNewNotification(userId, 'Bạn đã cập nhật hồ sơ trực tuyến')
-
         return online_profile;
     }
 

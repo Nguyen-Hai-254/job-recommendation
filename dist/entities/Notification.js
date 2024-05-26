@@ -13,6 +13,10 @@ exports.Notification = void 0;
 const typeorm_1 = require("typeorm");
 const User_1 = require("./User");
 let Notification = class Notification extends typeorm_1.BaseEntity {
+    constructor() {
+        super();
+        this.dateAndTime = new Date();
+    }
 };
 exports.Notification = Notification;
 __decorate([
@@ -22,9 +26,13 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
+], Notification.prototype, "title", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
 ], Notification.prototype, "content", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'timestamp', default: () => "CURRENT_TIMESTAMP" }),
+    (0, typeorm_1.Column)({ type: 'timestamp' }),
     __metadata("design:type", Date)
 ], Notification.prototype, "dateAndTime", void 0);
 __decorate([
@@ -35,6 +43,7 @@ __decorate([
     __metadata("design:type", User_1.User)
 ], Notification.prototype, "user", void 0);
 exports.Notification = Notification = __decorate([
-    (0, typeorm_1.Entity)()
+    (0, typeorm_1.Entity)(),
+    __metadata("design:paramtypes", [])
 ], Notification);
 //# sourceMappingURL=Notification.js.map

@@ -1,8 +1,7 @@
 import moment from "moment"
 import { myDataSource } from "../config/connectDB"
 import { User, Employee, Employer, OnlineProfile, AttachedDocument } from "../entities"
-import { approvalStatus, sex } from "../utils/enum"
-import NotificationServices from "./notificationServices"
+import { sex } from "../utils/enum"
 import { HttpException } from "../exceptions/httpException"
 
 const userRepository = myDataSource.getRepository(User);
@@ -65,8 +64,6 @@ export default class UserServices {
 
         await userRepository.save(findUser);
 
-        await NotificationServices.handleCreateNewNotification(findUser.userId, 'Bạn đã cập nhật thông tin cá nhân');
-
         return  {
                 userId: findUser.userId,
                 email: findUser.email,
@@ -119,8 +116,6 @@ export default class UserServices {
 
         await employerRepository.save(findEmployer.employer);
 
-        await NotificationServices.handleCreateNewNotification(findEmployer.userId, 'Bạn đã cập nhật thông tin công ty của bạn');
-
         return  {
                 userId: findEmployer.userId,
                 email: findEmployer.email,
@@ -144,8 +139,6 @@ export default class UserServices {
         findUser.avatar = avatar;
         await userRepository.save(findUser);
 
-        await NotificationServices.handleCreateNewNotification(findUser.userId, 'Bạn đã cập nhật ảnh đại diện');
-
         return {
                 userId: findUser.userId,
                 email: findUser.email,
@@ -165,8 +158,6 @@ export default class UserServices {
         findEmployer.logo = logo;
         await employerRepository.save(findEmployer);
       
-        await NotificationServices.handleCreateNewNotification(findEmployer.userId, 'Bạn đã cập nhật logo của công ty');
-
         return  {
                 userId: findEmployer.userId,
                 companyName: findEmployer.companyName,
@@ -184,8 +175,6 @@ export default class UserServices {
         findEmployer.banner = banner;
         await employerRepository.save(findEmployer);
       
-        await NotificationServices.handleCreateNewNotification(findEmployer.userId, 'Bạn đã cập nhật banner của công ty');
-
         return  {
                 userId: findEmployer.userId,
                 companyName: findEmployer.companyName,

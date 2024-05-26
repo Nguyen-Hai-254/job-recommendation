@@ -11,7 +11,6 @@ const entities_1 = require("../entities");
 const enum_1 = require("../utils/enum");
 const enumAction_1 = require("../utils/enumAction");
 const utilsFunction_1 = require("../utils/utilsFunction");
-const notificationServices_1 = __importDefault(require("./notificationServices"));
 const httpException_1 = require("../exceptions/httpException");
 const jobPostingRepository = connectDB_1.myDataSource.getRepository(entities_1.JobPosting);
 class JobPostingServices {
@@ -302,7 +301,6 @@ JobPostingServices.handleUpdateJobPosting = async (employerId, postId, dto) => {
     jobPosting.updateAt = new Date();
     jobPosting.check = null;
     await jobPostingRepository.save(jobPosting);
-    await notificationServices_1.default.handleCreateNewNotification(employerId, `Bạn đã cập nhật tin tuyển dụng  ${jobPosting.jobTitle}`);
     return jobPosting;
 };
 JobPostingServices.handleCreateNewJobPosting = async (employerId, req) => {
@@ -355,7 +353,6 @@ JobPostingServices.handleCreateNewJobPosting = async (employerId, req) => {
             employer: { userId: employerId }
         });
         await jobPostingRepository.save(post);
-        await notificationServices_1.default.handleCreateNewNotification(employerId, 'Đăng tuyển của bạn đang chờ duyệt');
         return post;
     }
     catch (err) {

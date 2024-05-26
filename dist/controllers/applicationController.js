@@ -7,6 +7,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const httpException_1 = require("../exceptions/httpException");
 const applicationServices_1 = __importDefault(require("../services/applicationServices"));
 const respondSuccess_1 = __importDefault(require("../utils/respondSuccess"));
+const notificationQueue = require('../queues/notification.queue');
+const mailQueue = require('../queues/mail.queue');
+const connectDB_1 = require("../config/connectDB");
+const entities_1 = require("../entities");
+const notificationRepository = connectDB_1.myDataSource.getRepository(entities_1.Notification);
 class ApplicationController {
 }
 _a = ApplicationController;
@@ -38,7 +43,14 @@ ApplicationController.createNewApplication = async (req, res, next) => {
         if (!req.body)
             throw new httpException_1.HttpException(400, 'Invalid body');
         const application = await applicationServices_1.default.handleCreateNewApplication(userId, req.body);
-        return (0, respondSuccess_1.default)(res, 'Create new application successfully', application, 201);
+        const message = 'Bạn đã tạo và nộp đơn ứng tuyển thành công';
+        const notification = notificationRepository.create({
+            user: req.user,
+            title: 'application',
+            content: message
+        });
+        await notificationQueue.add(notification);
+        return (0, respondSuccess_1.default)(res, message, application, 201);
     }
     catch (error) {
         next(error);
@@ -68,6 +80,7 @@ ApplicationController.getApplicationbyEmployer = async (req, res, next) => {
     }
 };
 ApplicationController.updateApplicationbyEmployer = async (req, res, next) => {
+    var _b;
     try {
         const { userId } = req.user;
         const { id } = req.params;
@@ -76,7 +89,30 @@ ApplicationController.updateApplicationbyEmployer = async (req, res, next) => {
         if (!req.body)
             throw new httpException_1.HttpException(400, 'Invalid body');
         const application = await applicationServices_1.default.handleUpdateApplicationbyEmployer(userId, id, req.body);
-        return (0, respondSuccess_1.default)(res, 'update application by employer successfully', application);
+        const message = 'Bạn đã cập nhật trạng thái đơn ứng tuyển thành công';
+        const notification = notificationRepository.create({
+            user: req.user,
+            title: 'application',
+            content: message
+        });
+        await notificationQueue.add(notification);
+        // send information to employee
+        if ((_b = req.body) === null || _b === void 0 ? void 0 : _b.status) {
+            // create a notification
+            const notificationToEmployee = notificationRepository.create({
+                user: { userId: application.employee.userId },
+                title: 'application',
+                content: `Đơn ứng tuyển của bạn tại tin đăng: ${application.jobTitle} đã được cập nhật thành ${application.status}`
+            });
+            await notificationQueue.add(notificationToEmployee);
+            // send mail
+            await mailQueue.add({
+                emails: application.email,
+                subject: `${application.companyName}: Trạng thái mới đơn ứng tuyển của bạn tại tin đăng: ${application.jobTitle}`,
+                html: `<p>Đơn ứng tuyển của bạn đã được cập nhật trạng thái thành <b>${application.status}</b></p>`,
+            });
+        }
+        return (0, respondSuccess_1.default)(res, message, application);
     }
     catch (error) {
         next(error);

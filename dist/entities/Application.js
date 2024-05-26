@@ -76,12 +76,13 @@ __decorate([
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     }),
-    (0, typeorm_1.JoinColumn)({
-        name: 'postId',
-        referencedColumnName: 'postId'
-    }),
     __metadata("design:type", _1.JobPosting)
 ], Application.prototype, "jobPosting", void 0);
+__decorate([
+    (0, typeorm_1.RelationId)((application) => application.jobPosting) // you need to specify target relation
+    ,
+    __metadata("design:type", Number)
+], Application.prototype, "postId", void 0);
 exports.Application = Application = __decorate([
     (0, typeorm_1.Entity)()
 ], Application);

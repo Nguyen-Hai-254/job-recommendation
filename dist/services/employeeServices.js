@@ -11,7 +11,6 @@ const entities_1 = require("../entities");
 const enum_1 = require("../utils/enum");
 const enumAction_1 = require("../utils/enumAction");
 const utilsFunction_1 = require("../utils/utilsFunction");
-const notificationServices_1 = __importDefault(require("./notificationServices"));
 const httpException_1 = require("../exceptions/httpException");
 const employeeRepository = connectDB_1.myDataSource.getRepository(entities_1.Employee);
 const applicationRepository = connectDB_1.myDataSource.getRepository(entities_1.Application);
@@ -61,7 +60,6 @@ EmployeeServices.handleCreateNewAttachedDocument = async (userId, dto) => {
             isHidden: dto.isHidden ? dto.isHidden : false
         });
         await attached_documentRepository.save(attached_document);
-        await notificationServices_1.default.handleCreateNewNotification(userId, 'Bạn đã tạo hồ sơ đính kèm');
         return attached_document;
     }
     catch (err) {
@@ -115,8 +113,6 @@ EmployeeServices.handleUpdateAttachedDocument = async (userId, dto) => {
     if (dto.keywords)
         attached_document.keywords = dto.keywords;
     await attached_documentRepository.save(attached_document);
-    // add a new notification
-    await notificationServices_1.default.handleCreateNewNotification(userId, 'Bạn đã cập nhật hồ sơ đính kèm');
     return attached_document;
 };
 EmployeeServices.handleGetOnlineProfile = async (userId) => {
@@ -154,7 +150,6 @@ EmployeeServices.handleCreateNewOnlineProfile = async (userId, dto) => {
             isHidden: dto.isHidden ? dto.isHidden : false
         });
         await online_profileRepository.save(online_profile);
-        await notificationServices_1.default.handleCreateNewNotification(userId, 'Bạn đã tạo hồ sơ trực tuyến');
         return online_profile;
     }
     catch (err) {
@@ -208,7 +203,6 @@ EmployeeServices.handleUpdateOnlineProfile = async (userId, dto) => {
     if (dto.keywords)
         online_profile.keywords = dto.keywords;
     await online_profileRepository.save(online_profile);
-    await notificationServices_1.default.handleCreateNewNotification(userId, 'Bạn đã cập nhật hồ sơ trực tuyến');
     return online_profile;
 };
 // Update online profile: another degree, education information, work experience

@@ -9,12 +9,24 @@ const notificationRepository = connectDB_1.myDataSource.getRepository(entities_1
 class NotificationServices {
 }
 _a = NotificationServices;
-NotificationServices.handleCreateNewNotification = async (userId, content) => {
+NotificationServices.handleCreateNewNotification = async (userId, title, content) => {
     try {
         const notification = notificationRepository.create({
             content: content,
+            title: title,
             user: { userId: userId }
         });
+        await notificationRepository.save(notification);
+    }
+    catch (err) {
+        if (err.code === enum_1.MySQLErrorCode.INVALID_RELATION_KEY || err.code === enum_1.MySQLErrorCode.INVALID_RELATION_KEY2) {
+            throw new httpException_1.HttpException(404, 'User not found');
+        }
+        throw err;
+    }
+};
+NotificationServices.saveNotification = async (notification) => {
+    try {
         await notificationRepository.save(notification);
     }
     catch (err) {

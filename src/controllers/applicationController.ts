@@ -1,6 +1,12 @@
 import { HttpException } from "../exceptions/httpException";
 import ApplicationServices from "../services/applicationServices";
 import respondSuccess from "../utils/respondSuccess";
+const notificationQueue = require('../queues/notification.queue');
+const mailQueue = require('../queues/mail.queue')
+
+import { myDataSource } from "../config/connectDB"
+import { Notification } from "../entities"
+const notificationRepository = myDataSource.getRepository(Notification);
 
 export default class ApplicationController {
     static getApplicationsbyEmployee = async (req, res, next) => {
@@ -29,7 +35,16 @@ export default class ApplicationController {
             const { userId } = req.user;
             if (!req.body) throw new HttpException(400, 'Invalid body');
             const application = await ApplicationServices.handleCreateNewApplication(userId, req.body);
-            return respondSuccess(res, 'Create new application successfully', application, 201);
+            const message = 'Bạn đã tạo và nộp đơn ứng tuyển thành công';
+            
+            const notification = notificationRepository.create({
+                user: req.user,
+                title: 'application', 
+                content: message
+            })
+            await notificationQueue.add(notification)
+
+            return respondSuccess(res, message, application, 201);
         } catch (error) {
             next(error);
         }
@@ -64,7 +79,33 @@ export default class ApplicationController {
             if (!id) throw new HttpException(400, 'Invalid id');
             if (!req.body) throw new HttpException(400, 'Invalid body');
             const application = await ApplicationServices.handleUpdateApplicationbyEmployer(userId, id, req.body);
-            return respondSuccess(res, 'update application by employer successfully', application);
+            const message = 'Bạn đã cập nhật trạng thái đơn ứng tuyển thành công';
+            
+            const notification = notificationRepository.create({
+                user: req.user,
+                title: 'application', 
+                content: message
+            })
+            await notificationQueue.add(notification)
+
+            // send information to employee
+            if (req.body?.status) { 
+                // create a notification
+                const notificationToEmployee = notificationRepository.create({
+                    user: { userId: application.employee.userId },
+                    title: 'application',
+                    content: `Đơn ứng tuyển của bạn tại tin đăng: ${application.jobTitle} đã được cập nhật thành ${application.status}`
+                })
+                await notificationQueue.add(notificationToEmployee)
+                // send mail
+                await mailQueue.add({
+                    emails: application.email,
+                    subject: `${application.companyName}: Trạng thái mới đơn ứng tuyển của bạn tại tin đăng: ${application.jobTitle}`,
+                    html: `<p>Đơn ứng tuyển của bạn đã được cập nhật trạng thái thành <b>${application.status}</b></p>`,
+                });
+            }
+
+            return respondSuccess(res, message, application);
         } catch (error) {
             next(error);
         }

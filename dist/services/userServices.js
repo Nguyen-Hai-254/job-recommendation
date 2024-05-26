@@ -8,7 +8,6 @@ const moment_1 = __importDefault(require("moment"));
 const connectDB_1 = require("../config/connectDB");
 const entities_1 = require("../entities");
 const enum_1 = require("../utils/enum");
-const notificationServices_1 = __importDefault(require("./notificationServices"));
 const httpException_1 = require("../exceptions/httpException");
 const userRepository = connectDB_1.myDataSource.getRepository(entities_1.User);
 const employerRepository = connectDB_1.myDataSource.getRepository(entities_1.Employer);
@@ -65,7 +64,6 @@ UserServices.handleEditProfile = async (user, body) => {
         await employeeRepository.save(findUser.employee);
     }
     await userRepository.save(findUser);
-    await notificationServices_1.default.handleCreateNewNotification(findUser.userId, 'Bạn đã cập nhật thông tin cá nhân');
     return {
         userId: findUser.userId,
         email: findUser.email,
@@ -116,7 +114,6 @@ UserServices.handleEditInformationCompany = async (user, body) => {
     if (body.description)
         findEmployer.employer.description = body.description;
     await employerRepository.save(findEmployer.employer);
-    await notificationServices_1.default.handleCreateNewNotification(findEmployer.userId, 'Bạn đã cập nhật thông tin công ty của bạn');
     return {
         userId: findEmployer.userId,
         email: findEmployer.email,
@@ -137,7 +134,6 @@ UserServices.handleUploadAvatar = async (user, avatar) => {
         throw new httpException_1.HttpException(404, `user not found`);
     findUser.avatar = avatar;
     await userRepository.save(findUser);
-    await notificationServices_1.default.handleCreateNewNotification(findUser.userId, 'Bạn đã cập nhật ảnh đại diện');
     return {
         userId: findUser.userId,
         email: findUser.email,
@@ -153,7 +149,6 @@ UserServices.handleUploadLogo = async (user, logo) => {
         throw new httpException_1.HttpException(404, `user not found`);
     findEmployer.logo = logo;
     await employerRepository.save(findEmployer);
-    await notificationServices_1.default.handleCreateNewNotification(findEmployer.userId, 'Bạn đã cập nhật logo của công ty');
     return {
         userId: findEmployer.userId,
         companyName: findEmployer.companyName,
@@ -168,7 +163,6 @@ UserServices.handleUploadBanner = async (user, banner) => {
         throw new httpException_1.HttpException(404, `user not found`);
     findEmployer.banner = banner;
     await employerRepository.save(findEmployer);
-    await notificationServices_1.default.handleCreateNewNotification(findEmployer.userId, 'Bạn đã cập nhật banner của công ty');
     return {
         userId: findEmployer.userId,
         companyName: findEmployer.companyName,
@@ -176,12 +170,10 @@ UserServices.handleUploadBanner = async (user, banner) => {
     };
 };
 UserServices.handleGetInformationCompanyByUser = async (id) => {
-    var _b;
     const getEmployer = await userRepository
         .createQueryBuilder('user')
         .select(['user'])
         .leftJoinAndSelect('user.employer', 'employer')
-        .leftJoinAndSelect('employer.jobPostings', 'jobPosting', 'jobPosting.status = :status', { status: enum_1.approvalStatus.approved })
         .where('user.userId = :id', { id })
         .getOne();
     if (!getEmployer)
@@ -198,7 +190,6 @@ UserServices.handleGetInformationCompanyByUser = async (id) => {
         logo: getEmployer.employer.logo,
         banner: getEmployer.employer.banner,
         description: getEmployer.employer.description,
-        list_job_postings: (_b = getEmployer.employer) === null || _b === void 0 ? void 0 : _b.jobPostings
     };
 };
 UserServices.handleGetAllCompanyByUser = async (reqQuery) => {

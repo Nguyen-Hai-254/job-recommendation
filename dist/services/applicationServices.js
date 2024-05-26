@@ -97,6 +97,9 @@ ApplicationServices.handleGetApplicationsbyEmployer = async (userId, reqQuery) =
         .createQueryBuilder('application')
         .leftJoinAndSelect('application.employee', 'employee')
         .leftJoinAndSelect('employee.online_profile', 'online_profile', 'application.applicationType = :type1', { type1: 'Nộp trực tuyến' })
+        .leftJoinAndSelect('online_profile.another_degrees', 'another_degrees')
+        .leftJoinAndSelect('online_profile.education_informations', 'education_informations')
+        .leftJoinAndSelect('online_profile.work_experiences', 'work_experiences')
         .leftJoinAndSelect('employee.attached_document', 'attached_document', 'application.applicationType = :type2', { type2: 'CV đính kèm' })
         .leftJoin('employee.user', 'user')
         .addSelect(['user.dob', 'user.address', 'user.sex', 'user.avatar'])
@@ -113,7 +116,7 @@ ApplicationServices.handleGetApplicationsbyEmployer = async (userId, reqQuery) =
         query = query.andWhere('application.status = :status', { status });
     }
     if (postId) {
-        query = query.andWhere('application.postId = :postId', { postId });
+        query = query.andWhere('application.jobPosting.postId = :postId', { postId });
     }
     // Pagination
     query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
@@ -208,7 +211,7 @@ ApplicationServices.handleUpdateApplicationbyEmployer = async (userId, id, dto) 
     if (dto.matchingScore)
         application.matchingScore = dto.matchingScore;
     await applicationRepository.save(application);
-    return application;
+    return { ...application, companyName: post.employer.companyName, jobTitle: post.jobTitle };
 };
 ApplicationServices.handleGetApplicationsByAdmin = async (reqQuery) => {
     const { applicationType, name, status, postId, num, page } = reqQuery;

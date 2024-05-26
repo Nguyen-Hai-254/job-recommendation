@@ -3,13 +3,21 @@ import { User } from "./User"
 
 @Entity()
 export class Notification extends BaseEntity {
+    constructor() {
+        super();
+        this.dateAndTime = new Date();
+    }
+
     @PrimaryGeneratedColumn()
     notificationId: number
 
     @Column()
+    title: string
+
+    @Column()
     content: string
 
-    @Column({ type: 'timestamp', default: () => "CURRENT_TIMESTAMP" })
+    @Column({ type: 'timestamp' })
     dateAndTime: Date
 
     @ManyToOne(() => User,

@@ -8,6 +8,10 @@ const enum_1 = require("../utils/enum");
 const httpException_1 = require("../exceptions/httpException");
 const jobpostingServices_1 = __importDefault(require("../services/jobpostingServices"));
 const respondSuccess_1 = __importDefault(require("../utils/respondSuccess"));
+const notificationQueue = require('../queues/notification.queue');
+const connectDB_1 = require("../config/connectDB");
+const entities_1 = require("../entities");
+const notificationRepository = connectDB_1.myDataSource.getRepository(entities_1.Notification);
 class JobPostingController {
 }
 _a = JobPostingController;
@@ -81,7 +85,14 @@ JobPostingController.createNewJobPosting = async (req, res, next) => {
     try {
         const { userId } = req.user;
         const jobPosting = await jobpostingServices_1.default.handleCreateNewJobPosting(userId, req);
-        return (0, respondSuccess_1.default)(res, 'Create job posting successfully', jobPosting, 201);
+        const message = `Bạn đã tạo tin tuyển dụng ${jobPosting.jobTitle} thành công`;
+        const notification = notificationRepository.create({
+            user: req.user,
+            title: 'job posting',
+            content: message
+        });
+        await notificationQueue.add(notification);
+        return (0, respondSuccess_1.default)(res, message, jobPosting, 201);
     }
     catch (error) {
         next(error);
@@ -119,7 +130,14 @@ JobPostingController.updateJobPosting = async (req, res, next) => {
         if (!req.body)
             throw new httpException_1.HttpException(400, 'req body is required');
         const jobPosting = await jobpostingServices_1.default.handleUpdateJobPosting(userId, postId, req.body);
-        return (0, respondSuccess_1.default)(res, `Job posting has postId: ${postId} are updated successfully`, jobPosting);
+        const message = `Bạn đã cập nhật tin tuyển dụng ${jobPosting.jobTitle} (postId:${postId})`;
+        const notification = notificationRepository.create({
+            user: req.user,
+            title: 'job posting',
+            content: message
+        });
+        await notificationQueue.add(notification);
+        return (0, respondSuccess_1.default)(res, message, jobPosting);
     }
     catch (error) {
         next(error);

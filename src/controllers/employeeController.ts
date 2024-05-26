@@ -1,6 +1,11 @@
 import { HttpException } from "../exceptions/httpException";
 import EmployeeServices from "../services/employeeServices";
 import respondSuccess from "../utils/respondSuccess";
+const notificationQueue = require('../queues/notification.queue');
+
+import { myDataSource } from "../config/connectDB"
+import { Notification } from "../entities"
+const notificationRepository = myDataSource.getRepository(Notification);
 
 export default class EmployeeController {
     static getAttachedDocument = async (req, res, next) => {
@@ -18,7 +23,16 @@ export default class EmployeeController {
             const { userId } = req.user;
             if (!req.body) throw new HttpException(400, 'Invalid body')
             const attached_document = await EmployeeServices.handleCreateNewAttachedDocument(userId, req.body);
-            return respondSuccess(res, 'Create my new attached document successfully', attached_document, 201)
+            const message = 'Bạn đã tạo hồ sơ đính kèm';
+            
+            const notification = notificationRepository.create({
+                user: req.user,
+                title: 'attached document', 
+                content: message
+            })
+            await notificationQueue.add(notification)
+
+            return respondSuccess(res, message, attached_document, 201)
         } catch (error) {
             next(error);
         }
@@ -29,7 +43,16 @@ export default class EmployeeController {
             const { userId } = req.user;
             if (!req.body) throw new HttpException(400, 'Invalid body')
             const attached_document = await EmployeeServices.handleUpdateAttachedDocument(userId, req.body);
-            return respondSuccess(res, 'update my attached document successfully', attached_document)
+            const message = 'Bạn đã cập nhật hồ sơ đính kèm';
+
+            const notification = notificationRepository.create({
+                user: req.user,
+                title: 'attached document', 
+                content: message
+            })
+            await notificationQueue.add(notification)
+
+            return respondSuccess(res, message, attached_document)
         } catch (error) {
             next(error);
         }
@@ -61,7 +84,16 @@ export default class EmployeeController {
             const { userId } = req.user;
             if (!req.body) throw new HttpException(400, 'Invalid body');
             const online_profile = await EmployeeServices.handleCreateNewOnlineProfile(userId, req.body);
-            return respondSuccess(res, 'Create my new online profile successfully', online_profile, 201);
+            const message = 'Bạn đã tạo hồ sơ trực tuyến';
+
+            const notification = notificationRepository.create({
+                user: req.user,
+                title: 'online profile', 
+                content: message
+            })
+            await notificationQueue.add(notification)
+
+            return respondSuccess(res, message, online_profile, 201);
         } catch (error) {
             next(error);
         }
@@ -72,7 +104,16 @@ export default class EmployeeController {
             const { userId } = req.user;
             if (!req.body) throw new HttpException(400, 'Invalid body');
             const online_profile = await EmployeeServices.handleUpdateOnlineProfile(userId, req.body);
-            return respondSuccess(res, 'Update my online profile successfully', online_profile);
+            const message = 'Bạn đã cập nhật hồ sơ trực tuyến';
+
+            const notification = notificationRepository.create({
+                user: req.user,
+                title: 'online profile', 
+                content: message
+            })
+            await notificationQueue.add(notification)
+
+            return respondSuccess(res, message, online_profile);
         } catch (error) {
             next(error);
         }

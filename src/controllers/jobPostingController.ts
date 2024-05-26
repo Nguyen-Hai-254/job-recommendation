@@ -2,6 +2,11 @@ import { approvalStatus } from "../utils/enum";
 import { HttpException } from "../exceptions/httpException";
 import JobPostingServices from "../services/jobpostingServices";
 import respondSuccess from "../utils/respondSuccess";
+const notificationQueue = require('../queues/notification.queue');
+
+import { myDataSource } from "../config/connectDB"
+import { Notification } from "../entities"
+const notificationRepository = myDataSource.getRepository(Notification);
 
 export default class JobPostingController {
     // Every User
@@ -72,7 +77,16 @@ export default class JobPostingController {
         try {
             const { userId } = req.user;
             const jobPosting = await JobPostingServices.handleCreateNewJobPosting(userId, req);
-            return respondSuccess(res, 'Create job posting successfully', jobPosting, 201);
+            const message = `Bạn đã tạo tin tuyển dụng ${jobPosting.jobTitle} thành công`;
+            
+            const notification = notificationRepository.create({
+                user: req.user,
+                title: 'job posting', 
+                content: message
+            })
+            await notificationQueue.add(notification)
+
+            return respondSuccess(res, message, jobPosting, 201);
         } catch (error) {
             next(error);
         }
@@ -109,7 +123,16 @@ export default class JobPostingController {
             if (!req.body) throw new HttpException(400, 'req body is required');
 
             const jobPosting = await JobPostingServices.handleUpdateJobPosting( userId, postId, req.body);
-            return respondSuccess(res, `Job posting has postId: ${postId} are updated successfully`, jobPosting);
+            const message = `Bạn đã cập nhật tin tuyển dụng ${jobPosting.jobTitle} (postId:${postId})`;
+
+            const notification = notificationRepository.create({
+                user: req.user,
+                title: 'job posting', 
+                content: message
+            })
+            await notificationQueue.add(notification)
+
+            return respondSuccess(res, message, jobPosting);
         } catch (error) {
             next(error);
         }

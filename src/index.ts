@@ -6,12 +6,32 @@ import cookieParser from "cookie-parser"
 import cors from "cors"
 import { rateLimit } from 'express-rate-limit'
 
+import Queue from "bull";
+import { createBullBoard } from '@bull-board/api';
+import { BullAdapter } from '@bull-board/api/bullAdapter';
+import { ExpressAdapter } from '@bull-board/express';
+import { queueOptions, queuesList, PORT } from './config';
+
 import { connectDB } from "./config/connectDB"
 import { errorMiddleware } from "./middlewares/error"
 import { HttpException } from "./exceptions/httpException";
 const cronJob =  require('./cron/updateExpiredJobStatusCron')
 
-let app = express();
+// 0. queues
+const serverAdapter = new ExpressAdapter();
+serverAdapter.setBasePath('/admin/queues');
+
+const queues = queuesList
+  .map((qs) => new Queue(qs, queueOptions))
+  .map((q) => new BullAdapter(q));
+
+const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
+  queues,
+  serverAdapter: serverAdapter,
+});
+
+// set up
+const app = express();
 const routes = require('./routes/web')
 
 // 1. connect to database
@@ -47,6 +67,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // 3. initializeRoutes
+app.use('/admin/queues', serverAdapter.getRouter());
 // 3.1. set default prefix
 app.use('/api/v1', routes)
 // 3.2. Invalid route
@@ -63,7 +84,7 @@ cronJob.start();
 // 5. initializeErrorHandling
 app.use(errorMiddleware);
 
-let port = process.env.PORT || 3002;
-app.listen(port, () => {
-    console.log('BackEnd NodeJS is running on the port:', port);
+app.listen(PORT, () => {
+    console.info('BackEnd NodeJS is running on the port:', PORT);
+    console.info(`For the UI, open http://localhost:${PORT}/admin/queues`);
 })

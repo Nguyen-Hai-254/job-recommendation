@@ -73,13 +73,17 @@ FollowServices.handleSaveEmployee = async (user, emloyeeId, isOnlineProfile) => 
     ;
 };
 FollowServices.handleGetFollowByEmployee = async (user, reqQuery) => {
-    const { num, page } = reqQuery;
-    const [items, totalItems] = await followRepository.findAndCount({
-        where: { employeeId: user.userId },
-        relations: ['employer'],
-        skip: (Number(page) - 1) * Number(num),
-        take: Number(num)
-    });
+    const { companyIds, num, page } = reqQuery;
+    let query = followRepository.createQueryBuilder('follow')
+        .leftJoinAndSelect('follow.employer', 'employer')
+        .where('follow.employeeId = :employeeId', { employeeId: user.userId });
+    if (companyIds) {
+        const ArrayCompanyIds = companyIds.split(',').map(companyId => Number(companyId));
+        query = query.andWhere('follow.employerId IN (:...ArrayCompanyIds)', { ArrayCompanyIds });
+    }
+    // Pagination
+    query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
+    const [items, totalItems] = await query.getManyAndCount();
     const totalPages = Math.ceil(totalItems / num);
     return {
         items: items,
