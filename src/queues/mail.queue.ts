@@ -1,8 +1,8 @@
 import Queue from 'bull';
-import { queueOptions } from '../config';
+import { RedisOpts, JobOpts } from '../config';
 import MailServices from '../services/mailServices';
 
-const mailQueue = new Queue('mail', queueOptions);
+const mailQueue = new Queue('mail', { redis: RedisOpts, defaultJobOptions: {...JobOpts, priority: 2} });
 
 mailQueue.process(async (payload, done) => {
     try {
