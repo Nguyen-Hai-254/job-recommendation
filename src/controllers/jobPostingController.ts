@@ -33,6 +33,7 @@ export default class JobPostingController {
     static getTotalResultsOfProfession = async (req, res, next) => {
         try {
             req.query.status = approvalStatus.approved;
+            req.query.isHidden = false;
             const jobPostings = await JobPostingServices.handleGetTotalResultsOfProfession(req.query);
             return respondSuccess(res, 'get total results of professions successfully', jobPostings);
         } catch (error) {
@@ -78,7 +79,7 @@ export default class JobPostingController {
             const { userId } = req.user;
             const jobPosting = await JobPostingServices.handleCreateNewJobPosting(userId, req);
             const message = `Bạn đã tạo tin tuyển dụng ${jobPosting.jobTitle} thành công`;
-            
+
             const notification = notificationRepository.create({
                 user: req.user,
                 title: 'job posting', 

@@ -25,6 +25,28 @@ NotificationServices.handleCreateNewNotification = async (userId, title, content
         throw err;
     }
 };
+NotificationServices.handleGetNotificationsByUser = async (userId, reqQuery) => {
+    const { num, page } = reqQuery;
+    let query = notificationRepository
+        .createQueryBuilder('notification')
+        .leftJoin('notification.user', 'user')
+        .where('user.userId = :userId', { userId: userId })
+        .orderBy('notification.dateAndTime', 'DESC');
+    // Pagination
+    query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
+    const [items, totalItems] = await query.getManyAndCount();
+    const totalPages = Math.ceil(totalItems / num);
+    return {
+        items: items,
+        meta: {
+            totalItems,
+            itemCount: items.length,
+            itemsPerPage: num,
+            totalPages,
+            currentPage: page
+        }
+    };
+};
 NotificationServices.saveNotification = async (notification) => {
     try {
         await notificationRepository.save(notification);

@@ -11,6 +11,7 @@ const entities_1 = require("../entities");
 const enum_1 = require("../utils/enum");
 const enumAction_1 = require("../utils/enumAction");
 const utilsFunction_1 = require("../utils/utilsFunction");
+const dataConversion_1 = require("../utils/dataConversion");
 const httpException_1 = require("../exceptions/httpException");
 const jobPostingRepository = connectDB_1.myDataSource.getRepository(entities_1.JobPosting);
 class JobPostingServices {
@@ -18,7 +19,11 @@ class JobPostingServices {
 _a = JobPostingServices;
 JobPostingServices.handleGetJobPosting = async (postId) => {
     const jobPosting = await jobPostingRepository.findOne({
-        where: { postId: postId, isHidden: false },
+        where: {
+            postId: postId,
+            status: enum_1.approvalStatus.approved,
+            isHidden: false
+        },
         relations: ['employer']
     });
     if (!jobPosting)
@@ -32,7 +37,8 @@ JobPostingServices.handleGetAllJobPostings = async (reqQuery) => {
     let query = jobPostingRepository.createQueryBuilder('job-postings');
     // jobposting for employee, employer, unknown
     query = query.leftJoinAndSelect("job-postings.employer", "employer")
-        .where('job-postings.status = :status', { status: enum_1.approvalStatus.approved });
+        .where('job-postings.status = :status', { status: enum_1.approvalStatus.approved })
+        .andWhere('job-postings.isHidden = false');
     // Public
     if (workAddress) {
         query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
@@ -164,11 +170,13 @@ JobPostingServices.handleGetAllJobPostingsByAdmin = async (reqQuery) => {
     };
 };
 JobPostingServices.handleGetTotalResultsOfProfession = async (reqQuery) => {
-    const { status } = reqQuery;
+    const { status, isHidden } = reqQuery;
     let query = jobPostingRepository.createQueryBuilder('jobPosting')
         .select('jobPosting.profession', 'profession');
     if (status)
         query = query.where('jobPosting.status = :status', { status });
+    if ((0, dataConversion_1.convertToBoolean)(isHidden) !== null)
+        query = query.andWhere('jobPosting.isHidden = :isHidden', { isHidden: (0, dataConversion_1.convertToBoolean)(isHidden) });
     const posts = await query.getRawMany();
     const professionCount = {};
     for (const post of posts) {

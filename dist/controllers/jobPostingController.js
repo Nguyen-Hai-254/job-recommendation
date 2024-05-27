@@ -40,6 +40,7 @@ JobPostingController.getAllJobPostings = async (req, res, next) => {
 JobPostingController.getTotalResultsOfProfession = async (req, res, next) => {
     try {
         req.query.status = enum_1.approvalStatus.approved;
+        req.query.isHidden = false;
         const jobPostings = await jobpostingServices_1.default.handleGetTotalResultsOfProfession(req.query);
         return (0, respondSuccess_1.default)(res, 'get total results of professions successfully', jobPostings);
     }

@@ -12,6 +12,7 @@ const utilsRoute_1 = __importDefault(require("./utilsRoute"));
 const followRoute_1 = __importDefault(require("./followRoute"));
 const adminRoute_1 = __importDefault(require("./adminRoute"));
 const authRoute_1 = __importDefault(require("./authRoute"));
+const notificationRoute_1 = __importDefault(require("./notificationRoute"));
 const route = express_1.default.Router();
 route.use('/', authRoute_1.default);
 route.use('/', userRoute_1.default);
@@ -21,5 +22,6 @@ route.use('/', employeeRoute_1.default);
 route.use('/', utilsRoute_1.default);
 route.use('/', followRoute_1.default);
 route.use('/', adminRoute_1.default);
+route.use('/', notificationRoute_1.default);
 module.exports = route;
 //# sourceMappingURL=web.js.map

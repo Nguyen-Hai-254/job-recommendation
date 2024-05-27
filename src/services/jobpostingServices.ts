@@ -5,6 +5,7 @@ import { JobPosting } from "../entities"
 import { MySQLErrorCode, approvalStatus } from "../utils/enum"
 import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex, EnumApprovalStatus } from "../utils/enumAction"
 import { getValidSubstrings } from "../utils/utilsFunction"
+import { convertToBoolean } from "../utils/dataConversion"
 import { HttpException } from "../exceptions/httpException"
 
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
@@ -12,7 +13,11 @@ const jobPostingRepository = myDataSource.getRepository(JobPosting);
 export default class JobPostingServices {
     static handleGetJobPosting = async (postId) => {               
         const jobPosting = await jobPostingRepository.findOne({
-            where: { postId: postId, isHidden: false },
+            where: { 
+                postId: postId, 
+                status:  approvalStatus.approved,
+                isHidden: false 
+            },
             relations: ['employer']
         })
         if (!jobPosting) throw new HttpException(404, `No Job posting matches postId: ${postId}`)
@@ -29,6 +34,7 @@ export default class JobPostingServices {
         // jobposting for employee, employer, unknown
         query = query.leftJoinAndSelect("job-postings.employer", "employer")
             .where('job-postings.status = :status', { status: approvalStatus.approved })
+            .andWhere('job-postings.isHidden = false')
         // Public
         if (workAddress) {
             query = query.andWhere('job-postings.workAddress LIKE :workAddress', { workAddress: `%${workAddress}%` });
@@ -180,11 +186,14 @@ export default class JobPostingServices {
     }
  
     static handleGetTotalResultsOfProfession = async (reqQuery) => {
-        const { status } = reqQuery;
+        const { status, isHidden } = reqQuery;
 
         let query = jobPostingRepository.createQueryBuilder('jobPosting')
             .select('jobPosting.profession', 'profession');
+
         if (status)  query = query.where('jobPosting.status = :status', { status });
+        if (convertToBoolean(isHidden) !== null) query = query.andWhere('jobPosting.isHidden = :isHidden', { isHidden: convertToBoolean(isHidden) });
+
         const posts = await query.getRawMany();
 
         const professionCount = {};
