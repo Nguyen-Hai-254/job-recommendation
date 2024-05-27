@@ -514,6 +514,37 @@ export default class EmployeeServices {
         }
     }
 
+    static handleGetEmployeeJobApplicationByEmployer = async (employeeId, type) => {
+        if (type === applicationType.online_profile) {
+            const online_profile = await online_profileRepository
+                .createQueryBuilder('online_profile')
+                .select(['online_profile', 'work_experiences', 'education_informations', 'another_degrees', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar', 'user.phone', 'user.email'])
+                .where('online_profile.isHidden = false')
+                .andWhere('online_profile.userId = :employeeId', { employeeId })
+                .leftJoin('online_profile.work_experiences', 'work_experiences')
+                .leftJoin('online_profile.education_informations', 'education_informations')
+                .leftJoin('online_profile.another_degrees', 'another_degrees')
+                .leftJoin('online_profile.employee', 'employee')
+                .leftJoin('employee.user', 'user')
+                .getOne();
+            if (!online_profile) throw new HttpException(404, `online profile of employee:${employeeId} not found`);
+            return online_profile;
+        }
+        else if (type === applicationType.attached_document) {
+            const attached_document = await attached_documentRepository
+                .createQueryBuilder('attached_document')
+                .select(['attached_document', 'employee.isMarried', 'user.userId', 'user.name', 'user.dob', 'user.address', 'user.sex', 'user.avatar', 'user.phone', 'user.email'])
+                .where('attached_document.isHidden = false')
+                .andWhere('attached_document.userId = :employeeId', { employeeId })
+                .leftJoin('attached_document.employee', 'employee')
+                .leftJoin('employee.user', 'user')
+                .getOne();
+            if (!attached_document) throw new HttpException(404, `attached document of employee:${employeeId} not found`);
+            return attached_document;
+        }
+        else throw new HttpException(400, `Application type must be ${applicationType.attached_document}, ${applicationType.online_profile}`);
+    }
+
     static handleGetEmployeesByEmployerSortByKeywords = async (reqQuery) => {
         const { num, page} = reqQuery;
         const sortByKeywords = await sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery);

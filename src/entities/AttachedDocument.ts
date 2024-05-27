@@ -1,11 +1,22 @@
 import { Entity, BaseEntity, PrimaryColumn, Column, OneToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
 import { Employee } from "./"
-import { degree, employmentType, experience, positionLevel } from "../utils/enum"
+import { degree, employmentType, experience, positionLevel, applicationType } from "../utils/enum"
 
 @Entity()
 export class AttachedDocument extends BaseEntity {
     @PrimaryColumn()
-    userId: number;
+    userId: number
+
+    @Column({
+        type: 'enum',
+        enum: applicationType,
+        default: applicationType.attached_document,
+        nullable: false,
+        update: false,
+        insert: true
+    })
+    applicationType: applicationType
+
 
     @Column({ nullable: true })
     jobTitle: string

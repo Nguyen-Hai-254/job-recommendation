@@ -30,6 +30,7 @@ route.delete('/employee/online-profile/work-experience/:id', verifyToken, verify
 
 route.get('/employer/employees', verifyToken, verifyRole(userRole.Employer), paginationParser, EmployeeController.getEmployeesByEmployer);
 route.get('/employer/employees/sortbykeywords', verifyToken, verifyRole(userRole.Employer), paginationParser, EmployeeController.getEmployeesByEmployerSortByKeywords);
+route.get('/employer/employees/:id', verifyToken, verifyRole(userRole.Employer), EmployeeController.getEmployeeJobApplicationByEmployer);
 
 route.get('/admin/employees', verifyToken, verifyRole(userRole.Admin), paginationParser, EmployeeController.getEmployeesByAdmin);
 

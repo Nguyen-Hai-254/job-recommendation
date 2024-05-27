@@ -1,11 +1,22 @@
 import { Entity, BaseEntity, PrimaryColumn, Column, OneToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm"
 import { Employee, WorkExperience, EducationInformation, AnotherDegree } from "./"
-import { degree, employmentType, experience, positionLevel } from "../utils/enum"
+import { degree, employmentType, experience, positionLevel, applicationType } from "../utils/enum"
 
 @Entity()
 export class OnlineProfile extends BaseEntity {
     @PrimaryColumn()
-    userId: number;
+    userId: number
+
+    @Column({
+        type: 'enum',
+        enum: applicationType,
+        default: applicationType.online_profile,
+        nullable: false,
+        update: false,
+        insert: true
+    })
+    applicationType: applicationType
+
     // general information
     @Column({ nullable: true })
     jobTitle: string

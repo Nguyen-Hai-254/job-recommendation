@@ -261,7 +261,21 @@ export default class EmployeeController {
         }
     }
 
+    static getEmployeeJobApplicationByEmployer = async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const  { type } = req.query;
+            if (!id) throw new HttpException(400, 'id is invalid');
+            if (!type) throw new HttpException(400, 'type is invalid');
+            const employee = await EmployeeServices.handleGetEmployeeJobApplicationByEmployer(id, type);
+            return respondSuccess(res, 'get employee by employer successfully', employee);
+        } catch (error) {
+            next(error);
+        }
+    }
+
    
+    handleGetEmployeeJobApplicationByEmployer
     static getEmployeesByEmployerSortByKeywords = async (req, res, next) => {
         try {
             const { keywords } = req.query;
