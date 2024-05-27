@@ -273,9 +273,7 @@ export default class EmployeeController {
             next(error);
         }
     }
-
    
-    handleGetEmployeeJobApplicationByEmployer
     static getEmployeesByEmployerSortByKeywords = async (req, res, next) => {
         try {
             const { keywords } = req.query;

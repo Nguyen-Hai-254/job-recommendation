@@ -58,6 +58,17 @@ export default class JobPostingController {
             if (!req.body) throw new HttpException(400, 'req body is required');
 
             const jobPosting = await JobPostingServices.handleUpdateJobPostingByAdmin(postId, req.body);
+            
+            if (req.body.status) {
+                // TODO: send notification to employer
+                const notificationToEmployer = notificationRepository.create({
+                    user: { userId: jobPosting.employer.userId },
+                    title: 'job posting', 
+                    content: `Tin tuyển dụng của bạn ${jobPosting.jobTitle} đã được admin cập nhật thành ${jobPosting.status}`
+                })
+                await notificationQueue.add(notificationToEmployer)
+            }
+
             return respondSuccess(res, `Job posting has postId: ${postId} are updated successfully`, jobPosting);
         } catch (error) {
             next(error);
