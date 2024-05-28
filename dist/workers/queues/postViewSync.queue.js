@@ -9,7 +9,7 @@ const redis_1 = __importDefault(require("../../config/redis"));
 const entities_1 = require("../../entities");
 const connectDB_1 = require("../../config/connectDB");
 const jobPostingRepository = connectDB_1.myDataSource.getRepository(entities_1.JobPosting);
-const postViewSyncQueue = new bull_1.default('post-view-sync', { redis: config_1.RedisOpts, defaultJobOptions: { ...config_1.JobOpts, priority: 3, attempts: 3 } });
+const postViewSyncQueue = new bull_1.default('post-view-sync', { redis: config_1.RedisOpts, defaultJobOptions: { ...config_1.JobOpts, priority: 4, attempts: 3 } });
 postViewSyncQueue.process('post-view-sync', async (payload, done) => {
     try {
         const postViews = await redis_1.default.HGETALL('post-views');

@@ -6,7 +6,7 @@ import { myDataSource } from "../../config/connectDB"
 
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
 
-const postViewSyncQueue = new Queue('post-view-sync', { redis: RedisOpts, defaultJobOptions: {...JobOpts, priority: 3, attempts: 3 } });
+const postViewSyncQueue = new Queue('post-view-sync', { redis: RedisOpts, defaultJobOptions: {...JobOpts, priority: 4, attempts: 3 } });
 
 postViewSyncQueue.process('post-view-sync', async (payload, done) => {
     try {

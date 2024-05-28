@@ -2,7 +2,7 @@ import Queue from 'bull';
 import { RedisOpts, JobOpts } from '../../config';
 import NotificationServices from '../../services/notificationServices';
 
-const notificationQueue = new Queue('notification', { redis: RedisOpts, defaultJobOptions: {...JobOpts, priority: 1} });
+const notificationQueue = new Queue('notification', { redis: RedisOpts, defaultJobOptions: {...JobOpts, priority: 2} });
 
 notificationQueue.process(async (payload, done) => {
     try {

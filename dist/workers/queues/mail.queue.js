@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bull_1 = __importDefault(require("bull"));
 const config_1 = require("../../config");
 const mailServices_1 = __importDefault(require("../../services/mailServices"));
-const mailQueue = new bull_1.default('mail', { redis: config_1.RedisOpts, defaultJobOptions: { ...config_1.JobOpts, priority: 2 } });
+const mailQueue = new bull_1.default('mail', { redis: config_1.RedisOpts, defaultJobOptions: { ...config_1.JobOpts, priority: 6 } });
 mailQueue.process(async (payload, done) => {
     try {
         const { emails, subject, html } = payload.data;
