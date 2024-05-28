@@ -13,6 +13,7 @@ const enumAction_1 = require("../utils/enumAction");
 const utilsFunction_1 = require("../utils/utilsFunction");
 const dataConversion_1 = require("../utils/dataConversion");
 const httpException_1 = require("../exceptions/httpException");
+const redis_1 = __importDefault(require("../config/redis"));
 const jobPostingRepository = connectDB_1.myDataSource.getRepository(entities_1.JobPosting);
 class JobPostingServices {
 }
@@ -28,8 +29,6 @@ JobPostingServices.handleGetJobPosting = async (postId) => {
     });
     if (!jobPosting)
         throw new httpException_1.HttpException(404, `No Job posting matches postId: ${postId}`);
-    jobPosting.view += 1;
-    await jobPosting.save();
     return jobPosting;
 };
 JobPostingServices.handleGetAllJobPostings = async (reqQuery) => {
@@ -96,8 +95,10 @@ JobPostingServices.handleGetAllJobPostings = async (reqQuery) => {
     query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
     const [items, totalItems] = await query.getManyAndCount();
     const totalPages = Math.ceil(totalItems / num);
+    // Todo: get items with view from redis
+    const transformedItems = await _a.getPostsWithViewForRedis(items);
     return {
-        items: items,
+        items: transformedItems,
         meta: {
             totalItems,
             itemCount: items.length,
@@ -153,13 +154,15 @@ JobPostingServices.handleGetAllJobPostingsByAdmin = async (reqQuery) => {
     query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
     const [items, totalItems] = await query.getManyAndCount();
     const totalPages = Math.ceil(totalItems / num);
+    // Todo: get items with view from redis
+    const transformedItems1 = await _a.getPostsWithViewForRedis(items);
     // Todo: Handle items
-    const transformedItems = items.map(job => ({
+    const transformedItems2 = transformedItems1.map(job => ({
         ...job,
         submissionCount: job.applications.length
     }));
     return {
-        items: transformedItems,
+        items: transformedItems2,
         meta: {
             totalItems,
             itemCount: items.length,
@@ -211,13 +214,15 @@ JobPostingServices.handleGetJobPostingsByEmployer = async (employerId, reqQuery)
     query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
     const [items, totalItems] = await query.getManyAndCount();
     const totalPages = Math.ceil(totalItems / num);
+    // Todo: get items with view from redis
+    const transformedItems1 = await _a.getPostsWithViewForRedis(items);
     // Todo: Handle items
-    const transformedItems = items.map(job => ({
+    const transformedItems2 = transformedItems1.map(job => ({
         ...job,
         submissionCount: job.applications.length
     }));
     return {
-        items: transformedItems,
+        items: transformedItems2,
         meta: {
             totalItems,
             itemCount: items.length,
@@ -396,6 +401,18 @@ JobPostingServices.handleUpdateJobPostingByAdmin = async (postId, dto) => {
     if (check !== null)
         jobPosting.check = check;
     return await jobPostingRepository.save(jobPosting);
+};
+JobPostingServices.getPostsWithViewForRedis = async (posts) => {
+    // Handle view
+    const redisViews = await Promise.all(posts.map(post => post.postId).map(postId => redis_1.default.HGET('post-views', postId.toString())));
+    const mergedPosts = posts.map((post, index) => {
+        const redisView = redisViews[index];
+        return {
+            ...post,
+            view: redisView ? parseInt(redisView) : post.view
+        };
+    });
+    return mergedPosts;
 };
 exports.default = JobPostingServices;
 //# sourceMappingURL=jobpostingServices.js.map

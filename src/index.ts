@@ -80,6 +80,7 @@ app.use("*", (req, res) => {
 
 // 4. Cron
 cronJob.start();
+require('./workers');
 
 // 5. initializeErrorHandling
 app.use(errorMiddleware);

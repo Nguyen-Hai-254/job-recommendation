@@ -19,5 +19,5 @@ export const queueOptions = {
     redis: RedisOpts,
     defaultJobOptions: JobOpts
 }
-export const queuesList = ['mail', 'notification']
+export const queuesList = ['mail', 'notification', 'post-view-sync']
 export const PORT = Number(process.env.PORT)

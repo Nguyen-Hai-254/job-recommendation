@@ -21,6 +21,6 @@ exports.queueOptions = {
     redis: exports.RedisOpts,
     defaultJobOptions: exports.JobOpts
 };
-exports.queuesList = ['mail', 'notification'];
+exports.queuesList = ['mail', 'notification', 'post-view-sync'];
 exports.PORT = Number(process.env.PORT);
 //# sourceMappingURL=index.js.map

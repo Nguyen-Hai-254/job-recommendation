@@ -1,0 +1,1 @@
+require('./crons/postViewSync.cron');

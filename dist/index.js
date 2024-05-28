@@ -74,6 +74,7 @@ app.use("*", (req, res) => {
 });
 // 4. Cron
 cronJob.start();
+require('./workers');
 // 5. initializeErrorHandling
 app.use(error_1.errorMiddleware);
 app.listen(config_1.PORT, () => {
