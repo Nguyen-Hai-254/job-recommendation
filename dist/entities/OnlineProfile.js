@@ -21,6 +21,17 @@ __decorate([
     __metadata("design:type", Number)
 ], OnlineProfile.prototype, "userId", void 0);
 __decorate([
+    (0, typeorm_1.Column)({
+        type: 'enum',
+        enum: enum_1.applicationType,
+        default: enum_1.applicationType.online_profile,
+        nullable: false,
+        update: false,
+        insert: true
+    }),
+    __metadata("design:type", String)
+], OnlineProfile.prototype, "applicationType", void 0);
+__decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], OnlineProfile.prototype, "jobTitle", void 0);

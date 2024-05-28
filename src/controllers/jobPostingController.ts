@@ -2,7 +2,7 @@ import { approvalStatus } from "../utils/enum";
 import { HttpException } from "../exceptions/httpException";
 import JobPostingServices from "../services/jobpostingServices";
 import respondSuccess from "../utils/respondSuccess";
-const notificationQueue = require('../queues/notification.queue');
+const notificationQueue = require('../workers/queues/notification.queue');
 
 import { myDataSource } from "../config/connectDB"
 import { Notification } from "../entities"

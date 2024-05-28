@@ -1,8 +1,8 @@
 import { HttpException } from "../exceptions/httpException";
 import ApplicationServices from "../services/applicationServices";
 import respondSuccess from "../utils/respondSuccess";
-const notificationQueue = require('../queues/notification.queue');
-const mailQueue = require('../queues/mail.queue')
+const notificationQueue = require('../workers/queues/notification.queue');
+const mailQueue = require('../workers/queues/mail.queue')
 
 import { myDataSource } from "../config/connectDB"
 import { Notification } from "../entities"

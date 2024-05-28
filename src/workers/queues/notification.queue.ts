@@ -1,6 +1,6 @@
 import Queue from 'bull';
-import { RedisOpts, JobOpts } from '../config';
-import NotificationServices from '../services/notificationServices';
+import { RedisOpts, JobOpts } from '../../config';
+import NotificationServices from '../../services/notificationServices';
 
 const notificationQueue = new Queue('notification', { redis: RedisOpts, defaultJobOptions: {...JobOpts, priority: 1} });
 

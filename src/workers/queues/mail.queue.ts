@@ -1,6 +1,6 @@
 import Queue from 'bull';
-import { RedisOpts, JobOpts } from '../config';
-import MailServices from '../services/mailServices';
+import { RedisOpts, JobOpts } from '../../config';
+import MailServices from '../../services/mailServices';
 
 const mailQueue = new Queue('mail', { redis: RedisOpts, defaultJobOptions: {...JobOpts, priority: 2} });
 

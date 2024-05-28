@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const httpException_1 = require("../exceptions/httpException");
 const employeeServices_1 = __importDefault(require("../services/employeeServices"));
 const respondSuccess_1 = __importDefault(require("../utils/respondSuccess"));
-const notificationQueue = require('../queues/notification.queue');
+const notificationQueue = require('../workers/queues/notification.queue');
 const connectDB_1 = require("../config/connectDB");
 const entities_1 = require("../entities");
 const notificationRepository = connectDB_1.myDataSource.getRepository(entities_1.Notification);
@@ -273,6 +273,21 @@ EmployeeController.getEmployeesByEmployer = async (req, res, next) => {
     try {
         const employees = await employeeServices_1.default.handleGetEmployeesByEmployer(req.query);
         return (0, respondSuccess_1.default)(res, 'get employees by employer successfully', employees);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+EmployeeController.getEmployeeJobApplicationByEmployer = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { type } = req.query;
+        if (!id)
+            throw new httpException_1.HttpException(400, 'id is invalid');
+        if (!type)
+            throw new httpException_1.HttpException(400, 'type is invalid');
+        const employee = await employeeServices_1.default.handleGetEmployeeJobApplicationByEmployer(id, type);
+        return (0, respondSuccess_1.default)(res, 'get employee by employer successfully', employee);
     }
     catch (error) {
         next(error);

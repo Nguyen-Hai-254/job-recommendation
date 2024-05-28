@@ -29,6 +29,7 @@ route.put('/employee/online-profile/work-experience/:id', auth_1.verifyToken, (0
 route.delete('/employee/online-profile/work-experience/:id', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), employeeController_1.default.deleteWorkExperience);
 route.get('/employer/employees', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), paginationParser_1.paginationParser, employeeController_1.default.getEmployeesByEmployer);
 route.get('/employer/employees/sortbykeywords', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), paginationParser_1.paginationParser, employeeController_1.default.getEmployeesByEmployerSortByKeywords);
+route.get('/employer/employees/:id', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), employeeController_1.default.getEmployeeJobApplicationByEmployer);
 route.get('/admin/employees', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Admin), paginationParser_1.paginationParser, employeeController_1.default.getEmployeesByAdmin);
 exports.default = route;
 //# sourceMappingURL=employeeRoute.js.map

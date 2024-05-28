@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const httpException_1 = require("../exceptions/httpException");
 const userServices_1 = __importDefault(require("../services/userServices"));
 const respondSuccess_1 = __importDefault(require("../utils/respondSuccess"));
-const notificationQueue = require('../queues/notification.queue');
+const notificationQueue = require('../workers/queues/notification.queue');
 const connectDB_1 = require("../config/connectDB");
 const entities_1 = require("../entities");
 const notificationRepository = connectDB_1.myDataSource.getRepository(entities_1.Notification);

@@ -8,7 +8,7 @@ const enum_1 = require("../utils/enum");
 const httpException_1 = require("../exceptions/httpException");
 const jobpostingServices_1 = __importDefault(require("../services/jobpostingServices"));
 const respondSuccess_1 = __importDefault(require("../utils/respondSuccess"));
-const notificationQueue = require('../queues/notification.queue');
+const notificationQueue = require('../workers/queues/notification.queue');
 const connectDB_1 = require("../config/connectDB");
 const entities_1 = require("../entities");
 const notificationRepository = connectDB_1.myDataSource.getRepository(entities_1.Notification);
@@ -66,6 +66,15 @@ JobPostingController.UpdateJobPostingByAdmin = async (req, res, next) => {
         if (!req.body)
             throw new httpException_1.HttpException(400, 'req body is required');
         const jobPosting = await jobpostingServices_1.default.handleUpdateJobPostingByAdmin(postId, req.body);
+        if (req.body.status) {
+            // TODO: send notification to employer
+            const notificationToEmployer = notificationRepository.create({
+                user: { userId: jobPosting.employer.userId },
+                title: 'job posting',
+                content: `Tin tuyển dụng của bạn ${jobPosting.jobTitle} đã được admin cập nhật thành ${jobPosting.status}`
+            });
+            await notificationQueue.add(notificationToEmployer);
+        }
         return (0, respondSuccess_1.default)(res, `Job posting has postId: ${postId} are updated successfully`, jobPosting);
     }
     catch (error) {
