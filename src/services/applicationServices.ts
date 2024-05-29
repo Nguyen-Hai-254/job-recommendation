@@ -1,6 +1,7 @@
 import { myDataSource } from "../config/connectDB"
 import { User, Application, JobPosting, AttachedDocument, OnlineProfile } from "../entities"
 import { MySQLErrorCode, applicationType } from "../utils/enum"
+import { SortDirection } from "../utils/enums/sort-direction.enum"
 import { EnumApplicationType, EnumApprovalStatus } from "../utils/enumAction"
 import { HttpException } from "../exceptions/httpException"
 
@@ -93,7 +94,7 @@ export default class ApplicationServices {
     }
 
     static handleGetApplicationsbyEmployer = async (userId, reqQuery) => {
-        const { applicationType, name, status, postId, num, page} = reqQuery;
+        const { applicationType, name, status, postId, num, page, orderBy, sort} = reqQuery;
         // get list of applications by employer
         let query = applicationRepository
             .createQueryBuilder('application')
@@ -106,6 +107,7 @@ export default class ApplicationServices {
             .leftJoin('employee.user', 'user')
             .addSelect(['user.dob','user.address', 'user.sex', 'user.avatar'])
             .leftJoin('application.jobPosting', 'jobPosting')
+            .addSelect(['jobPosting.jobTitle'])
             .where('jobPosting.employer_id = :userId', { userId: userId });
         // query by applicationType, name, status, postId
         if (applicationType) {
@@ -120,6 +122,24 @@ export default class ApplicationServices {
         if (postId) {
             query = query.andWhere('application.jobPosting.postId = :postId', {postId});
         }
+
+        // sort
+        if (orderBy) {
+            if (!SortDirection.hasOwnProperty(sort)) throw new HttpException(400, 'Invalid sort');
+            switch (orderBy) {
+                case 'name': case 'matchingScore': case 'createAt':
+                    query= query.orderBy(`application.${orderBy}`, sort)
+                    break;
+                case 'jobTitle':
+                    query= query.orderBy(`jobPosting.${orderBy}`, sort)
+                    break;
+                default:
+                    throw new HttpException(400, 'Invalid order by');
+            }
+        } {
+            query= query.orderBy(`application.createAt`, "DESC")
+        }
+
         
         // Pagination
         query = query.skip((Number(page)-1) * Number(num)).take(Number(num));
