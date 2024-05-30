@@ -29,6 +29,7 @@ route.put('/employee/online-profile/work-experience/:id', verifyToken, verifyRol
 route.delete('/employee/online-profile/work-experience/:id', verifyToken, verifyRole(userRole.Employee), EmployeeController.deleteWorkExperience);
 
 route.get('/employer/employees', verifyToken, verifyRole(userRole.Employer), paginationParser, EmployeeController.getEmployeesByEmployer);
+route.get('/employer/employees/applied', verifyToken, verifyRole(userRole.Employer), EmployeeController.getCheckEmployeesAppliedByEmployer);
 route.get('/employer/employees/sortbykeywords', verifyToken, verifyRole(userRole.Employer), paginationParser, EmployeeController.getEmployeesByEmployerSortByKeywords);
 route.get('/employer/employees/:id', verifyToken, verifyRole(userRole.Employer), EmployeeController.getEmployeeJobApplicationByEmployer);
 

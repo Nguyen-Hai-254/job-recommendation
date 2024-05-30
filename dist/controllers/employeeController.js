@@ -288,6 +288,15 @@ EmployeeController.getEmployeesByEmployer = async (req, res, next) => {
         next(error);
     }
 };
+EmployeeController.getCheckEmployeesAppliedByEmployer = async (req, res, next) => {
+    try {
+        const employees = await employeeServices_1.default.checkEmployeesAppliedByEmployer(req.user.userId, req.query);
+        return (0, respondSuccess_1.default)(res, 'get check employees already applied successfully', employees);
+    }
+    catch (error) {
+        next(error);
+    }
+};
 EmployeeController.getEmployeeJobApplicationByEmployer = async (req, res, next) => {
     try {
         const { id } = req.params;

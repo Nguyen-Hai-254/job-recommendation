@@ -531,6 +531,21 @@ EmployeeServices.handleGetEmployeesByEmployer = async (reqQuery) => {
         }
     };
 };
+EmployeeServices.checkEmployeesAppliedByEmployer = async (employerId, reqQuery) => {
+    const { employeeIds } = reqQuery;
+    if (!employeeIds)
+        throw new httpException_1.HttpException(400, 'Invalid employeeIds');
+    const ArrayEmployeeIds = employeeIds.split(',').map(employeeId => Number(employeeId));
+    const applicants = await applicationRepository.createQueryBuilder('application')
+        .select(['application.application_id', 'application.employeeId'])
+        .leftJoin('application.jobPosting', 'jobPosting')
+        .where('jobPosting.employer_id = :employerId', { employerId })
+        .andWhere('jobPosting.status = :status', { status: enum_1.approvalStatus.approved })
+        .andWhere('application.employeeId IN (:...ArrayEmployeeIds)', { ArrayEmployeeIds })
+        .getMany();
+    const applicantIds = applicants === null || applicants === void 0 ? void 0 : applicants.map(applicant => applicant.employeeId);
+    return [...new Set(applicantIds)];
+};
 EmployeeServices.handleGetEmployeeJobApplicationByEmployer = async (employeeId, type) => {
     if (type === enum_1.applicationType.online_profile) {
         const online_profile = await online_profileRepository

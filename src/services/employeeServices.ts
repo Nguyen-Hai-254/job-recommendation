@@ -2,7 +2,7 @@ import { Brackets, EntityManager } from "typeorm"
 import moment from "moment"
 import { myDataSource } from "../config/connectDB"
 import { Employee, Application, AttachedDocument, OnlineProfile, AnotherDegree, EducationInformation, WorkExperience } from "../entities"
-import { MySQLErrorCode, applicationType} from "../utils/enum"
+import { MySQLErrorCode, applicationType, approvalStatus} from "../utils/enum"
 import { EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } from "../utils/enumAction"
 import { getValidSubstrings } from "../utils/utilsFunction"
 import { HttpException } from "../exceptions/httpException"
@@ -527,6 +527,23 @@ export default class EmployeeServices {
                 currentPage: page
             }
         }
+    }
+
+    static checkEmployeesAppliedByEmployer = async (employerId, reqQuery) => {
+        const { employeeIds } = reqQuery;
+        if (!employeeIds) throw new HttpException(400, 'Invalid employeeIds');
+        const ArrayEmployeeIds: number[] = employeeIds.split(',').map(employeeId => Number(employeeId));
+
+        const applicants = await applicationRepository.createQueryBuilder('application')
+                            .select(['application.application_id', 'application.employeeId'])
+                            .leftJoin('application.jobPosting', 'jobPosting')
+                            .where('jobPosting.employer_id = :employerId', { employerId })
+                            .andWhere('jobPosting.status = :status', { status: approvalStatus.approved })
+                            .andWhere('application.employeeId IN (:...ArrayEmployeeIds)' , {ArrayEmployeeIds})
+                            .getMany();
+        const applicantIds = applicants?.map(applicant => applicant.employeeId);
+        return [...new Set(applicantIds)];
+        
     }
 
     static handleGetEmployeeJobApplicationByEmployer = async (employeeId, type) => {

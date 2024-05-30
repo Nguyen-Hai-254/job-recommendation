@@ -273,6 +273,15 @@ export default class EmployeeController {
         }
     }
 
+    static getCheckEmployeesAppliedByEmployer = async (req, res, next) => {
+        try {
+            const employees = await EmployeeServices.checkEmployeesAppliedByEmployer(req.user.userId, req.query);
+            return respondSuccess(res, 'get check employees already applied successfully', employees);
+        } catch (error) {
+            next(error);
+        }
+    }
+
     static getEmployeeJobApplicationByEmployer = async (req, res, next) => {
         try {
             const { id } = req.params;
