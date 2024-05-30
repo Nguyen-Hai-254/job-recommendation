@@ -10,6 +10,8 @@ route.get('/employee/applications', verifyToken, verifyRole(userRole.Employee), 
 route.get('/employee/applications/:id', verifyToken, verifyRole(userRole.Employee), ApplicationController.getApplication);
 route.post('/employee/applications', verifyToken, verifyRole(userRole.Employee), ApplicationController.createNewApplication);
 
+route.get('/employee/job-postings/:postId/applied', verifyToken, verifyRole(userRole.Employee), ApplicationController.getCheckApplied)
+
 route.get('/employer/applications', verifyToken, verifyRole(userRole.Employer), paginationParser, ApplicationController.getApplicationsbyEmployer);
 route.get('/employer/applications/:id', verifyToken, verifyRole(userRole.Employer), ApplicationController.getApplicationbyEmployer);
 route.put('/employer/applications/:id', verifyToken, verifyRole(userRole.Employer), ApplicationController.updateApplicationbyEmployer);

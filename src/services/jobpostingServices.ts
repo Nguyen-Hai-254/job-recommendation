@@ -174,7 +174,7 @@ export default class JobPostingServices {
                         return subQuery
                         .select('COUNT(application.application_id)', 'submissionCount')
                         .from('application', 'application')
-                        .where('application.jobPostingPostId = job-postings.postId')
+                        .where('application.postId = job-postings.postId')
                     }, 'submissionCount')
                     .orderBy('submissionCount', sort)
                     break;
@@ -269,7 +269,7 @@ export default class JobPostingServices {
                         return subQuery
                           .select('COUNT(application.application_id)', 'submissionCount')
                           .from('application', 'application')
-                          .where('application.jobPostingPostId = jobPosting.postId')
+                          .where('application.postId = jobPosting.postId')
                       }, 'submissionCount')
                     .orderBy('submissionCount', sort)
                     break;

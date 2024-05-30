@@ -1,8 +1,9 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn, RelationId } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn, RelationId, Unique } from "typeorm"
 import { Employee, JobPosting } from "./"
 import { applicationType, approvalStatus } from "../utils/enum"
 
 @Entity()
+@Unique(['employeeId', 'postId'])
 export class Application extends BaseEntity {
     @PrimaryGeneratedColumn()
     application_id: number
@@ -43,9 +44,19 @@ export class Application extends BaseEntity {
     })
     status: approvalStatus
 
+    @Column()
+    employeeId: number
+
+    @Column()
+    postId: number
+
     @ManyToOne(() => Employee, (employee) => employee.applications, {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
+    })
+    @JoinColumn({
+        name: 'employeeId',
+        referencedColumnName: 'userId'
     })
     employee: Employee
 
@@ -53,8 +64,9 @@ export class Application extends BaseEntity {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     })
+    @JoinColumn({
+        name: 'postId',
+        referencedColumnName: 'postId'
+    })
     jobPosting: JobPosting
-
-    @RelationId((application: Application) => application.jobPosting) // you need to specify target relation
-    postId: number
 }

@@ -119,4 +119,17 @@ export default class ApplicationController {
             next(error);
         }
     }
+
+    static getCheckApplied = async (req, res, next) => {
+        try {
+            const { userId } = req.user;
+            const { postId } = req.params;
+            if (!postId) throw new HttpException(400, 'Invalid post id provided') 
+            const applications = await ApplicationServices.check_applied(userId, postId)
+            return respondSuccess(res, 'get check appplied successfully', applications);
+        } catch (error) {
+            next(error);
+        }
+    }
+
 }

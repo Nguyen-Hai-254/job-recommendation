@@ -111,6 +111,9 @@ ApplicationServices.handleCreateNewApplication = async (userId, dto) => {
         if (err.code === enum_1.MySQLErrorCode.INVALID_RELATION_KEY || err.code === enum_1.MySQLErrorCode.INVALID_RELATION_KEY2) {
             throw new httpException_1.HttpException(404, 'Employee, Job posting Not Found');
         }
+        if (err.code === enum_1.MySQLErrorCode.DUPLICATE) {
+            throw new httpException_1.HttpException(409, 'You already applied for this post!');
+        }
         throw err;
     }
 };
@@ -294,6 +297,15 @@ ApplicationServices.handleGetApplicationsByAdmin = async (reqQuery) => {
             currentPage: page
         }
     };
+};
+ApplicationServices.check_applied = async (employeeId, postId) => {
+    const check = await applicationRepository.findOne({
+        where: {
+            employeeId: employeeId,
+            postId: postId
+        }
+    });
+    return check ? true : false;
 };
 exports.default = ApplicationServices;
 //# sourceMappingURL=applicationServices.js.map
