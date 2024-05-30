@@ -30,6 +30,15 @@ export default class AdminController {
         }
     }
 
+    static getAllEmail = async (req, res, next) => {
+        try {
+            const getAllEmail = await AdminServices.handleGetAllEmail(req.query);
+            return respondSuccess(res, 'OK', getAllEmail);
+        } catch (error) {
+            next(error);
+        }
+    }
+
     static sendEmail = async (req, res, next) => {
         try {
             const { emails, subject, html } = req.body;
