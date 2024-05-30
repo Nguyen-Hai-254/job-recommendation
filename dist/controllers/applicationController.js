@@ -127,5 +127,18 @@ ApplicationController.getApplicationsByAdmin = async (req, res, next) => {
         next(error);
     }
 };
+ApplicationController.getCheckApplied = async (req, res, next) => {
+    try {
+        const { userId } = req.user;
+        const { postId } = req.params;
+        if (!postId)
+            throw new httpException_1.HttpException(400, 'Invalid post id provided');
+        const applications = await applicationServices_1.default.check_applied(userId, postId);
+        return (0, respondSuccess_1.default)(res, 'get check appplied successfully', applications);
+    }
+    catch (error) {
+        next(error);
+    }
+};
 exports.default = ApplicationController;
 //# sourceMappingURL=applicationController.js.map

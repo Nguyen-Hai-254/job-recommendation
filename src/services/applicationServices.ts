@@ -108,6 +108,9 @@ export default class ApplicationServices {
             if (err.code === MySQLErrorCode.INVALID_RELATION_KEY || err.code === MySQLErrorCode.INVALID_RELATION_KEY2) {
                 throw new HttpException(404, 'Employee, Job posting Not Found')
             }
+            if (err.code === MySQLErrorCode.DUPLICATE) {
+                throw new HttpException(409, 'You already applied for this post!')
+            }
             throw err;
         }
 
@@ -302,6 +305,16 @@ export default class ApplicationServices {
             }
         }
 
+    }
+
+    static check_applied = async (employeeId, postId) => {
+        const check = await applicationRepository.findOne({
+            where: {
+                employeeId: employeeId,
+                postId: postId
+        }})
+
+        return check ? true : false;
     }
 }
 

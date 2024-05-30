@@ -13,6 +13,7 @@ const route = express_1.default.Router();
 route.get('/employee/applications', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), paginationParser_1.paginationParser, applicationController_1.default.getApplicationsbyEmployee);
 route.get('/employee/applications/:id', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), applicationController_1.default.getApplication);
 route.post('/employee/applications', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), applicationController_1.default.createNewApplication);
+route.get('/employee/job-postings/:postId/applied', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employee), applicationController_1.default.getCheckApplied);
 route.get('/employer/applications', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), paginationParser_1.paginationParser, applicationController_1.default.getApplicationsbyEmployer);
 route.get('/employer/applications/:id', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), applicationController_1.default.getApplicationbyEmployer);
 route.put('/employer/applications/:id', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), applicationController_1.default.updateApplicationbyEmployer);

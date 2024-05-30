@@ -65,9 +65,21 @@ __decorate([
     __metadata("design:type", String)
 ], Application.prototype, "status", void 0);
 __decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], Application.prototype, "employeeId", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], Application.prototype, "postId", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => _1.Employee, (employee) => employee.applications, {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
+    }),
+    (0, typeorm_1.JoinColumn)({
+        name: 'employeeId',
+        referencedColumnName: 'userId'
     }),
     __metadata("design:type", _1.Employee)
 ], Application.prototype, "employee", void 0);
@@ -76,14 +88,14 @@ __decorate([
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     }),
+    (0, typeorm_1.JoinColumn)({
+        name: 'postId',
+        referencedColumnName: 'postId'
+    }),
     __metadata("design:type", _1.JobPosting)
 ], Application.prototype, "jobPosting", void 0);
-__decorate([
-    (0, typeorm_1.RelationId)((application) => application.jobPosting) // you need to specify target relation
-    ,
-    __metadata("design:type", Number)
-], Application.prototype, "postId", void 0);
 exports.Application = Application = __decorate([
-    (0, typeorm_1.Entity)()
+    (0, typeorm_1.Entity)(),
+    (0, typeorm_1.Unique)(['employeeId', 'postId'])
 ], Application);
 //# sourceMappingURL=Application.js.map

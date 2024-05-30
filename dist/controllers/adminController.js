@@ -37,6 +37,15 @@ AdminController.getAllUser = async (req, res, next) => {
         next(error);
     }
 };
+AdminController.getAllEmail = async (req, res, next) => {
+    try {
+        const getAllEmail = await adminServices_1.default.handleGetAllEmail(req.query);
+        return (0, respondSuccess_1.default)(res, 'OK', getAllEmail);
+    }
+    catch (error) {
+        next(error);
+    }
+};
 AdminController.sendEmail = async (req, res, next) => {
     try {
         const { emails, subject, html } = req.body;

@@ -106,6 +106,33 @@ AdminServices.handleGetAllUser = async (reqQuery) => {
         }
     };
 };
+AdminServices.handleGetAllEmail = async (reqQuery) => {
+    const { page, num, role, keyword } = reqQuery;
+    let query = userRepository.createQueryBuilder('user')
+        .select(['user.email']);
+    if (role) {
+        query = query.where('user.role = :role', { role });
+    }
+    if (keyword) {
+        query = query.andWhere(new typeorm_1.Brackets(qb => qb.where('user.name ILike :keyword', { keyword: `%${keyword}%` })
+            .orWhere('user.email ILike :keyword', { keyword: `%${keyword}%` })));
+    }
+    // Pagination
+    if (num && page)
+        query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
+    const [items, totalItems] = await query.getManyAndCount();
+    const totalPages = (num && page) ? Math.ceil(totalItems / num) : 1;
+    return {
+        items: items,
+        meta: {
+            totalItems,
+            itemCount: items.length,
+            itemsPerPage: (num && page) ? parseInt(num) : totalItems,
+            totalPages,
+            currentPage: (num && page) ? parseInt(page) : 1
+        }
+    };
+};
 AdminServices.handleSendEmail = async (emails, subject, html) => {
     const info = await mailServices_1.default.sendEmailForUsers(emails, subject, html);
     return { accepted: info.accepted, rejected: info.rejected };
