@@ -1,7 +1,7 @@
 import { Brackets, ILike } from "typeorm"
 import { myDataSource } from "../config/connectDB"
 import { User, JobPosting, OnlineProfile, AttachedDocument } from "../entities"
-import { approvalStatus, monthMap} from "../utils/enum"
+import { approvalStatus, monthMap } from "../utils/enum"
 import { countCandidatesbyProfession, createArrayForDate, mergerTwoObject } from "../utils/utilsFunction"
 import MailServices from "./mailServices"
 import { SortDirection } from "../utils/enums/sort-direction.enum"
@@ -84,27 +84,27 @@ export default class AdminServices {
             );
         }
 
-         // sort
+        // sort
         if (orderBy) {
             if (!SortDirection.hasOwnProperty(sort)) throw new HttpException(400, 'Invalid sort');
             switch (orderBy) {
                 case 'name': case 'email': case 'dob': case 'phone': case 'sex': case 'role':
-                    query= query.orderBy(`user.${orderBy}`, sort)
+                    query = query.orderBy(`user.${orderBy}`, sort)
                     break;
                 default:
                     throw new HttpException(400, 'Invalid order by');
             }
         } else {
-            query= query.orderBy(`user.name`, "ASC")
+            query = query.orderBy(`user.name`, "ASC")
         }
 
         // Pagination
-        query = query.skip((Number(page)-1) * Number(num)).take(Number(num));
+        query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
 
         const [items, totalItems] = await query.getManyAndCount();
         const totalPages = Math.ceil(totalItems / num);
-  
-        return  {
+
+        return {
             items: items,
             meta: {
                 totalItems,
@@ -114,12 +114,12 @@ export default class AdminServices {
                 currentPage: page
             }
         }
-     }
+    }
 
-     static handleGetAllEmail = async (reqQuery) => {
+    static handleGetAllEmail = async (reqQuery) => {
         const { page, num, role, keyword } = reqQuery;
         let query = userRepository.createQueryBuilder('user')
-                                .select(['user.email']);
+            .select(['user.email']);
 
         if (role) {
             query = query.where('user.role = :role', { role })
@@ -135,12 +135,12 @@ export default class AdminServices {
         }
 
         // Pagination
-        if (num && page) query = query.skip((Number(page)-1) * Number(num)).take(Number(num));
+        if (num && page) query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
 
         const [items, totalItems] = await query.getManyAndCount();
         const totalPages = (num && page) ? Math.ceil(totalItems / num) : 1;
-  
-        return  {
+
+        return {
             items: items,
             meta: {
                 totalItems,
@@ -150,7 +150,7 @@ export default class AdminServices {
                 currentPage: (num && page) ? parseInt(page) : 1
             }
         }
-     }
+    }
 
     static handleSendEmail = async (emails, subject, html) => {
         const info = await MailServices.sendEmailForUsers(emails, subject, html);
