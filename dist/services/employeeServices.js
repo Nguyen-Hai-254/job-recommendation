@@ -12,6 +12,7 @@ const enum_1 = require("../utils/enum");
 const enumAction_1 = require("../utils/enumAction");
 const utilsFunction_1 = require("../utils/utilsFunction");
 const httpException_1 = require("../exceptions/httpException");
+const sort_direction_enum_1 = require("../utils/enums/sort-direction.enum");
 const employeeRepository = connectDB_1.myDataSource.getRepository(entities_1.Employee);
 const applicationRepository = connectDB_1.myDataSource.getRepository(entities_1.Application);
 const attached_documentRepository = connectDB_1.myDataSource.getRepository(entities_1.AttachedDocument);
@@ -390,7 +391,7 @@ EmployeeServices.handleDeleteWorkExperience = async (userId, id) => {
 };
 // Features for employer, admin
 EmployeeServices.handleGetEmployeesByAdmin = async (reqQuery) => {
-    const { name, profession, num, page } = reqQuery;
+    const { name, profession, num, page, orderBy, sort } = reqQuery;
     let query = employeeRepository
         .createQueryBuilder('employee')
         .select(['employee', 'user', 'attached_document', 'online_profile', 'work_experiences', 'education_informations', 'another_degrees'])
@@ -406,6 +407,22 @@ EmployeeServices.handleGetEmployeesByAdmin = async (reqQuery) => {
     }
     if (name) {
         query = query.andWhere('user.name LIKE :name', { name: `%${name}%` });
+    }
+    // sort
+    if (orderBy) {
+        if (!sort_direction_enum_1.SortDirection.hasOwnProperty(sort))
+            throw new httpException_1.HttpException(400, 'Invalid sort');
+        switch (orderBy) {
+            case 'name':
+            case 'email':
+                query = query.orderBy(`user.${orderBy}`, sort);
+                break;
+            default:
+                throw new httpException_1.HttpException(400, 'Invalid order by');
+        }
+    }
+    else {
+        query = query.orderBy(`user.name`, "ASC");
     }
     // Pagination
     query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));

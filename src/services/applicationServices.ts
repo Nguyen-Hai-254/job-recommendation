@@ -13,7 +13,7 @@ const online_profileRepository = myDataSource.getRepository(OnlineProfile);
 
 export default class ApplicationServices {
     static handleGetApplicationsbyEmployee = async (userId, reqQuery) => {
-        const { num, page } = reqQuery;
+        const { num, page, orderBy, sort } = reqQuery;
 
         // get list of applications by employee
         let query = applicationRepository
@@ -27,7 +27,27 @@ export default class ApplicationServices {
             .leftJoin('application.jobPosting', 'jobPosting')
             .leftJoin('jobPosting.employer', 'employer')
             .where('employee.userId = :userId', { userId: userId });
-     
+
+        // sort
+        if (orderBy) {
+            if (!SortDirection.hasOwnProperty(sort)) throw new HttpException(400, 'Invalid sort');
+            switch (orderBy) {
+                case 'status': case 'createAt':
+                    query= query.orderBy(`application.${orderBy}`, sort)
+                    break;
+                case 'jobTitle': case 'applicationDeadline':
+                    query= query.orderBy(`jobPosting.${orderBy}`, sort)
+                    break;
+                case 'companyName':
+                    query= query.orderBy(`employer.${orderBy}`, sort)
+                    break;
+                default:
+                    throw new HttpException(400, 'Invalid order by');
+            }
+        } else {
+            query= query.orderBy(`application.createAt`, "DESC")
+        }
+    
         // Pagination
         query = query.skip((Number(page)-1) * Number(num)).take(Number(num));
 

@@ -16,7 +16,7 @@ class ApplicationServices {
 }
 _a = ApplicationServices;
 ApplicationServices.handleGetApplicationsbyEmployee = async (userId, reqQuery) => {
-    const { num, page } = reqQuery;
+    const { num, page, orderBy, sort } = reqQuery;
     // get list of applications by employee
     let query = applicationRepository
         .createQueryBuilder('application')
@@ -29,6 +29,29 @@ ApplicationServices.handleGetApplicationsbyEmployee = async (userId, reqQuery) =
         .leftJoin('application.jobPosting', 'jobPosting')
         .leftJoin('jobPosting.employer', 'employer')
         .where('employee.userId = :userId', { userId: userId });
+    // sort
+    if (orderBy) {
+        if (!sort_direction_enum_1.SortDirection.hasOwnProperty(sort))
+            throw new httpException_1.HttpException(400, 'Invalid sort');
+        switch (orderBy) {
+            case 'status':
+            case 'createAt':
+                query = query.orderBy(`application.${orderBy}`, sort);
+                break;
+            case 'jobTitle':
+            case 'applicationDeadline':
+                query = query.orderBy(`jobPosting.${orderBy}`, sort);
+                break;
+            case 'companyName':
+                query = query.orderBy(`employer.${orderBy}`, sort);
+                break;
+            default:
+                throw new httpException_1.HttpException(400, 'Invalid order by');
+        }
+    }
+    else {
+        query = query.orderBy(`application.createAt`, "DESC");
+    }
     // Pagination
     query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
     const [items, totalItems] = await query.getManyAndCount();

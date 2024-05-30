@@ -10,6 +10,8 @@ const entities_1 = require("../entities");
 const enum_1 = require("../utils/enum");
 const utilsFunction_1 = require("../utils/utilsFunction");
 const mailServices_1 = __importDefault(require("./mailServices"));
+const sort_direction_enum_1 = require("../utils/enums/sort-direction.enum");
+const httpException_1 = require("../exceptions/httpException");
 const jobPostingRepository = connectDB_1.myDataSource.getRepository(entities_1.JobPosting);
 const userRepository = connectDB_1.myDataSource.getRepository(entities_1.User);
 const online_profileRepository = connectDB_1.myDataSource.getRepository(entities_1.OnlineProfile);
@@ -60,7 +62,7 @@ AdminServices.handleCandidateStatistics = async () => {
     return top5AndOther ? top5AndOther : [];
 };
 AdminServices.handleGetAllUser = async (reqQuery) => {
-    const { page, num, role, keyword } = reqQuery;
+    const { page, num, role, keyword, orderBy, sort } = reqQuery;
     let query = userRepository.createQueryBuilder('user');
     if (role) {
         query = query.where('user.role = :role', { role });
@@ -68,6 +70,26 @@ AdminServices.handleGetAllUser = async (reqQuery) => {
     if (keyword) {
         query = query.andWhere(new typeorm_1.Brackets(qb => qb.where('user.name ILike :keyword', { keyword: `%${keyword}%` })
             .orWhere('user.email ILike :keyword', { keyword: `%${keyword}%` })));
+    }
+    // sort
+    if (orderBy) {
+        if (!sort_direction_enum_1.SortDirection.hasOwnProperty(sort))
+            throw new httpException_1.HttpException(400, 'Invalid sort');
+        switch (orderBy) {
+            case 'name':
+            case 'email':
+            case 'dob':
+            case 'phone':
+            case 'sex':
+            case 'role':
+                query = query.orderBy(`user.${orderBy}`, sort);
+                break;
+            default:
+                throw new httpException_1.HttpException(400, 'Invalid order by');
+        }
+    }
+    else {
+        query = query.orderBy(`user.name`, "ASC");
     }
     // Pagination
     query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));

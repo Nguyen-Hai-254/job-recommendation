@@ -115,7 +115,7 @@ export default class JobPostingServices {
     }
 
     static handleGetAllJobPostingsByAdmin = async (reqQuery) => {
-        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, status, num, page } = reqQuery;
+        const { workAddress, jobTitle, profession, employmentType, degree, experience, positionLevel, sex, salary, status, num, page, orderBy, sort } = reqQuery;
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // all jobposting for admin
         query = query.leftJoinAndSelect("job-postings.employer", "employer");
@@ -162,7 +162,31 @@ export default class JobPostingServices {
             query = query.andWhere(':salary BETWEEN job-postings.minSalary AND job-postings.maxSalary', { salary });
         }
 
-        query = query.orderBy('job-postings.updateAt', 'DESC')
+        // sort
+        if (orderBy) {
+            if (!SortDirection.hasOwnProperty(sort)) throw new HttpException(400, 'Invalid sort');
+            switch (orderBy) {
+                case 'jobTitle': case 'name': case 'createAt': case 'view': case 'status': case 'check' :
+                    query = query.orderBy(`job-postings.${orderBy}`, sort)
+                    break;
+                case 'submissionCount':
+                    query = query.addSelect(subQuery => {
+                        return subQuery
+                        .select('COUNT(application.application_id)', 'submissionCount')
+                        .from('application', 'application')
+                        .where('application.jobPostingPostId = job-postings.postId')
+                    }, 'submissionCount')
+                    .orderBy('submissionCount', sort)
+                    break;
+                case 'companyName':
+                    query = query.orderBy(`employer.${orderBy}`, sort)
+                    break;
+                default:
+                    throw new HttpException(400, 'Invalid order by');
+            }
+        } else {
+            query.orderBy(`job-postings.createAt`, "DESC")
+        }
 
         // Pagination
         query = query.skip((Number(page)-1) * Number(num)).take(Number(num));
