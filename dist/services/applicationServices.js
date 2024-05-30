@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const connectDB_1 = require("../config/connectDB");
 const entities_1 = require("../entities");
 const enum_1 = require("../utils/enum");
+const sort_direction_enum_1 = require("../utils/enums/sort-direction.enum");
 const enumAction_1 = require("../utils/enumAction");
 const httpException_1 = require("../exceptions/httpException");
 const userRepository = connectDB_1.myDataSource.getRepository(entities_1.User);
@@ -15,7 +16,7 @@ class ApplicationServices {
 }
 _a = ApplicationServices;
 ApplicationServices.handleGetApplicationsbyEmployee = async (userId, reqQuery) => {
-    const { num, page } = reqQuery;
+    const { num, page, orderBy, sort } = reqQuery;
     // get list of applications by employee
     let query = applicationRepository
         .createQueryBuilder('application')
@@ -28,6 +29,29 @@ ApplicationServices.handleGetApplicationsbyEmployee = async (userId, reqQuery) =
         .leftJoin('application.jobPosting', 'jobPosting')
         .leftJoin('jobPosting.employer', 'employer')
         .where('employee.userId = :userId', { userId: userId });
+    // sort
+    if (orderBy) {
+        if (!sort_direction_enum_1.SortDirection.hasOwnProperty(sort))
+            throw new httpException_1.HttpException(400, 'Invalid sort');
+        switch (orderBy) {
+            case 'status':
+            case 'createAt':
+                query = query.orderBy(`application.${orderBy}`, sort);
+                break;
+            case 'jobTitle':
+            case 'applicationDeadline':
+                query = query.orderBy(`jobPosting.${orderBy}`, sort);
+                break;
+            case 'companyName':
+                query = query.orderBy(`employer.${orderBy}`, sort);
+                break;
+            default:
+                throw new httpException_1.HttpException(400, 'Invalid order by');
+        }
+    }
+    else {
+        query = query.orderBy(`application.createAt`, "DESC");
+    }
     // Pagination
     query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
     const [items, totalItems] = await query.getManyAndCount();
@@ -91,7 +115,7 @@ ApplicationServices.handleCreateNewApplication = async (userId, dto) => {
     }
 };
 ApplicationServices.handleGetApplicationsbyEmployer = async (userId, reqQuery) => {
-    const { applicationType, name, status, postId, num, page } = reqQuery;
+    const { applicationType, name, status, postId, num, page, orderBy, sort } = reqQuery;
     // get list of applications by employer
     let query = applicationRepository
         .createQueryBuilder('application')
@@ -104,6 +128,7 @@ ApplicationServices.handleGetApplicationsbyEmployer = async (userId, reqQuery) =
         .leftJoin('employee.user', 'user')
         .addSelect(['user.dob', 'user.address', 'user.sex', 'user.avatar'])
         .leftJoin('application.jobPosting', 'jobPosting')
+        .addSelect(['jobPosting.jobTitle'])
         .where('jobPosting.employer_id = :userId', { userId: userId });
     // query by applicationType, name, status, postId
     if (applicationType) {
@@ -117,6 +142,26 @@ ApplicationServices.handleGetApplicationsbyEmployer = async (userId, reqQuery) =
     }
     if (postId) {
         query = query.andWhere('application.jobPosting.postId = :postId', { postId });
+    }
+    // sort
+    if (orderBy) {
+        if (!sort_direction_enum_1.SortDirection.hasOwnProperty(sort))
+            throw new httpException_1.HttpException(400, 'Invalid sort');
+        switch (orderBy) {
+            case 'name':
+            case 'matchingScore':
+            case 'createAt':
+                query = query.orderBy(`application.${orderBy}`, sort);
+                break;
+            case 'jobTitle':
+                query = query.orderBy(`jobPosting.${orderBy}`, sort);
+                break;
+            default:
+                throw new httpException_1.HttpException(400, 'Invalid order by');
+        }
+    }
+    else {
+        query = query.orderBy(`application.createAt`, "DESC");
     }
     // Pagination
     query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));

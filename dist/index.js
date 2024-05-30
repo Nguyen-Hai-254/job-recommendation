@@ -17,7 +17,6 @@ const config_1 = require("./config");
 const connectDB_1 = require("./config/connectDB");
 const error_1 = require("./middlewares/error");
 const httpException_1 = require("./exceptions/httpException");
-const cronJob = require('./cron/updateExpiredJobStatusCron');
 // 0. queues
 const serverAdapter = new express_2.ExpressAdapter();
 serverAdapter.setBasePath('/admin/queues');
@@ -73,7 +72,7 @@ app.use("*", (req, res) => {
     });
 });
 // 4. Cron
-cronJob.start();
+require('./workers');
 // 5. initializeErrorHandling
 app.use(error_1.errorMiddleware);
 app.listen(config_1.PORT, () => {

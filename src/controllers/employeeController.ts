@@ -1,10 +1,12 @@
 import { HttpException } from "../exceptions/httpException";
 import EmployeeServices from "../services/employeeServices";
 import respondSuccess from "../utils/respondSuccess";
+import redisClient from '../config/redis'
 const notificationQueue = require('../workers/queues/notification.queue');
 
 import { myDataSource } from "../config/connectDB"
 import { Notification } from "../entities"
+import { applicationType } from "../utils/enum";
 const notificationRepository = myDataSource.getRepository(Notification);
 
 export default class EmployeeController {
@@ -12,7 +14,12 @@ export default class EmployeeController {
         try {
             const { userId } = req.user;
             const attached_document = await EmployeeServices.handleGetAttachedDocument(userId);
-            return respondSuccess(res, 'get my attached document successfully', attached_document)
+
+            // handle view
+            const view = await redisClient.HGET('attached-document-views', String(userId));
+            if (view) attached_document.view = parseInt(view);
+
+            return respondSuccess(res, 'get your attached document successfully', attached_document)
         } catch (error) {
             next(error);
         }
@@ -73,7 +80,12 @@ export default class EmployeeController {
         try {
             const { userId } = req.user;
             const online_profile = await EmployeeServices.handleGetOnlineProfile(userId);
-            return respondSuccess(res, 'get my online profile successfully', online_profile)
+
+            // handle view
+            const view = await redisClient.HGET('online-profile-views', String(userId) );
+            if (view) online_profile.view = parseInt(view);
+
+            return respondSuccess(res, 'get your online profile successfully', online_profile)
         } catch (error) {
             next(error);
         }
@@ -268,6 +280,26 @@ export default class EmployeeController {
             if (!id) throw new HttpException(400, 'id is invalid');
             if (!type) throw new HttpException(400, 'type is invalid');
             const employee = await EmployeeServices.handleGetEmployeeJobApplicationByEmployer(id, type);
+
+            // Handle view
+            if (type === applicationType.attached_document) {
+                const view = await redisClient.HGET('attached-document-views', id );
+                if (!view) {
+                    await redisClient.HINCRBY('attached-document-views', id, employee.view + 1);
+                } else {
+                    employee.view = parseInt(view);
+                    await redisClient.HINCRBY('attached-document-views', id, 1);
+                }
+            } else if (type === applicationType.online_profile) {
+                const view = await redisClient.HGET('online-profile-views', id );
+                if (!view) {
+                    await redisClient.HINCRBY('online-profile-views', id, employee.view + 1);
+                } else {
+                    employee.view = parseInt(view);
+                    await redisClient.HINCRBY('online-profile-views', id, 1);
+                }
+            }
+            
             return respondSuccess(res, 'get employee by employer successfully', employee);
         } catch (error) {
             next(error);

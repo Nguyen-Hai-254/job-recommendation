@@ -7,9 +7,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const httpException_1 = require("../exceptions/httpException");
 const employeeServices_1 = __importDefault(require("../services/employeeServices"));
 const respondSuccess_1 = __importDefault(require("../utils/respondSuccess"));
+const redis_1 = __importDefault(require("../config/redis"));
 const notificationQueue = require('../workers/queues/notification.queue');
 const connectDB_1 = require("../config/connectDB");
 const entities_1 = require("../entities");
+const enum_1 = require("../utils/enum");
 const notificationRepository = connectDB_1.myDataSource.getRepository(entities_1.Notification);
 class EmployeeController {
 }
@@ -18,7 +20,11 @@ EmployeeController.getAttachedDocument = async (req, res, next) => {
     try {
         const { userId } = req.user;
         const attached_document = await employeeServices_1.default.handleGetAttachedDocument(userId);
-        return (0, respondSuccess_1.default)(res, 'get my attached document successfully', attached_document);
+        // handle view
+        const view = await redis_1.default.HGET('attached-document-views', String(userId));
+        if (view)
+            attached_document.view = parseInt(view);
+        return (0, respondSuccess_1.default)(res, 'get your attached document successfully', attached_document);
     }
     catch (error) {
         next(error);
@@ -79,7 +85,11 @@ EmployeeController.getOnlineProfile = async (req, res, next) => {
     try {
         const { userId } = req.user;
         const online_profile = await employeeServices_1.default.handleGetOnlineProfile(userId);
-        return (0, respondSuccess_1.default)(res, 'get my online profile successfully', online_profile);
+        // handle view
+        const view = await redis_1.default.HGET('online-profile-views', String(userId));
+        if (view)
+            online_profile.view = parseInt(view);
+        return (0, respondSuccess_1.default)(res, 'get your online profile successfully', online_profile);
     }
     catch (error) {
         next(error);
@@ -287,6 +297,27 @@ EmployeeController.getEmployeeJobApplicationByEmployer = async (req, res, next) 
         if (!type)
             throw new httpException_1.HttpException(400, 'type is invalid');
         const employee = await employeeServices_1.default.handleGetEmployeeJobApplicationByEmployer(id, type);
+        // Handle view
+        if (type === enum_1.applicationType.attached_document) {
+            const view = await redis_1.default.HGET('attached-document-views', id);
+            if (!view) {
+                await redis_1.default.HINCRBY('attached-document-views', id, employee.view + 1);
+            }
+            else {
+                employee.view = parseInt(view);
+                await redis_1.default.HINCRBY('attached-document-views', id, 1);
+            }
+        }
+        else if (type === enum_1.applicationType.online_profile) {
+            const view = await redis_1.default.HGET('online-profile-views', id);
+            if (!view) {
+                await redis_1.default.HINCRBY('online-profile-views', id, employee.view + 1);
+            }
+            else {
+                employee.view = parseInt(view);
+                await redis_1.default.HINCRBY('online-profile-views', id, 1);
+            }
+        }
         return (0, respondSuccess_1.default)(res, 'get employee by employer successfully', employee);
     }
     catch (error) {

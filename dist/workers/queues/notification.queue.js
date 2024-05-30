@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bull_1 = __importDefault(require("bull"));
 const config_1 = require("../../config");
 const notificationServices_1 = __importDefault(require("../../services/notificationServices"));
-const notificationQueue = new bull_1.default('notification', { redis: config_1.RedisOpts, defaultJobOptions: { ...config_1.JobOpts, priority: 1 } });
+const notificationQueue = new bull_1.default('notification', { redis: config_1.RedisOpts, defaultJobOptions: { ...config_1.JobOpts, priority: 2 } });
 notificationQueue.process(async (payload, done) => {
     try {
         await notificationServices_1.default.saveNotification(payload.data);

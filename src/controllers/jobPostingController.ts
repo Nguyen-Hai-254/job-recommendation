@@ -2,6 +2,7 @@ import { approvalStatus } from "../utils/enum";
 import { HttpException } from "../exceptions/httpException";
 import JobPostingServices from "../services/jobpostingServices";
 import respondSuccess from "../utils/respondSuccess";
+import redisClient from '../config/redis'
 const notificationQueue = require('../workers/queues/notification.queue');
 
 import { myDataSource } from "../config/connectDB"
@@ -15,6 +16,16 @@ export default class JobPostingController {
             const { postId } = req.params;
             if (!postId) throw new HttpException(400, 'postID is required');
             const jobPosting = await JobPostingServices.handleGetJobPosting(postId);
+
+            // Handle view
+            const view = await redisClient.HGET('post-views', postId );
+            if (!view) {
+                await redisClient.HINCRBY('post-views', postId, jobPosting.view + 1);
+            } else {
+                jobPosting.view = parseInt(view);
+                await redisClient.HINCRBY('post-views', postId, 1);
+            }
+
             return respondSuccess(res, 'get job posting successfully', jobPosting);
         } catch (error) {
             next(error);
@@ -23,7 +34,7 @@ export default class JobPostingController {
 
     static getAllJobPostings = async (req, res, next) => {
         try {
-            const jobPostings = await JobPostingServices.handleGetAllJobPostings(req.query);
+            const jobPostings = await JobPostingServices.handleGetAllJobPostings(req.query);    
             return respondSuccess(res, 'get all job postings successfully', jobPostings);
         } catch (error) {
             next(error);
@@ -111,6 +122,11 @@ export default class JobPostingController {
             if ( !postId ) throw new HttpException(400, 'postID is required');
 
             const jobPosting = await JobPostingServices.handleGetJobPostingByEmployer( userId , postId );
+
+            // Handle view
+            const view = await redisClient.HGET('post-views', postId );
+            if (view) jobPosting.view = parseInt(view);
+        
             return respondSuccess(res, 'get job posting by employer successfully', jobPosting);
         } catch (error) {
             next(error);

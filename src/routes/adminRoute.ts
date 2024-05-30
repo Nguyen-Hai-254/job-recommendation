@@ -11,6 +11,7 @@ route.get('/admin/get-job-postings-report-by-query', verifyToken, verifyRole(use
 route.get('/admin/candidate-statistics', verifyToken, verifyRole(userRole.Admin), AdminController.candidateStatistics);
 route.get('/admin/candidate-statistics-by-query', verifyToken, verifyRole(userRole.Admin), AdminController.candidateStatisticsByQuery);
 route.get('/admin/get-all-user', verifyToken, verifyRole(userRole.Admin), paginationParser, AdminController.getAllUser);
+route.get('/admin/get-all-email', verifyToken, verifyRole(userRole.Admin), AdminController.getAllEmail);
 
 route.post('/admin/send-email', verifyToken, verifyRole(userRole.Admin), AdminController.sendEmail);
 route.post('/admin/search-email-or-name', verifyToken, verifyRole(userRole.Admin), AdminController.searchEmailOrName);

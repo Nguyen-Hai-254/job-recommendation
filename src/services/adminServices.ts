@@ -4,6 +4,8 @@ import { User, JobPosting, OnlineProfile, AttachedDocument } from "../entities"
 import { approvalStatus, monthMap} from "../utils/enum"
 import { countCandidatesbyProfession, createArrayForDate, mergerTwoObject } from "../utils/utilsFunction"
 import MailServices from "./mailServices"
+import { SortDirection } from "../utils/enums/sort-direction.enum"
+import { HttpException } from "../exceptions/httpException"
 
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
 const userRepository = myDataSource.getRepository(User);
@@ -66,7 +68,7 @@ export default class AdminServices {
     }
 
     static handleGetAllUser = async (reqQuery) => {
-        const { page, num, role, keyword } = reqQuery;
+        const { page, num, role, keyword, orderBy, sort } = reqQuery;
         let query = userRepository.createQueryBuilder('user');
 
         if (role) {
@@ -80,6 +82,20 @@ export default class AdminServices {
                         .orWhere('user.email ILike :keyword', { keyword: `%${keyword}%` })
                 )
             );
+        }
+
+         // sort
+        if (orderBy) {
+            if (!SortDirection.hasOwnProperty(sort)) throw new HttpException(400, 'Invalid sort');
+            switch (orderBy) {
+                case 'name': case 'email': case 'dob': case 'phone': case 'sex': case 'role':
+                    query= query.orderBy(`user.${orderBy}`, sort)
+                    break;
+                default:
+                    throw new HttpException(400, 'Invalid order by');
+            }
+        } else {
+            query= query.orderBy(`user.name`, "ASC")
         }
 
         // Pagination
@@ -96,6 +112,42 @@ export default class AdminServices {
                 itemsPerPage: num,
                 totalPages,
                 currentPage: page
+            }
+        }
+     }
+
+     static handleGetAllEmail = async (reqQuery) => {
+        const { page, num, role, keyword } = reqQuery;
+        let query = userRepository.createQueryBuilder('user')
+                                .select(['user.email']);
+
+        if (role) {
+            query = query.where('user.role = :role', { role })
+        }
+
+        if (keyword) {
+            query = query.andWhere(
+                new Brackets(qb =>
+                    qb.where('user.name ILike :keyword', { keyword: `%${keyword}%` })
+                        .orWhere('user.email ILike :keyword', { keyword: `%${keyword}%` })
+                )
+            );
+        }
+
+        // Pagination
+        if (num && page) query = query.skip((Number(page)-1) * Number(num)).take(Number(num));
+
+        const [items, totalItems] = await query.getManyAndCount();
+        const totalPages = (num && page) ? Math.ceil(totalItems / num) : 1;
+  
+        return  {
+            items: items,
+            meta: {
+                totalItems,
+                itemCount: items.length,
+                itemsPerPage: (num && page) ? parseInt(num) : totalItems,
+                totalPages,
+                currentPage: (num && page) ? parseInt(page) : 1
             }
         }
      }

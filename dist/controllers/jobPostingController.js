@@ -8,6 +8,7 @@ const enum_1 = require("../utils/enum");
 const httpException_1 = require("../exceptions/httpException");
 const jobpostingServices_1 = __importDefault(require("../services/jobpostingServices"));
 const respondSuccess_1 = __importDefault(require("../utils/respondSuccess"));
+const redis_1 = __importDefault(require("../config/redis"));
 const notificationQueue = require('../workers/queues/notification.queue');
 const connectDB_1 = require("../config/connectDB");
 const entities_1 = require("../entities");
@@ -22,6 +23,15 @@ JobPostingController.getJobPosting = async (req, res, next) => {
         if (!postId)
             throw new httpException_1.HttpException(400, 'postID is required');
         const jobPosting = await jobpostingServices_1.default.handleGetJobPosting(postId);
+        // Handle view
+        const view = await redis_1.default.HGET('post-views', postId);
+        if (!view) {
+            await redis_1.default.HINCRBY('post-views', postId, jobPosting.view + 1);
+        }
+        else {
+            jobPosting.view = parseInt(view);
+            await redis_1.default.HINCRBY('post-views', postId, 1);
+        }
         return (0, respondSuccess_1.default)(res, 'get job posting successfully', jobPosting);
     }
     catch (error) {
@@ -115,6 +125,10 @@ JobPostingController.getJobPostingByEmployer = async (req, res, next) => {
         if (!postId)
             throw new httpException_1.HttpException(400, 'postID is required');
         const jobPosting = await jobpostingServices_1.default.handleGetJobPostingByEmployer(userId, postId);
+        // Handle view
+        const view = await redis_1.default.HGET('post-views', postId);
+        if (view)
+            jobPosting.view = parseInt(view);
         return (0, respondSuccess_1.default)(res, 'get job posting by employer successfully', jobPosting);
     }
     catch (error) {

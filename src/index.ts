@@ -15,7 +15,6 @@ import { queueOptions, queuesList, PORT } from './config';
 import { connectDB } from "./config/connectDB"
 import { errorMiddleware } from "./middlewares/error"
 import { HttpException } from "./exceptions/httpException";
-const cronJob =  require('./cron/updateExpiredJobStatusCron')
 
 // 0. queues
 const serverAdapter = new ExpressAdapter();
@@ -79,7 +78,7 @@ app.use("*", (req, res) => {
 });
 
 // 4. Cron
-cronJob.start();
+require('./workers');
 
 // 5. initializeErrorHandling
 app.use(errorMiddleware);

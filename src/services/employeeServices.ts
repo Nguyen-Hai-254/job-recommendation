@@ -6,6 +6,7 @@ import { MySQLErrorCode, applicationType} from "../utils/enum"
 import { EnumDegree, EnumEmploymentType, EnumExperience, EnumPositionLevel } from "../utils/enumAction"
 import { getValidSubstrings } from "../utils/utilsFunction"
 import { HttpException } from "../exceptions/httpException"
+import { SortDirection } from "../utils/enums/sort-direction.enum"
 
 const employeeRepository = myDataSource.getRepository(Employee);
 const applicationRepository = myDataSource.getRepository(Application);
@@ -369,7 +370,7 @@ export default class EmployeeServices {
 
     // Features for employer, admin
     static handleGetEmployeesByAdmin = async (reqQuery) => {
-        const { name, profession, num, page } = reqQuery;
+        const { name, profession, num, page, orderBy, sort } = reqQuery;
 
         let query = employeeRepository
             .createQueryBuilder('employee')
@@ -391,6 +392,20 @@ export default class EmployeeServices {
         }
         if (name) {
             query = query.andWhere('user.name LIKE :name', { name: `%${name}%` });
+        }
+
+        // sort
+        if (orderBy) {
+            if (!SortDirection.hasOwnProperty(sort)) throw new HttpException(400, 'Invalid sort');
+            switch (orderBy) {
+                case 'name': case 'email':
+                    query= query.orderBy(`user.${orderBy}`, sort)
+                    break;
+                default:
+                    throw new HttpException(400, 'Invalid order by');
+            }
+        } else {
+            query= query.orderBy(`user.name`, "ASC")
         }
 
         // Pagination
