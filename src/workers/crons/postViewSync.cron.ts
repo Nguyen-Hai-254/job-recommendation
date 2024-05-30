@@ -5,7 +5,7 @@ postViewSyncQueue.add(
     {} ,
     {
         repeat: { 
-            cron: "* 9,15 * * *",
+            cron: "0 9,15 * * *",
             tz: 'Asia/Ho_Chi_Minh' // múi giờ Việt Nam (UTC+7)
         }
     }

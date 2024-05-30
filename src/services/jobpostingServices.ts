@@ -1,13 +1,14 @@
 import { Brackets } from "typeorm"
 import moment from "moment"
 import { myDataSource } from "../config/connectDB"
-import { JobPosting } from "../entities"
+import { Application, JobPosting } from "../entities"
 import { MySQLErrorCode, approvalStatus } from "../utils/enum"
 import { EnumEmploymentType, EnumDegree, EnumExperience, EnumPositionLevel, EnumSex, EnumApprovalStatus } from "../utils/enumAction"
 import { getValidSubstrings } from "../utils/utilsFunction"
 import { convertToBoolean } from "../utils/dataConversion"
 import { HttpException } from "../exceptions/httpException"
 import redisClient from '../config/redis'
+import { SortDirection } from "../utils/enums/sort-direction.enum"
 
 const jobPostingRepository = myDataSource.getRepository(JobPosting);
 
@@ -118,7 +119,9 @@ export default class JobPostingServices {
         let query = jobPostingRepository.createQueryBuilder('job-postings');
         // all jobposting for admin
         query = query.leftJoinAndSelect("job-postings.employer", "employer");
-        query = query.leftJoinAndSelect("job-postings.applications", "applications");
+        query = query.leftJoin("job-postings.applications", "application")
+                     .addSelect(['application.application_id'])
+                     .loadRelationCountAndMap("job-postings.submissionCount", "job-postings.applications");
         if (status) {
             query = query.where('job-postings.status = :status', { status });
         }
@@ -170,14 +173,8 @@ export default class JobPostingServices {
         // Todo: get items with view from redis
         const transformedItems1 = await this.getPostsWithViewForRedis(items);
 
-        // Todo: Handle items
-        const transformedItems2 = transformedItems1.map(job => ({
-            ...job,
-            submissionCount: job.applications.length
-        }));
-
         return  {
-            items: transformedItems2,
+            items: transformedItems1,
             meta: {
                 totalItems,
                 itemCount: items.length,
@@ -223,21 +220,44 @@ export default class JobPostingServices {
 
 
     static handleGetJobPostingsByEmployer = async (employerId, reqQuery) => {
-        const { status, num, page } = reqQuery;
-        let query = jobPostingRepository
+        const { status, num, page, orderBy, sort } = reqQuery;
+        const query = jobPostingRepository
             .createQueryBuilder('jobPosting')
             .leftJoin('jobPosting.employer', 'employer')
-            .leftJoinAndSelect("jobPosting.applications", "applications")
             .where('employer.userId = :userId', { userId: employerId })
+            .leftJoin("jobPosting.applications", "application")
+            .addSelect(['application.application_id'])
+            .loadRelationCountAndMap('jobPosting.submissionCount', 'jobPosting.applications')
 
         if (status) {
-            query = query.andWhere('jobPosting.status = :status', { status });
+            query.andWhere('jobPosting.status = :status', { status });
+        }
+           
+        // sort
+        if (orderBy) {
+            if (!SortDirection.hasOwnProperty(sort)) throw new HttpException(400, 'Invalid sort');
+            switch (orderBy) {
+                case 'jobTitle': case 'applicationDeadline': case 'createAt': case 'view':
+                    query.orderBy(`jobPosting.${orderBy}`, sort)
+                    break;
+                case 'submissionCount':
+                    query.addSelect(subQuery => {
+                        return subQuery
+                          .select('COUNT(application.application_id)', 'submissionCount')
+                          .from('application', 'application')
+                          .where('application.jobPostingPostId = jobPosting.postId')
+                      }, 'submissionCount')
+                    .orderBy('submissionCount', sort)
+                    break;
+                default:
+                    throw new HttpException(400, 'Invalid order by');
+            }
+        } else {
+            query.orderBy(`jobPosting.applicationDeadline`, "DESC")
         }
 
-        query = query.orderBy('jobPosting.updateAt', 'DESC')
-
         // Pagination
-        query = query.skip((Number(page)-1) * Number(num)).take(Number(num));
+        query.skip((Number(page)-1) * Number(num)).take(Number(num));
 
         const [items, totalItems] = await query.getManyAndCount();
         const totalPages = Math.ceil(totalItems / num);
@@ -245,14 +265,8 @@ export default class JobPostingServices {
         // Todo: get items with view from redis
         const transformedItems1 = await this.getPostsWithViewForRedis(items);
 
-        // Todo: Handle items
-        const transformedItems2 = transformedItems1.map(job => ({
-            ...job,
-            submissionCount: job.applications.length
-        }));
- 
         return  {
-            items: transformedItems2,
+            items: transformedItems1,
             meta: {
                 totalItems,
                 itemCount: items.length,
@@ -373,7 +387,7 @@ export default class JobPostingServices {
                 jobDescription: req.body.jobDescription,
                 jobRequirements: req.body.jobRequirements,
                 benefits: req.body.benefits,
-                submissionCount: 0,
+                // submissionCount: 0,
                 view: 0,
                 isHidden: req?.body?.isHidden ? req.body.isHidden : false,
                 requiredSkills: req.body?.requiredSkills ? req.body?.requiredSkills : null,

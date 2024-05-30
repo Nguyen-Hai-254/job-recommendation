@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const postViewSync_queue_1 = __importDefault(require("../queues/postViewSync.queue"));
 postViewSync_queue_1.default.add("post-view-sync", {}, {
     repeat: {
-        cron: "* 9,15 * * *",
+        cron: "0 9,15 * * *",
         tz: 'Asia/Ho_Chi_Minh' // múi giờ Việt Nam (UTC+7)
     }
 });

@@ -14,6 +14,7 @@ const utilsFunction_1 = require("../utils/utilsFunction");
 const dataConversion_1 = require("../utils/dataConversion");
 const httpException_1 = require("../exceptions/httpException");
 const redis_1 = __importDefault(require("../config/redis"));
+const sort_direction_enum_1 = require("../utils/enums/sort-direction.enum");
 const jobPostingRepository = connectDB_1.myDataSource.getRepository(entities_1.JobPosting);
 class JobPostingServices {
 }
@@ -113,7 +114,9 @@ JobPostingServices.handleGetAllJobPostingsByAdmin = async (reqQuery) => {
     let query = jobPostingRepository.createQueryBuilder('job-postings');
     // all jobposting for admin
     query = query.leftJoinAndSelect("job-postings.employer", "employer");
-    query = query.leftJoinAndSelect("job-postings.applications", "applications");
+    query = query.leftJoin("job-postings.applications", "application")
+        .addSelect(['application.application_id'])
+        .loadRelationCountAndMap("job-postings.submissionCount", "job-postings.applications");
     if (status) {
         query = query.where('job-postings.status = :status', { status });
     }
@@ -156,13 +159,8 @@ JobPostingServices.handleGetAllJobPostingsByAdmin = async (reqQuery) => {
     const totalPages = Math.ceil(totalItems / num);
     // Todo: get items with view from redis
     const transformedItems1 = await _a.getPostsWithViewForRedis(items);
-    // Todo: Handle items
-    const transformedItems2 = transformedItems1.map(job => ({
-        ...job,
-        submissionCount: job.applications.length
-    }));
     return {
-        items: transformedItems2,
+        items: transformedItems1,
         meta: {
             totalItems,
             itemCount: items.length,
@@ -200,29 +198,52 @@ JobPostingServices.handleGetTotalResultsOfProfession = async (reqQuery) => {
     return result;
 };
 JobPostingServices.handleGetJobPostingsByEmployer = async (employerId, reqQuery) => {
-    const { status, num, page } = reqQuery;
-    let query = jobPostingRepository
+    const { status, num, page, orderBy, sort } = reqQuery;
+    const query = jobPostingRepository
         .createQueryBuilder('jobPosting')
         .leftJoin('jobPosting.employer', 'employer')
-        .leftJoinAndSelect("jobPosting.applications", "applications")
-        .where('employer.userId = :userId', { userId: employerId });
+        .where('employer.userId = :userId', { userId: employerId })
+        .leftJoin("jobPosting.applications", "application")
+        .addSelect(['application.application_id'])
+        .loadRelationCountAndMap('jobPosting.submissionCount', 'jobPosting.applications');
     if (status) {
-        query = query.andWhere('jobPosting.status = :status', { status });
+        query.andWhere('jobPosting.status = :status', { status });
     }
-    query = query.orderBy('jobPosting.updateAt', 'DESC');
+    // sort
+    if (orderBy) {
+        if (!sort_direction_enum_1.SortDirection.hasOwnProperty(sort))
+            throw new httpException_1.HttpException(400, 'Invalid sort');
+        switch (orderBy) {
+            case 'jobTitle':
+            case 'applicationDeadline':
+            case 'createAt':
+            case 'view':
+                query.orderBy(`jobPosting.${orderBy}`, sort);
+                break;
+            case 'submissionCount':
+                query.addSelect(subQuery => {
+                    return subQuery
+                        .select('COUNT(application.application_id)', 'submissionCount')
+                        .from('application', 'application')
+                        .where('application.jobPostingPostId = jobPosting.postId');
+                }, 'submissionCount')
+                    .orderBy('submissionCount', sort);
+                break;
+            default:
+                throw new httpException_1.HttpException(400, 'Invalid order by');
+        }
+    }
+    else {
+        query.orderBy(`jobPosting.applicationDeadline`, "DESC");
+    }
     // Pagination
-    query = query.skip((Number(page) - 1) * Number(num)).take(Number(num));
+    query.skip((Number(page) - 1) * Number(num)).take(Number(num));
     const [items, totalItems] = await query.getManyAndCount();
     const totalPages = Math.ceil(totalItems / num);
     // Todo: get items with view from redis
     const transformedItems1 = await _a.getPostsWithViewForRedis(items);
-    // Todo: Handle items
-    const transformedItems2 = transformedItems1.map(job => ({
-        ...job,
-        submissionCount: job.applications.length
-    }));
     return {
-        items: transformedItems2,
+        items: transformedItems1,
         meta: {
             totalItems,
             itemCount: items.length,
@@ -358,7 +379,7 @@ JobPostingServices.handleCreateNewJobPosting = async (employerId, req) => {
             jobDescription: req.body.jobDescription,
             jobRequirements: req.body.jobRequirements,
             benefits: req.body.benefits,
-            submissionCount: 0,
+            // submissionCount: 0,
             view: 0,
             isHidden: ((_v = req === null || req === void 0 ? void 0 : req.body) === null || _v === void 0 ? void 0 : _v.isHidden) ? req.body.isHidden : false,
             requiredSkills: ((_w = req.body) === null || _w === void 0 ? void 0 : _w.requiredSkills) ? (_x = req.body) === null || _x === void 0 ? void 0 : _x.requiredSkills : null,

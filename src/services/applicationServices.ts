@@ -136,7 +136,7 @@ export default class ApplicationServices {
                 default:
                     throw new HttpException(400, 'Invalid order by');
             }
-        } {
+        } else {
             query= query.orderBy(`application.createAt`, "DESC")
         }
 
