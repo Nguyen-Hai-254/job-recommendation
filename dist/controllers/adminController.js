@@ -58,18 +58,6 @@ AdminController.sendEmail = async (req, res, next) => {
         next(error);
     }
 };
-AdminController.searchEmailOrName = async (req, res, next) => {
-    try {
-        const { keyword } = req.body;
-        if (!keyword)
-            throw new httpException_1.HttpException(400, 'Missing input parameter!');
-        const result = await adminServices_1.default.handleSearchEmailOrName(req.body.keyword);
-        return (0, respondSuccess_1.default)(res, 'OK', result);
-    }
-    catch (error) {
-        next(error);
-    }
-};
 AdminController.getJobPostingsReportByQuery = async (req, res, next) => {
     try {
         const { year, month } = req.query;

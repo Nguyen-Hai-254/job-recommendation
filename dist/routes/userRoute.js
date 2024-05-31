@@ -20,7 +20,5 @@ route.post('/user/upload-avatar', auth_1.verifyToken, userController_1.default.u
 route.post('/user/upload-logo', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), userController_1.default.uploadLogo);
 route.post('/user/upload-banner', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Employer), userController_1.default.uploadBanner);
 route.delete('/users/:id', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Admin), userController_1.default.deleteUser);
-route.get('/user/online-profile', auth_1.verifyToken, userController_1.default.getOnlineProfileByUser);
-route.get('/user/attached-document', auth_1.verifyToken, userController_1.default.getAttachedDocumentByUser);
 exports.default = route;
 //# sourceMappingURL=userRoute.js.map

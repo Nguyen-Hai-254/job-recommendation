@@ -154,26 +154,4 @@ export default class UserController {
             next(error);
         }
     }
-
-    static getOnlineProfileByUser = async (req, res, next) => {
-        try {
-            if (!req.query.userId) throw new HttpException(400, 'query userId is required');
-              
-            const user = await UserServices.handleGetOnlineProfileByUser(req.query.userId);  
-            return respondSuccess(res, `'Find online profile successfully'`, user);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    static getAttachedDocumentByUser = async (req, res, next) => {
-        try {
-            if (!req.query.userId) throw new HttpException(400, 'query userId is required');
-
-            const user = await UserServices.handleGetAttachedDocumentByUser(req.query.userId);
-            return respondSuccess(res, `'Find attached document successfully'`, user);
-        } catch (error) {
-            next(error);
-        }
-    }
 }

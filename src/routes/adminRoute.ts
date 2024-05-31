@@ -14,6 +14,5 @@ route.get('/admin/get-all-user', verifyToken, verifyRole(userRole.Admin), pagina
 route.get('/admin/get-all-email', verifyToken, verifyRole(userRole.Admin), AdminController.getAllEmail);
 
 route.post('/admin/send-email', verifyToken, verifyRole(userRole.Admin), AdminController.sendEmail);
-route.post('/admin/search-email-or-name', verifyToken, verifyRole(userRole.Admin), AdminController.searchEmailOrName);
 
 export default route

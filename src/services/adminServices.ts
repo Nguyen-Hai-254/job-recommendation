@@ -157,23 +157,6 @@ export default class AdminServices {
         return { accepted: info.accepted, rejected: info.rejected }
     }
 
-    static handleSearchEmailOrName = async (keyword) => {
-        const findUser = await userRepository.find({
-            where: [
-                {
-                    name: ILike(`%${keyword}%`)
-                },
-                {
-                    email: ILike(`%${keyword}%`)
-                }
-            ],
-            select: ['userId', 'email', 'name', 'role'],
-            take: 6
-        })
-
-        return findUser;
-    }
-
     static handleGetJobPostingsReportByQuery = async (year, month) => {
         if (!month) {
             const getReport = await jobPostingRepository.createQueryBuilder('job-postings')

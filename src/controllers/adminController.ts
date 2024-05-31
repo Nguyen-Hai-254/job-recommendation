@@ -51,18 +51,6 @@ export default class AdminController {
         }
     }
 
-    static searchEmailOrName = async (req, res, next) => {
-        try {
-            const { keyword } = req.body;
-            if (!keyword) throw new HttpException(400, 'Missing input parameter!');
-
-            const result = await AdminServices.handleSearchEmailOrName(req.body.keyword);
-            return respondSuccess(res, 'OK', result);
-        } catch (error) {
-            next(error);
-        }
-    }
-
     static getJobPostingsReportByQuery = async (req, res, next) => {
         try {
             const { year, month } = req.query;

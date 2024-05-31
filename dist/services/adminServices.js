@@ -68,8 +68,8 @@ AdminServices.handleGetAllUser = async (reqQuery) => {
         query = query.where('user.role = :role', { role });
     }
     if (keyword) {
-        query = query.andWhere(new typeorm_1.Brackets(qb => qb.where('user.name ILike :keyword', { keyword: `%${keyword}%` })
-            .orWhere('user.email ILike :keyword', { keyword: `%${keyword}%` })));
+        query = query.andWhere(new typeorm_1.Brackets(qb => qb.where('user.name LIKE :keyword', { keyword: `%${keyword}%` })
+            .orWhere('user.email LIKE :keyword', { keyword: `%${keyword}%` })));
     }
     // sort
     if (orderBy) {
@@ -114,8 +114,8 @@ AdminServices.handleGetAllEmail = async (reqQuery) => {
         query = query.where('user.role = :role', { role });
     }
     if (keyword) {
-        query = query.andWhere(new typeorm_1.Brackets(qb => qb.where('user.name ILike :keyword', { keyword: `%${keyword}%` })
-            .orWhere('user.email ILike :keyword', { keyword: `%${keyword}%` })));
+        query = query.andWhere(new typeorm_1.Brackets(qb => qb.where('user.name LIKE :keyword', { keyword: `%${keyword}%` })
+            .orWhere('user.email LIKE :keyword', { keyword: `%${keyword}%` })));
     }
     // Pagination
     if (num && page)
@@ -136,21 +136,6 @@ AdminServices.handleGetAllEmail = async (reqQuery) => {
 AdminServices.handleSendEmail = async (emails, subject, html) => {
     const info = await mailServices_1.default.sendEmailForUsers(emails, subject, html);
     return { accepted: info.accepted, rejected: info.rejected };
-};
-AdminServices.handleSearchEmailOrName = async (keyword) => {
-    const findUser = await userRepository.find({
-        where: [
-            {
-                name: (0, typeorm_1.ILike)(`%${keyword}%`)
-            },
-            {
-                email: (0, typeorm_1.ILike)(`%${keyword}%`)
-            }
-        ],
-        select: ['userId', 'email', 'name', 'role'],
-        take: 6
-    });
-    return findUser;
 };
 AdminServices.handleGetJobPostingsReportByQuery = async (year, month) => {
     if (!month) {

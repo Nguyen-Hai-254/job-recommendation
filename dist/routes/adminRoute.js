@@ -17,6 +17,5 @@ route.get('/admin/candidate-statistics-by-query', auth_1.verifyToken, (0, verify
 route.get('/admin/get-all-user', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Admin), paginationParser_1.paginationParser, adminController_1.default.getAllUser);
 route.get('/admin/get-all-email', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Admin), adminController_1.default.getAllEmail);
 route.post('/admin/send-email', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Admin), adminController_1.default.sendEmail);
-route.post('/admin/search-email-or-name', auth_1.verifyToken, (0, verifyRole_1.verifyRole)(enum_1.userRole.Admin), adminController_1.default.searchEmailOrName);
 exports.default = route;
 //# sourceMappingURL=adminRoute.js.map

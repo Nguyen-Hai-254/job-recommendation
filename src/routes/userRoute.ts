@@ -17,7 +17,4 @@ route.post('/user/upload-logo', verifyToken, verifyRole(userRole.Employer), User
 route.post('/user/upload-banner', verifyToken, verifyRole(userRole.Employer), UserController.uploadBanner);
 route.delete('/users/:id', verifyToken, verifyRole(userRole.Admin), UserController.deleteUser);
 
-route.get('/user/online-profile', verifyToken, UserController.getOnlineProfileByUser);
-route.get('/user/attached-document', verifyToken, UserController.getAttachedDocumentByUser);
-
 export default route

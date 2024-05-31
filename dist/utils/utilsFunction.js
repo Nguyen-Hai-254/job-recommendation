@@ -2,11 +2,15 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getValidSubstrings = exports.createArrayForDate = exports.mergerTwoObject = exports.countCandidatesbyProfession = void 0;
 const countCandidatesbyProfession = (professionCountList) => {
-    // Mảng các nghề nghiệp (có giá trị trùng lặp)
-    const professionsList = professionCountList.map(item => item.profession.split(', ')).flat();
-    // Tạo mảng mới bỏ các giá trị trùng lặp
-    const uniqueProfessions = [...new Set(professionsList)];
-    // Tạo một đối tượng để đếm số lượng của từng nghề nghiệp. countMap = {nghề: count, ...}
+    // Tạo một Set để loại bỏ các phần tử trùng lặp
+    let uniqueChars = new Set();
+    // Duyệt qua từng chuỗi trong mảng
+    professionCountList.forEach(str => {
+        // Tách chuỗi thành các phần tử, loại bỏ khoảng trắng thừa và thêm vào Set
+        str.profession.split(',').map(s => s.trim()).forEach(char => uniqueChars.add(char));
+    });
+    // Chuyển Set thành mảng
+    let uniqueProfessions = Array.from(uniqueChars);
     const countMap = {};
     professionCountList.forEach(item => {
         uniqueProfessions.forEach(profession => {

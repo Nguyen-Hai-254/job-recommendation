@@ -150,27 +150,5 @@ UserController.deleteUser = async (req, res, next) => {
         next(error);
     }
 };
-UserController.getOnlineProfileByUser = async (req, res, next) => {
-    try {
-        if (!req.query.userId)
-            throw new httpException_1.HttpException(400, 'query userId is required');
-        const user = await userServices_1.default.handleGetOnlineProfileByUser(req.query.userId);
-        return (0, respondSuccess_1.default)(res, `'Find online profile successfully'`, user);
-    }
-    catch (error) {
-        next(error);
-    }
-};
-UserController.getAttachedDocumentByUser = async (req, res, next) => {
-    try {
-        if (!req.query.userId)
-            throw new httpException_1.HttpException(400, 'query userId is required');
-        const user = await userServices_1.default.handleGetAttachedDocumentByUser(req.query.userId);
-        return (0, respondSuccess_1.default)(res, `'Find attached document successfully'`, user);
-    }
-    catch (error) {
-        next(error);
-    }
-};
 exports.default = UserController;
 //# sourceMappingURL=userController.js.map

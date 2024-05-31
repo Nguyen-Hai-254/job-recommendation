@@ -239,68 +239,6 @@ export default class UserServices {
 
     }
 
-    static handleGetOnlineProfileByUser = async (userId) => {
-        const online_profile = await online_profileRepository.findOne({
-            where: { employee: { userId: userId }, isHidden: false},
-            relations: ['employee.user', 'another_degrees', 'education_informations', 'work_experiences']
-        })
-        if (!online_profile) throw new HttpException(404, "Online profile not found");
-
-        await online_profileRepository.createQueryBuilder('onl')
-            .update()
-            .set({
-                view: () => "view + 1"
-            })
-            .execute()
-
-        let data = {
-            email: online_profile.employee.user.email,
-            name: online_profile.employee.user.name,
-            dob: online_profile.employee.user.dob,
-            address: online_profile.employee.user.address,
-            phone: online_profile.employee.user.phone,
-            sex: online_profile.employee.user.sex,
-            avatar: online_profile.employee.user.avatar,
-            isMarried: online_profile.employee.isMarried,
-            ...online_profile
-        };
-
-        let { employee, ...newData } = data
-
-        return newData;
-    }
-
-    static handleGetAttachedDocumentByUser = async (userId) => {
-        const attached_document = await attached_documentRepository.findOne({
-            where: { employee: { userId: userId }, isHidden: false },
-            relations: ['employee.user']
-        })
-
-        if (!attached_document) throw new HttpException(404, "Attached document not found");
-
-        await attached_documentRepository.createQueryBuilder('att')
-            .update()
-            .set({
-                view: () => "view + 1"
-            })
-            .execute()
-
-        let data = {
-            email: attached_document.employee.user.email,
-            name: attached_document.employee.user.name,
-            dob: attached_document.employee.user.dob,
-            address: attached_document.employee.user.address,
-            phone: attached_document.employee.user.phone,
-            sex: attached_document.employee.user.sex,
-            avatar: attached_document.employee.user.avatar,
-            isMarried: attached_document.employee.isMarried,
-            ...attached_document
-        };
-
-        let { employee, ...newData } = data
-
-        return newData;
-    }
     static getUserIdByEmail = async (email) => {
         const findUser = await userRepository.findOneBy({ email: email });
         if (!findUser) {
