@@ -78,8 +78,8 @@ export default class AdminServices {
         if (keyword) {
             query = query.andWhere(
                 new Brackets(qb =>
-                    qb.where('user.name ILike :keyword', { keyword: `%${keyword}%` })
-                        .orWhere('user.email ILike :keyword', { keyword: `%${keyword}%` })
+                    qb.where('user.name LIKE :keyword', { keyword: `%${keyword}%` })
+                        .orWhere('user.email LIKE :keyword', { keyword: `%${keyword}%` })
                 )
             );
         }
@@ -128,8 +128,8 @@ export default class AdminServices {
         if (keyword) {
             query = query.andWhere(
                 new Brackets(qb =>
-                    qb.where('user.name ILike :keyword', { keyword: `%${keyword}%` })
-                        .orWhere('user.email ILike :keyword', { keyword: `%${keyword}%` })
+                    qb.where('user.name LIKE :keyword', { keyword: `%${keyword}%` })
+                        .orWhere('user.email LIKE :keyword', { keyword: `%${keyword}%` })
                 )
             );
         }
