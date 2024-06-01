@@ -21,6 +21,6 @@ exports.queueOptions = {
     redis: exports.RedisOpts,
     defaultJobOptions: exports.JobOpts
 };
-exports.queuesList = ['mail', 'notification', 'post-view-sync', 'online-profile-view-sync', 'attached-document-view-sync', 'post-expired-updater'];
+exports.queuesList = ['mail', 'notification', 'post-view-sync', 'online-profile-view-sync', 'attached-document-view-sync', 'post-expired-updater', 'application-expired-updater'];
 exports.PORT = Number(process.env.PORT);
 //# sourceMappingURL=index.js.map
