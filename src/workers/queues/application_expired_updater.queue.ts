@@ -39,7 +39,6 @@ applicationExpiredUpdaterQueue.process('application-expired-updater', async (pay
         }
         done()
     } catch (err) {
-        console.log(err);
         done(err);
     }
 });
