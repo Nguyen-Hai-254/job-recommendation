@@ -43,6 +43,15 @@ export default class FollowController {
         }
     }
 
+    static getCheckEmployeesSavedByEmployer = async (req, res, next) => {
+        try {
+            const data = await FollowServices.checkEmployeesSavedByEmployer(req.user, req.body);
+            return respondSuccess(res, "OK", data);
+        } catch (error) {
+            next(error);
+        }
+    }
+
     static followJobPosting = async (req, res, next) => {
         try {
             const { jobPosting } = req.body;

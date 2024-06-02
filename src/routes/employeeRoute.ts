@@ -4,6 +4,7 @@ import { verifyRole } from "../middlewares/verifyRole";
 import { paginationParser } from "../middlewares/paginationParser";
 import EmployeeController from "../controllers/employeeController";
 import { userRole } from "../utils/enum";
+import FollowController from "../controllers/followController";
 const route = express.Router()
 
 route.get('/employee/attached-document', verifyToken, verifyRole(userRole.Employee), EmployeeController.getAttachedDocument);
@@ -30,6 +31,7 @@ route.delete('/employee/online-profile/work-experience/:id', verifyToken, verify
 
 route.get('/employer/employees', verifyToken, verifyRole(userRole.Employer), paginationParser, EmployeeController.getEmployeesByEmployer);
 route.get('/employer/employees/applied', verifyToken, verifyRole(userRole.Employer), EmployeeController.getCheckEmployeesAppliedByEmployer);
+route.post('/employer/employees/saved', verifyToken, verifyRole(userRole.Employer), FollowController.getCheckEmployeesSavedByEmployer);
 route.get('/employer/employees/sortbykeywords', verifyToken, verifyRole(userRole.Employer), paginationParser, EmployeeController.getEmployeesByEmployerSortByKeywords);
 route.get('/employer/employees/:id', verifyToken, verifyRole(userRole.Employer), EmployeeController.getEmployeeJobApplicationByEmployer);
 

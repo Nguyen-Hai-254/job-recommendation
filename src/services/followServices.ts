@@ -162,6 +162,30 @@ export default class FollowServices {
         }  
     }
 
+    static checkEmployeesSavedByEmployer = async (user, reqBody) => {
+        const { resumes } = reqBody; // [ { employeeId, applicationType} ]
+        if (!resumes) throw new HttpException(400, 'Invalid resumes')
+        const transformedResumes = resumes.map((resume) => ({
+            employeeId: resume.employeeId, 
+            isOnlineProfile: resume.applicationType === 'Nộp trực tuyến'
+        }))
+
+        const results = await Promise.all(
+            transformedResumes.map(async (data) => {
+                  const exists = await saveRepository.createQueryBuilder('employeeSaved')
+                    .where('employeeSaved.employerId = :employerId', { employerId: user.userId})
+                    .andWhere('employeeSaved.employeeId = :employeeId AND employeeSaved.isOnlineProfile = :isOnlineProfile', data)
+                    .getExists();
+                  return {...data, exist: exists};
+                })
+        );
+        const transformedResults = results.map(result => ({
+            employeeId: result.employeeId, 
+            exist: result.exist, 
+            applicationType: result.isOnlineProfile ? 'Nộp trực tuyến' : 'CV đính kèm' }))
+        return transformedResults;
+    }
+
     static handleFollowJobPosting = async (user, jobId) => {
         const findEmployee = await employeeRepository.findOne({
             where: { userId: user.userId },
