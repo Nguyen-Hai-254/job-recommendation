@@ -775,7 +775,7 @@ async function sortOnlineProfilesAndAttachedDocumentsByKeyWords(reqQuery) {
     // TODO: Query
     const result = await entityManager.query(
         `
-        (${onlineProfileQuery} UNION ${attachedDocumentQuery}) 
+        (${onlineProfileQuery} UNION ALL ${attachedDocumentQuery}) 
         ORDER BY count DESC 
         LIMIT ${ parseInt(num) }
         OFFSET ${ (parseInt(page) - 1) * parseInt(num) } 
